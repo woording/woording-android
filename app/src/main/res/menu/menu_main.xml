@@ -1,0 +1,12 @@
+<!--
+  ~ Wording is a project by PhiliPdB
+  ~
+  ~ Copyright (c) 2015.
+  -->
+
+<menu xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <!-- TODO -->
+
+</menu>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Wording is a project by PhiliPdB
+  ~
+  ~ Copyright (c) 2015.
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/practice_options_layout"
+    android:paddingLeft="@dimen/dialog_padding_material"
+    android:paddingRight="@dimen/dialog_padding_material">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:text="@string/asked_language"/>
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/radio_group_asked_language">
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="English"
+            android:id="@+id/ask_language_1"
+            android:checked="true"/>
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Dutch"
+            android:id="@+id/ask_language_2" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/both"
+            android:id="@+id/ask_both"
+            android:enabled="false" />
+
+    </RadioGroup>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dip" />
+
+    <CheckBox
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/case_sensitive"
+        android:id="@+id/case_sensitive_check_box"
+        android:checked="true"/>
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:gravity="bottom|end">-->
+
+        <!--<Button-->
+            <!--android:id="@+id/cancel_action"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="@android:string/cancel"-->
+            <!--style="?android:attr/buttonBarButtonStyle"/>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/confirm_action"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:text="@android:string/ok"-->
+            <!--style="?android:attr/buttonBarButtonStyle"/>-->
+
+    <!--</LinearLayout>-->
+
+</LinearLayout>

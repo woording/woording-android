@@ -1,0 +1,63 @@
+<!--
+  ~ Wording is a project by PhiliPdB
+  ~
+  ~ Copyright (c) 2015.
+  -->
+
+<resources>
+    <string name="app_name" translatable="false">Wording</string>
+
+    <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_list_view">List</string>
+    <string name="title_activity_practice">Practice List</string>
+
+    <string name="error_no_connection">No connection</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+
+    <!--<string name="error_invalid_email">This email address is invalid</string>-->
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+
+    <!-- Strings related to the lists -->
+    <string name="list_item_subtitle">%1$s ↔ %2$s</string>
+    <string name="my_lists">My lists</string>
+    <string name="others_lists">%1$s\'s lists</string>
+    <string name="edit_list">Edit list</string>
+    <string name="practice">Practice list</string>
+    <string name="delete">Delete list</string>
+
+    <!-- Practice -->
+    <string name="translation">Translation</string>
+    <string name="next_word">Next word</string>
+    <string name="results">Results</string>
+    <string name="wrong_words">Wrong words</string>
+    <string name="right_word">Right word</string>
+    <string name="my_translation">My translation</string>
+    <string name="right_text">You got %1$d%% right.</string>
+    <!-- Practice options -->
+    <string name="practice_options">Practice options</string>
+    <string name="start_practice">Start practice</string>
+    <string name="asked_language">Asked language</string>
+    <string name="both">Both</string>
+    <string name="case_sensitive">Case sensitive</string>
+
+    <string name="error_wrong_translation">Wrong translation</string>
+
+    <!-- Languages -->
+    <string name="english">English</string>
+    <string name="dutch">Dutch</string>
+    <string name="german">German</string>
+    <string name="french">French</string>
+    <string name="latin">Latin</string>
+    <string name="greek">Greek</string>
+    <string name="spanish">Spanish</string>
+    <string name="portuguese">Portuguese</string>
+    <string name="italian">Italian</string>
+
+</resources>

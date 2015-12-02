@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Wording is a project by PhiliPdB
+  ~
+  ~ Copyright (c) 2015.
+  -->
+
+<resources>
+
+    <string-array name="languages">
+        <item>@string/english</item>
+        <item>@string/dutch</item>
+        <item>@string/german</item>
+        <item>@string/french</item>
+        <item>@string/latin</item>
+        <item>@string/greek</item>
+        <item>@string/spanish</item>
+        <item>@string/portuguese</item>
+        <item>@string/italian</item>
+    </string-array>
+
+    <string-array name="language_codes">
+        <item>eng</item>
+        <item>dut</item>
+        <item>ger</item>
+        <item>fre</item>
+        <item>lat</item>
+        <item>gre</item>
+        <item>spa</item>
+        <item>por</item>
+        <item>ita</item>
+    </string-array>
+
+</resources>
