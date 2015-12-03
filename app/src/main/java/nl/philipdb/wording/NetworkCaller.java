@@ -9,6 +9,7 @@ package nl.philipdb.wording;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +30,7 @@ public abstract class NetworkCaller extends AsyncTask<Void, Void, Boolean> {
     public static final String API_LOCATION = "http://api-wording.rhcloud.com";
     public static String mToken = null;
 
-    public HttpURLConnection setupConnection(String location) throws IOException {
+    public HttpURLConnection setupConnection(String location, boolean doOutput) throws IOException {
         // Setup connection
         URL url = new URL(API_LOCATION + location);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -37,7 +38,7 @@ public abstract class NetworkCaller extends AsyncTask<Void, Void, Boolean> {
         urlConnection.setConnectTimeout(15000);
         urlConnection.setRequestMethod("POST");
         urlConnection.setDoInput(true);
-        urlConnection.setDoOutput(true);
+        urlConnection.setDoOutput(doOutput);
         urlConnection.setUseCaches(true);
         urlConnection.setInstanceFollowRedirects(false);
         // Set the content-type as json --> Important
@@ -48,7 +49,7 @@ public abstract class NetworkCaller extends AsyncTask<Void, Void, Boolean> {
 
     public boolean authorize(String username, String password)  throws IOException, JSONException {
         // Setup connection
-        HttpURLConnection urlConnection = setupConnection("/authenticate");
+        HttpURLConnection urlConnection = setupConnection("/authenticate", true);
         // Now create the JSONObject
         JSONObject data = new JSONObject();
         data.put("username", username);
@@ -96,7 +97,7 @@ public abstract class NetworkCaller extends AsyncTask<Void, Void, Boolean> {
 
     public List[] getLists(String username) throws IOException, JSONException {
         // Initialize connection
-        HttpURLConnection urlConnection = setupConnection("/" + username);
+        HttpURLConnection urlConnection = setupConnection("/" + username, true);
         // Add content
         JSONObject data = new JSONObject();
         data.put("token", NetworkCaller.mToken);
@@ -149,7 +150,7 @@ public abstract class NetworkCaller extends AsyncTask<Void, Void, Boolean> {
 
     public List getList(String username, String listName) throws IOException, JSONException {
         // Initialize connection
-        HttpURLConnection urlConnection = setupConnection("/" + username + "/" + listName.replace(" ", "%20"));
+        HttpURLConnection urlConnection = setupConnection("/" + username + "/" + listName.replace(" ", "%20"), true);
         // Add content
         JSONObject data = new JSONObject();
         data.put("token", NetworkCaller.mToken);
@@ -201,6 +202,30 @@ public abstract class NetworkCaller extends AsyncTask<Void, Void, Boolean> {
         }
         urlConnection.disconnect();
         return null;
+    }
+
+    public void deleteList(String username, String listName) throws IOException, JSONException {
+        // Initialize connection
+        HttpURLConnection urlConnection = setupConnection("/deleteList", false);
+        // Add content
+        JSONObject data = new JSONObject();
+        data.put("username", username);
+        data.put("listname", listName);
+        data.put("token", NetworkCaller.mToken);
+        // And send the data
+        OutputStream output = urlConnection.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
+        writer.write(data.toString());
+        writer.flush();
+        writer.close();
+        output.close();
+        // And connect
+        urlConnection.connect();
+
+        Log.d("NetworkCaller", "deleteList: " + urlConnection.getResponseCode());
+        Log.d("NetworkCaller", "deleteList: list deleted");
+
+        urlConnection.disconnect();
     }
 
 }

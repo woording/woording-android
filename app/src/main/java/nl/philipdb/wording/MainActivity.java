@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.json.JSONException;
 
@@ -30,13 +32,14 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     public static String username;
 
     private List[] mLists = new List[]{};
+    public static List lastDeletedList = null;
     private GetListsTask mGetListsTask;
 
-    private Toolbar mToolbar;
-    private RecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private static ListsViewAdapter mListsViewAdapter;
@@ -58,10 +61,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Setup toolbar
+        Toolbar mToolbar;
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
         // Setup RecyclerView
+        RecyclerView mRecyclerView;
         mRecyclerView = (RecyclerView) findViewById(R.id.lists_view);
         // Setup LinearLayoutManager
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -70,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         mListsViewAdapter = new ListsViewAdapter(new ArrayList<>(Arrays.asList(mLists)));
         mRecyclerView.setAdapter(mListsViewAdapter);
 
-        // Setup SwipeRefresLayout
+        // Setup SwipeRefreshLayout
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.accent);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -80,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        CoordinatorLayout mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_view);
+
         // Load saved data
         SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
         username = sharedPreferences.getString("username", null);
@@ -87,19 +94,71 @@ public class MainActivity extends AppCompatActivity {
 
         mContext = this;
 
+        int requestCode = getIntent().getIntExtra("requestCode", 0);
+        if (requestCode != 0) {
+            switch (requestCode) {
+                case ListViewActivity.NO_WORDS_DATA:
+                    Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG)
+                            .show();
+                    break;
+
+                case ListViewActivity.DELETED_LIST:
+                    Snackbar.make(mCoordinatorLayout, getString(R.string.list_deleted), Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Log.d(TAG, "onClick: Undo delete");
+                                    if (lastDeletedList != null) {
+                                        // TODO: 3-12-15 Create proper undo delete function
+                                    }
+                                }
+                            })
+                            .show();
+                    break;
+            }
+        }
+
         // TODO: Needs better logic
         if (NetworkCaller.mToken == null || username == null) {
             openLoginActivity(this);
         } else {
             if (isNetworkAvailable(this)) getLists();
-            else Snackbar.make(mSwipeRefreshLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
+            else Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
         }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (NetworkCaller.mToken != null) getLists();
+        if (NetworkCaller.mToken != null && isNetworkAvailable(this)) getLists();
+        else {
+            // Load cache
+            try {
+                mLists = CacheHandler.readLists(this);
+            } catch (IOException e) {
+                Log.d("Cache", "Something went wrong with the IO: " + e);
+            } catch (JSONException e) {
+                Log.d("Cache", "Something went wrong with the JSON: " + e);
+            }
+            mListsViewAdapter.updateList(mLists);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (NetworkCaller.mToken != null && isNetworkAvailable(this)) getLists();
+        else {
+            // Load cache
+            try {
+                mLists = CacheHandler.readLists(this);
+            } catch (IOException e) {
+                Log.d("Cache", "Something went wrong with the IO: " + e);
+            } catch (JSONException e) {
+                Log.d("Cache", "Something went wrong with the JSON: " + e);
+            }
+            mListsViewAdapter.updateList(mLists);
+        }
     }
 
     @Override

@@ -13,7 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -34,7 +34,11 @@ import java.io.IOException;
 
 public class ListViewActivity extends AppCompatActivity {
 
+    public static final int NO_WORDS_DATA = 1;
+    public static final int DELETED_LIST = 2;
+
     private GetListTask mGetListTask = null;
+    private DeleteListTask mDeleteListTask = null;
 
     private List mList;
 
@@ -71,8 +75,11 @@ public class ListViewActivity extends AppCompatActivity {
                 Log.d("Cache", "Something went wrong with the JSON: " + e);
             }
             if (mList.getTotalWords() == 0) {
-                Snackbar.make(mLinearLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
-                finish(); // No words data
+                // TODO display this on MainActivity
+//                Snackbar.make(mLinearLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
+//                finish(); // No words data
+
+                finishActivity(NO_WORDS_DATA);
             }
             else setWordsTable();
         }
@@ -92,58 +99,63 @@ public class ListViewActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_practice) {
-            // Create custom AlertDialog
-            View view = getLayoutInflater().inflate(R.layout.content_practice_options, null);
-            ((TextView) view.findViewById(R.id.ask_language_1)).setText(List.getLanguageName(this, mList.mLanguage1));
-            ((TextView) view.findViewById(R.id.ask_language_2)).setText(List.getLanguageName(this, mList.mLanguage2));
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppTheme_AlertDialog).setTitle(getString(R.string.practice_options))
-                    .setCancelable(true).setView(view);
-            // Set option buttons
-            final RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radio_group_asked_language);
-            final CheckBox checkBox = (CheckBox) view.findViewById(R.id.case_sensitive_check_box);
-            // Setup start and cancel buttons
-            builder.setPositiveButton(R.string.start_practice, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // Get user inputs
-                    switch (radioGroup.getCheckedRadioButtonId()) {
-                        case R.id.ask_language_1:
-                            askedLanguage = 1;
-                            break;
-                        case R.id.ask_language_2:
-                            askedLanguage = 2;
-                            break;
-                        case R.id.ask_both:
-                            askedLanguage = 0;
-                            break;
+       switch (item.getItemId()) {
+           case R.id.action_practice:
+                // Create custom AlertDialog
+                View view = getLayoutInflater().inflate(R.layout.content_practice_options, null);
+                ((TextView) view.findViewById(R.id.ask_language_1)).setText(List.getLanguageName(this, mList.mLanguage1));
+                ((TextView) view.findViewById(R.id.ask_language_2)).setText(List.getLanguageName(this, mList.mLanguage2));
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppTheme_AlertDialog).setTitle(getString(R.string.practice_options))
+                        .setCancelable(true).setView(view);
+                // Set option buttons
+                final RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radio_group_asked_language);
+                final CheckBox checkBox = (CheckBox) view.findViewById(R.id.case_sensitive_check_box);
+                // Setup start and cancel buttons
+                builder.setPositiveButton(R.string.start_practice, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Get user inputs
+                        switch (radioGroup.getCheckedRadioButtonId()) {
+                            case R.id.ask_language_1:
+                                askedLanguage = 1;
+                                break;
+                            case R.id.ask_language_2:
+                                askedLanguage = 2;
+                                break;
+                            case R.id.ask_both:
+                                askedLanguage = 0;
+                                break;
+                        }
+                        caseSensitive = checkBox.isChecked();
+
+                        // Create and launch new intent
+                        Intent newIntent = new Intent(mContext, PracticeActivity.class);
+                        newIntent.putExtra("list", mList);
+                        newIntent.putExtra("askedLanguage", askedLanguage);
+                        newIntent.putExtra("caseSensitive", caseSensitive);
+                        startActivity(newIntent);
                     }
-                    caseSensitive = checkBox.isChecked();
+                });
+                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        cancelled = true;
+                        dialog.cancel();
+                    }
+                });
+                // Create and show dialog
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
 
-                    // Create and launch new intent
-                    Intent newIntent = new Intent(mContext, PracticeActivity.class);
-                    newIntent.putExtra("list", mList);
-                    newIntent.putExtra("askedLanguage", askedLanguage);
-                    newIntent.putExtra("caseSensitive", caseSensitive);
-                    startActivity(newIntent);
-                }
-            });
-            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    cancelled = true;
-                    dialog.cancel();
-                }
-            });
-            // Create and show dialog
-            AlertDialog alertDialog = builder.create();
-            alertDialog.show();
-
-            return !cancelled;
-        }
+                return !cancelled;
+           case R.id.action_delete:
+               deleteList();
+               break;
+           case R.id.action_edit:
+               // TODO
+               break;
+       }
 
         return super.onOptionsItemSelected(item);
     }
@@ -183,6 +195,21 @@ public class ListViewActivity extends AppCompatActivity {
         showProgress(true);
         mGetListTask = new GetListTask(mList.mName, MainActivity.username);
         mGetListTask.execute((Void) null);
+    }
+
+    private void deleteList() {
+        if (mDeleteListTask != null) {
+            return;
+        }
+
+        mDeleteListTask = new DeleteListTask(mList, MainActivity.username);
+        mDeleteListTask.execute((Void) null);
+    }
+
+    public void finishActivity(int requestCode) {
+        Intent upIntent = NavUtils.getParentActivityIntent(this);
+        upIntent.putExtra("requestCode", requestCode);
+        startActivity(upIntent);
     }
 
     private void showProgress(final boolean show) {
@@ -256,8 +283,7 @@ public class ListViewActivity extends AppCompatActivity {
                     Log.d("Cache", "Something went wrong with the JSON: " + e);
                 }
                 if (mList.getTotalWords() == 0) {
-                    Snackbar.make(mLinearLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
-                    finish(); // No words data
+                    finishActivity(NO_WORDS_DATA);
                 }
                 else setWordsTable();
             }
@@ -269,6 +295,51 @@ public class ListViewActivity extends AppCompatActivity {
             showProgress(false);
         }
 
+    }
+
+    public class DeleteListTask extends NetworkCaller {
+
+        private final List mList;
+        private final String mUsername;
+
+        DeleteListTask(List list, String username) {
+            mList = list;
+            mUsername = username;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            try {
+                deleteList(mUsername, mList.mName);
+                return true;
+            } catch (IOException e) {
+                Log.d("IOException", "Something bad happened on the IO");
+            } catch (JSONException e) {
+                Log.d("JSONException", "The JSON fails");
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mDeleteListTask = null;
+
+            if (success) {
+                // Delete list from cache
+                try {
+                    CacheHandler.deleteList(mContext, mList.mName);
+                } catch (IOException e) {
+                    Log.d("IO", "Something bad with the IO: " + e);
+                }
+                MainActivity.lastDeletedList = mList;
+                finishActivity(DELETED_LIST);
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mDeleteListTask = null;
+        }
     }
 
 }

@@ -90,4 +90,9 @@ public class CacheHandler {
         }
         return list;
     }
+
+    public static boolean deleteList(Context context, String listName) throws IOException {
+        File listFile = new File(context.getCacheDir() + "lists/" + listName);
+        return listFile.delete();
+    }
 }
