@@ -4,7 +4,7 @@
  * Copyright (c) 2015.
  */
 
-package nl.philipdb.wording;
+package nl.philipdb.woording;
 
 import android.content.Intent;
 import android.support.v7.widget.CardView;

@@ -6,7 +6,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="nl.philipdb.wording" >
+    package="nl.philipdb.woording" >
 
     <!-- To communicate with our api server -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -35,7 +35,7 @@
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="nl.philipdb.wording.MainActivity" />
+                android:value="nl.philipdb.woording.MainActivity" />
         </activity>
         <activity
             android:name=".ListViewActivity"
@@ -47,7 +47,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="nl.philipdb.wording.MainActivity" />
+                android:value="nl.philipdb.woording.MainActivity" />
         </activity>
         <activity
             android:name=".PracticeActivity"
@@ -57,7 +57,7 @@
             android:windowSoftInputMode="adjustResize|stateVisible">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="nl.philipdb.wording.ListViewActivity" />
+                android:value="nl.philipdb.woording.ListViewActivity" />
         </activity>
     </application>
 
