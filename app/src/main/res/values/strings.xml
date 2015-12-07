@@ -5,7 +5,7 @@
   -->
 
 <resources>
-    <string name="app_name" translatable="false">Wording</string>
+    <string name="app_name" translatable="false">Woording</string>
 
     <string name="title_activity_login">Sign in</string>
     <string name="title_activity_list_view">List</string>
