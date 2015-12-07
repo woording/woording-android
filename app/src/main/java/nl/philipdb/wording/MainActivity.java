@@ -29,6 +29,8 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,9 +40,12 @@ public class MainActivity extends AppCompatActivity {
 
     private List[] mLists = new List[]{};
     public static List lastDeletedList = null;
+
     private GetListsTask mGetListsTask;
+    private SaveListTask mSaveListTask;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private CoordinatorLayout mCoordinatorLayout;
 
     private static ListsViewAdapter mListsViewAdapter;
 
@@ -85,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        CoordinatorLayout mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_view);
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_view);
 
         // Load saved data
         SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
@@ -110,6 +115,9 @@ public class MainActivity extends AppCompatActivity {
                                     Log.d(TAG, "onClick: Undo delete");
                                     if (lastDeletedList != null) {
                                         // TODO: 3-12-15 Create proper undo delete function
+                                        mSaveListTask = new SaveListTask(lastDeletedList, username);
+                                        mSaveListTask.execute();
+                                        getLists();
                                     }
                                 }
                             })
@@ -130,34 +138,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (NetworkCaller.mToken != null && isNetworkAvailable(this)) getLists();
-        else {
-            // Load cache
-            try {
-                mLists = CacheHandler.readLists(this);
-            } catch (IOException e) {
-                Log.d("Cache", "Something went wrong with the IO: " + e);
-            } catch (JSONException e) {
-                Log.d("Cache", "Something went wrong with the JSON: " + e);
-            }
-            mListsViewAdapter.updateList(mLists);
-        }
+        restoreLists();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (NetworkCaller.mToken != null && isNetworkAvailable(this)) getLists();
-        else {
-            // Load cache
-            try {
-                mLists = CacheHandler.readLists(this);
-            } catch (IOException e) {
-                Log.d("Cache", "Something went wrong with the IO: " + e);
-            } catch (JSONException e) {
-                Log.d("Cache", "Something went wrong with the JSON: " + e);
+        restoreLists();
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        lastDeletedList = null;
+
+        if (mLists.length > 0) {
+            String[] lists = new String[mLists.length];
+            for (int i = 0; i < mLists.length; i++) {
+                lists[i] = mLists[i].toString();
             }
-            mListsViewAdapter.updateList(mLists);
+
+            SharedPreferences sharedPreferences = getSharedPreferences("nl.philipdb.woording_MainActivity", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putStringSet("Lists", new HashSet<>(Arrays.asList(lists)));
+            editor.apply();
         }
     }
 
@@ -178,6 +182,38 @@ public class MainActivity extends AppCompatActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    protected void restoreLists() {
+        if (mLists.length == 0) {
+            // First try to get from sharedPrefs
+            SharedPreferences sharedPreferences = getSharedPreferences("nl.philipdb.woording_MainActivity", MODE_PRIVATE);
+            Set listsSet = sharedPreferences.getStringSet("lists", new HashSet<String>(0));
+            String[] stringLists = (String[]) listsSet.toArray(new String[listsSet.size()]);
+            mLists = new List[stringLists.length];
+            for (int i = 0; i < stringLists.length; i++) {
+                try {
+                    mLists[i] = List.fromString(stringLists[i]);
+                } catch (JSONException e) {
+                    Log.d(TAG, "onStart: Error while converting string to list");
+                }
+            }
+            mListsViewAdapter.updateList(mLists);
+
+            // Then try to update or to read from cache
+            if (NetworkCaller.mToken != null && isNetworkAvailable(this)) getLists();
+            else {
+                // Load cache
+                try {
+                    mLists = CacheHandler.readLists(this);
+                } catch (IOException e) {
+                    Log.d("Cache", "Something went wrong with the IO: " + e);
+                } catch (JSONException e) {
+                    Log.d("Cache", "Something went wrong with the JSON: " + e);
+                }
+                mListsViewAdapter.updateList(mLists);
+            }
+        }
     }
 
     public static boolean isNetworkAvailable(Context context) {
@@ -241,6 +277,52 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onCancelled() {
             mGetListsTask = null;
+        }
+    }
+
+    public class SaveListTask extends NetworkCaller {
+
+        private final List mList;
+        private final String mUsername;
+
+        SaveListTask(List list, String username) {
+            mList = list;
+            mUsername = username;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            try {
+                saveList(mUsername, mList);
+                return true;
+            } catch (IOException e) {
+                Log.d("IOException", "Something bad happened on the IO");
+            } catch (JSONException e) {
+                Log.d("JSONException", "The JSON fails");
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mSaveListTask = null;
+
+            if (success) {
+                // Write lists to cache
+                try {
+                    CacheHandler.writeList(MainActivity.mContext, mList);
+                } catch (IOException e) {
+                    Log.d("IO", "Something bad with the IO: " + e);
+                } catch (JSONException e) {
+                    Log.d("JSON", "Something bad with the JSON: " + e);
+                }
+                Snackbar.make(mCoordinatorLayout, R.string.restored, Snackbar.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mSaveListTask = null;
         }
     }
 }

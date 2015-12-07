@@ -7,6 +7,7 @@
 package nl.philipdb.wording;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,11 +28,11 @@ public class List implements Serializable {
 
     public static HashMap<String, String> mLanguageCodes = null;
 
-    public List(String n, String l1, String l2, String sw) {
-        mName = n;
-        mLanguage1 = l1;
-        mLanguage2 = l2;
-        mSharedWith = sw;
+    public List(String name, String language1, String language2, String sharedWith) {
+        mName = name;
+        mLanguage1 = language1;
+        mLanguage2 = language2;
+        mSharedWith = sharedWith;
     }
 
     public void setWords(ArrayList<String> language1, ArrayList<String> language2) {
@@ -84,5 +85,33 @@ public class List implements Serializable {
             json.put("words", array);
         }
         return json;
+    }
+
+    public String toString() {
+        try {
+            return toJSON().toString();
+        } catch (JSONException e) {
+            Log.d("JSONException", "toString: Error in JSON");
+            return null;
+        }
+    }
+
+    public static List fromString(String string) throws JSONException {
+        JSONObject json = new JSONObject(string);
+        List list = new List(json.getString("listname"), json.getString("language_1_tag"),
+                json.getString("language_2_tag"), json.getString("shared_with"));
+        if (json.getJSONArray("words").length() > 0) {
+            // If words are saved, add them to the list object
+            JSONArray jsonWords = json.getJSONArray("words");
+            ArrayList<String> language1 = new ArrayList<>();
+            ArrayList<String> language2 = new ArrayList<>();
+            for (int i = 0; i < jsonWords.length(); i++) {
+                JSONObject temp = jsonWords.getJSONObject(i);
+                language1.add(temp.getString("language_1_text"));
+                language2.add(temp.getString("language_2_text"));
+            }
+            list.setWords(language1, language2);
+        }
+        return list;
     }
 }

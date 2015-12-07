@@ -246,6 +246,9 @@ public abstract class NetworkCaller extends AsyncTask<Void, Void, Boolean> {
         // And connect
         urlConnection.connect();
 
+        Log.d("NetworkCaller", "saveList: " + urlConnection.getResponseCode());
+        Log.d("NetworkCaller", "saveList: list saved");
+
         urlConnection.disconnect();
     }
 

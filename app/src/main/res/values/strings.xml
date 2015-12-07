@@ -32,6 +32,7 @@
     <string name="practice">Practice</string>
     <string name="delete">Delete</string>
     <string name="list_deleted">Deleted</string>
+    <string name="restored">List restored</string>
 
     <!-- Practice -->
     <string name="translation">Translation</string>
