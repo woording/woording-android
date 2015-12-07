@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static ListsViewAdapter mListsViewAdapter;
 
     protected static Context mContext;
+    private boolean doubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
                                 public void onClick(View v) {
                                     Log.d(TAG, "onClick: Undo delete");
                                     if (lastDeletedList != null) {
-                                        // TODO: 3-12-15 Create proper undo delete function
                                         mSaveListTask = new SaveListTask(lastDeletedList, username);
                                         mSaveListTask.execute();
                                         getLists();
@@ -182,6 +183,24 @@ public class MainActivity extends AppCompatActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+           finish();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Snackbar.make(mCoordinatorLayout, R.string.press_BACK_again_to_exit, Snackbar.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
 
     protected void restoreLists() {
