@@ -27,7 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public abstract class NetworkCaller extends AsyncTask<Void, Void, Boolean> {
-    public static final String API_LOCATION = "http://api-wording.rhcloud.com";
+    public static final String API_LOCATION = "http://api.woording.com";
     public static String mToken = null;
 
     public HttpURLConnection setupConnection(String location, boolean doOutput) throws IOException {
@@ -224,6 +224,27 @@ public abstract class NetworkCaller extends AsyncTask<Void, Void, Boolean> {
 
         Log.d("NetworkCaller", "deleteList: " + urlConnection.getResponseCode());
         Log.d("NetworkCaller", "deleteList: list deleted");
+
+        urlConnection.disconnect();
+    }
+
+    public void saveList(String username, List list) throws IOException, JSONException {
+        // Initialize connection
+        HttpURLConnection urlConnection = setupConnection("/savelist", false);
+        // Add content
+        JSONObject data = new JSONObject();
+        data.put("username", username);
+        data.put("list_data", list.toJSON());
+        data.put("token", NetworkCaller.mToken);
+        // And send the data
+        OutputStream output = urlConnection.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
+        writer.write(data.toString());
+        writer.flush();
+        writer.close();
+        output.close();
+        // And connect
+        urlConnection.connect();
 
         urlConnection.disconnect();
     }
