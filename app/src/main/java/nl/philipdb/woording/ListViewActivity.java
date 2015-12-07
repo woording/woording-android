@@ -75,10 +75,6 @@ public class ListViewActivity extends AppCompatActivity {
                 Log.d("Cache", "Something went wrong with the JSON: " + e);
             }
             if (mList.getTotalWords() == 0) {
-                // TODO display this on MainActivity
-//                Snackbar.make(mLinearLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
-//                finish(); // No words data
-
                 finishActivity(NO_WORDS_DATA);
             }
             else setWordsTable();
@@ -210,6 +206,7 @@ public class ListViewActivity extends AppCompatActivity {
         Intent upIntent = NavUtils.getParentActivityIntent(this);
         upIntent.putExtra("requestCode", requestCode);
         startActivity(upIntent);
+        finish();
     }
 
     private void showProgress(final boolean show) {
