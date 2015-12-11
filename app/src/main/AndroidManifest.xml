@@ -35,7 +35,7 @@
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="nl.philipdb.woording.MainActivity" />
+                android:value="com.woording.android.MainActivity" />
         </activity>
         <activity
             android:name=".ListViewActivity"
