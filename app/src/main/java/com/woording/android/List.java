@@ -27,6 +27,7 @@ public class List implements Serializable {
     public ArrayList<String> mLanguage2Words = new ArrayList<>();
 
     public static HashMap<String, String> mLanguageCodes = null;
+    public static HashMap<String, String> mLocales = null;
 
     public List(String name, String language1, String language2, String sharedWith) {
         mName = name;
@@ -62,6 +63,21 @@ public class List implements Serializable {
             mLanguageCodes.put("ita", context.getString(R.string.italian));
         }
         return mLanguageCodes.get(languageCode);
+    }
+
+    public static String getLocale(String languageCode) {
+        if (mLocales == null) {
+            mLocales = new HashMap<>();
+            mLocales.put("eng", "en");
+            mLocales.put("dut", "nl");
+            mLocales.put("ger", "de");
+            mLocales.put("fre", "fr");
+            mLocales.put("gre", "el");
+            mLocales.put("spa", "es");
+            mLocales.put("por", "pt");
+            mLocales.put("ita", "it");
+        }
+        return mLocales.get(languageCode);
     }
 
     public int getTotalWords() {

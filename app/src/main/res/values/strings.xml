@@ -43,6 +43,8 @@
     <string name="right_word">Right word</string>
     <string name="my_translation">My translation</string>
     <string name="right_text">You got %1$d%% right.</string>
+    <string name="enable_speech">Enable speech</string>
+    <string name="disable_speech">Disable speech</string>
     <!-- Practice options -->
     <string name="practice_options">Practice options</string>
     <string name="start_practice">Start practice</string>

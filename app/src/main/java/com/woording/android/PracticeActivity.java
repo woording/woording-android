@@ -9,12 +9,17 @@ package com.woording.android;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -28,7 +33,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PracticeActivity extends AppCompatActivity {
+public class PracticeActivity extends AppCompatActivity
+    implements RecognitionListener {
+
+    private final String TAG = "PracticeActivity";
 
     private List mList;
     private int mAskedLanguage; // 1 = language 1 | 2 = language 2 | 0 = both
@@ -37,10 +45,15 @@ public class PracticeActivity extends AppCompatActivity {
     private ArrayList<String[]> mWrongWords = new ArrayList<>();
     private String[] mRandomWord = new String[2];
     private int mTotalWords = 0;
+    private int mLastUsedPracticeMethod = 0; // 0 = keyboard | 1 = speech
+
+    private SpeechRecognizer mSpeech = null;
+    private Intent mRecognizerIntent;
 
     // UI elements
     private EditText mTranslation;
     private TextView mRightWord;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +71,7 @@ public class PracticeActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == R.id.next_word || actionId == EditorInfo.IME_ACTION_GO) {
+                    mLastUsedPracticeMethod = 0;
                     checkWord();
                     return true;
                 }
@@ -67,6 +81,7 @@ public class PracticeActivity extends AppCompatActivity {
         findViewById(R.id.next_word).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mLastUsedPracticeMethod = 0;
                 checkWord();
             }
         });
@@ -83,10 +98,27 @@ public class PracticeActivity extends AppCompatActivity {
             else if (mAskedLanguage == 2) ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.mLanguage2));
         }
         nextWord();
+
+        enableSpeech();
+        if (mLastUsedPracticeMethod == 1) {
+            mSpeech.startListening(mRecognizerIntent);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_practice, menu);
+
+        // Save the menu reference
+        mMenu = menu;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        MenuItem enable = mMenu.findItem(R.id.enable_speech);
+        MenuItem disable = mMenu.findItem(R.id.disable_speech);
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
@@ -106,8 +138,45 @@ public class PracticeActivity extends AppCompatActivity {
                     NavUtils.navigateUpTo(this, upIntent);
                 }
                 return true;
+            case R.id.enable_speech:
+                enable.setVisible(false);
+                disable.setVisible(true);
+
+                mSpeech.startListening(mRecognizerIntent);
+                return true;
+            case R.id.disable_speech:
+                enable.setVisible(true);
+                disable.setVisible(false);
+
+                mSpeech.stopListening();
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void enableSpeech() {
+        mSpeech = SpeechRecognizer.createSpeechRecognizer(this);
+        mSpeech.setRecognitionListener(this);
+        mRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+
+        switch (mAskedLanguage) {
+            case 0:
+                if (!mList.mLanguage1.equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, List.getLocale(mList.mLanguage1));
+                if (!mList.mLanguage2.equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, List.getLocale(mList.mLanguage2));
+                break;
+
+            case 1:
+                if (!mList.mLanguage1.equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, List.getLocale(mList.mLanguage1));
+                break;
+            case 2:
+                if (!mList.mLanguage2.equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, List.getLocale(mList.mLanguage2));
+                break;
+        }
     }
 
     private void nextWord() {
@@ -142,15 +211,19 @@ public class PracticeActivity extends AppCompatActivity {
                 mRightWord.setVisibility(View.VISIBLE);
                 Snackbar.make(mTranslation, getString(R.string.error_wrong_translation), Snackbar.LENGTH_LONG).show();
 
-                if (mUsedWords.indexOf(mRandomWord[mAskedLanguage == 1 ? 1 : 2]) >= -1)
-                    mUsedWords.remove(mRandomWord[mAskedLanguage == 1 ? 1 : 2]);
+                if (mUsedWords.indexOf(mRandomWord[mAskedLanguage == 1 ? 1 : 0]) >= -1)
+                    mUsedWords.remove(mRandomWord[mAskedLanguage == 1 ? 1 : 0]);
             }
+        }
+
+        if (mLastUsedPracticeMethod == 1) {
+            mSpeech.startListening(mRecognizerIntent);
         }
     }
 
     private boolean isInputRight(String input, String correctWord) {
         // Check for case sensitivity
-        if (!mCaseSensitive) {
+        if (!mCaseSensitive || mLastUsedPracticeMethod == 1) {
             input = input.toLowerCase();
             correctWord = correctWord.toLowerCase();
         }
@@ -213,4 +286,92 @@ public class PracticeActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBeginningOfSpeech() {
+        Log.i(TAG, "onBeginningOfSpeech");
+
+    }
+
+    @Override
+    public void onBufferReceived(byte[] buffer) {
+        Log.i(TAG, "onBufferReceived: " + buffer);
+    }
+
+    @Override
+    public void onEndOfSpeech() {
+        Log.i(TAG, "onEndOfSpeech");
+    }
+
+    @Override
+    public void onError(int errorCode) {
+        Log.d(TAG, "FAILED " + getErrorText(errorCode));
+    }
+
+    @Override
+    public void onEvent(int arg0, Bundle arg1) {
+        Log.i(TAG, "onEvent");
+    }
+
+    @Override
+    public void onPartialResults(Bundle arg0) {
+        Log.i(TAG, "onPartialResults");
+    }
+
+    @Override
+    public void onReadyForSpeech(Bundle arg0) {
+        Log.i(TAG, "onReadyForSpeech");
+    }
+
+    @Override
+    public void onResults(Bundle results) {
+        Log.i(TAG, "onResults");
+        ArrayList<String> matches = results
+                .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+
+        mTranslation.setText(matches.get(0));
+        mLastUsedPracticeMethod = 1;
+        checkWord();
+    }
+
+    @Override
+    public void onRmsChanged(float rmsdB) {
+        Log.i(TAG, "onRmsChanged: " + rmsdB);
+    }
+
+    public static String getErrorText(int errorCode) {
+        String message;
+        switch (errorCode) {
+            case SpeechRecognizer.ERROR_AUDIO:
+                message = "Audio recording error";
+                break;
+            case SpeechRecognizer.ERROR_CLIENT:
+                message = "Client side error";
+                break;
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+                message = "Insufficient permissions";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK:
+                message = "Network error";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                message = "Network timeout";
+                break;
+            case SpeechRecognizer.ERROR_NO_MATCH:
+                message = "No match";
+                break;
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+                message = "RecognitionService busy";
+                break;
+            case SpeechRecognizer.ERROR_SERVER:
+                message = "error from server";
+                break;
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+                message = "No speech input";
+                break;
+            default:
+                message = "Didn't understand, please try again.";
+                break;
+        }
+        return message;
+    }
 }
