@@ -6,7 +6,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="nl.philipdb.woording" >
+    package="com.woording.android" >
 
     <!-- To communicate with our api server -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -47,7 +47,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="nl.philipdb.woording.MainActivity" />
+                android:value="com.woording.android.MainActivity" />
         </activity>
         <activity
             android:name=".PracticeActivity"
@@ -57,7 +57,7 @@
             android:windowSoftInputMode="adjustResize|stateVisible">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="nl.philipdb.woording.ListViewActivity" />
+                android:value="com.woording.android.ListViewActivity" />
         </activity>
     </application>
 

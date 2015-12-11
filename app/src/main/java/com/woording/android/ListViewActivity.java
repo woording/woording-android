@@ -4,7 +4,7 @@
  * Copyright (c) 2015.
  */
 
-package nl.philipdb.woording;
+package com.woording.android;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
