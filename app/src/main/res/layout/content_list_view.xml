@@ -19,7 +19,7 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_list_view"
-    tools:context="nl.philipdb.wording.ListViewActivity">
+    tools:context=".ListViewActivity">
 
     <!--<TextView-->
         <!--android:layout_width="match_parent"-->
