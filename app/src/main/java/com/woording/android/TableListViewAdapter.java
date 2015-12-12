@@ -34,6 +34,14 @@ public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdap
         notifyDataSetChanged();
     }
 
+    public void addItems(ArrayList<String[]> columns) {
+        for (String[] column : columns) {
+            Column1.add(column[0]);
+            Column2.add(column[1]);
+        }
+        notifyDataSetChanged();
+    }
+
     // Create new views (invoked by the layout manager)
     @Override
     public TableListViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

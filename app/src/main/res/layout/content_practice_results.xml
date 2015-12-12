@@ -21,7 +21,7 @@
     tools:context=".PracticeActivity"
     android:id="@+id/practice_results_layout"
     android:visibility="gone"
-    tools:visibility="gone">
+    tools:visibility="visible">
 
     <TextView
         android:layout_width="match_parent"
@@ -75,33 +75,39 @@
             android:text="@string/wrong_words"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
 
-        <TableLayout
+        <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/wrong_words"
-            android:showDividers="none"
-            android:orientation="vertical"
-            android:stretchColumns="2">
+            android:id="@+id/wrong_words_list"
+            tools:listitem="@layout/layout_table_row_list_item"/>
 
-            <TableRow
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+        <!--<TableLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/wrong_words"-->
+            <!--android:showDividers="none"-->
+            <!--android:orientation="vertical"-->
+            <!--android:stretchColumns="2">-->
 
-                <TextView
-                    android:layout_weight="1"
-                    android:textStyle="bold"
-                    android:text="@string/right_word"/>
+            <!--<TableRow-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_weight="1"-->
+                <!--android:orientation="horizontal">-->
 
-                <TextView
-                    android:layout_weight="1"
-                    android:textStyle="bold"
-                    android:text="@string/my_translation"/>
+                <!--<TextView-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:textStyle="bold"-->
+                    <!--android:text="@string/right_word"/>-->
 
-            </TableRow>
+                <!--<TextView-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:textStyle="bold"-->
+                    <!--android:text="@string/my_translation"/>-->
 
-        </TableLayout>
+            <!--</TableRow>-->
+
+        <!--</TableLayout>-->
     </LinearLayout>
 
 </LinearLayout>

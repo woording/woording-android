@@ -16,6 +16,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,6 +32,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -47,6 +50,8 @@ public class PracticeActivity extends AppCompatActivity
     private int mTotalWords = 0;
     private int mLastUsedPracticeMethod = 0; // 0 = keyboard | 1 = speech
 
+    private TableListViewAdapter recyclerViewAdapter;
+
     private SpeechRecognizer mSpeech = null;
     private Intent mRecognizerIntent;
 
@@ -54,6 +59,7 @@ public class PracticeActivity extends AppCompatActivity
     private EditText mTranslation;
     private TextView mRightWord;
     private Menu mMenu;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +91,16 @@ public class PracticeActivity extends AppCompatActivity
                 checkWord();
             }
         });
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.wrong_words_list);
+        // Setup LinearLayoutManager
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        // Setup adapter
+        recyclerViewAdapter = new TableListViewAdapter(this,
+                new ArrayList<>(Arrays.asList(new String[] {getString(R.string.wrong_words)})),
+                new ArrayList<>(Arrays.asList(new String[] {getString(R.string.my_translation)})));
+        mRecyclerView.setAdapter(recyclerViewAdapter);
 
         // Load intent extras
         Intent intent = getIntent();
@@ -206,7 +222,7 @@ public class PracticeActivity extends AppCompatActivity
                 mRightWord.setVisibility(View.GONE);
                 nextWord();
             } else {
-                mWrongWords.add(new String[]{mTranslation.getText().toString(), mRandomWord[mAskedLanguage == 1 ? 1 : 0]});
+                mWrongWords.add(new String[]{mRandomWord[mAskedLanguage == 1 ? 1 : 0], mTranslation.getText().toString()});
                 mRightWord.setText(mRandomWord[mAskedLanguage == 1 ? 1 : 0]);
                 mRightWord.setVisibility(View.VISIBLE);
                 Snackbar.make(mTranslation, getString(R.string.error_wrong_translation), Snackbar.LENGTH_LONG).show();
@@ -254,6 +270,9 @@ public class PracticeActivity extends AppCompatActivity
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+        // Hide toolbar buttons
+        mMenu.findItem(R.id.enable_speech).setVisible(false);
+        mMenu.findItem(R.id.disable_speech).setVisible(false);
 
         findViewById(R.id.practice_layout).setVisibility(View.GONE);
         findViewById(R.id.practice_results_layout).setVisibility(View.VISIBLE);
@@ -265,24 +284,7 @@ public class PracticeActivity extends AppCompatActivity
         if (mWrongWords.size() > 0) {
             findViewById(R.id.wrong_words_layout).setVisibility(View.VISIBLE);
 
-            TableLayout wrongWordsTable = (TableLayout) findViewById(R.id.wrong_words);
-            for (String[] word : mWrongWords) {
-                TableRow tableRow = new TableRow(this);
-                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
-                tableRow.setOrientation(LinearLayout.HORIZONTAL);
-
-                TextView rightWord = new TextView(this);
-                rightWord.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
-                rightWord.setText(word[1]);
-                tableRow.addView(rightWord);
-
-                TextView myInput = new TextView(this);
-                myInput.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
-                myInput.setText(word[0]);
-                tableRow.addView(myInput);
-
-                wrongWordsTable.addView(tableRow);
-            }
+            recyclerViewAdapter.addItems(mWrongWords);
         }
     }
 
