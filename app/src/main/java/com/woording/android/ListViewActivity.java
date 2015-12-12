@@ -15,22 +15,22 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class ListViewActivity extends AppCompatActivity {
 
@@ -43,7 +43,9 @@ public class ListViewActivity extends AppCompatActivity {
     private List mList;
 
     private ProgressBar mProgressBar;
-    private LinearLayout mLinearLayout;
+    private RecyclerView mRecyclerView;
+
+    private TableListViewAdapter recyclerViewAdapter;
 
     public int askedLanguage = 1;
     public boolean caseSensitive = true;
@@ -60,7 +62,13 @@ public class ListViewActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mProgressBar = (ProgressBar) findViewById(R.id.get_list_progress);
-        mLinearLayout = (LinearLayout) findViewById(R.id.list_view_layout);
+        mRecyclerView = (RecyclerView) findViewById(R.id.words_list);
+        // Setup LinearLayoutManager
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        // Setup adapter
+        recyclerViewAdapter = new TableListViewAdapter(this, new ArrayList<String>(), new ArrayList<String>());
+        mRecyclerView.setAdapter(recyclerViewAdapter);
 
         // Load List from Intent
         mList = (List) getIntent().getSerializableExtra("list");
@@ -79,6 +87,9 @@ public class ListViewActivity extends AppCompatActivity {
             }
             else setWordsTable();
         }
+
+
+
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -159,28 +170,9 @@ public class ListViewActivity extends AppCompatActivity {
     private void setWordsTable() {
         // Set title and languages
         getSupportActionBar().setTitle(mList.mName);
-        ((TextView) findViewById(R.id.language_1)).setText(List.getLanguageName(this, mList.mLanguage1));
-        ((TextView) findViewById(R.id.language_2)).setText(List.getLanguageName(this, mList.mLanguage2));
 
-        // Set words
-        TableLayout table = (TableLayout) findViewById(R.id.word_table);
-        for (int i = 0; i < mList.getTotalWords(); i++) {
-            TableRow tableRow = new TableRow(this);
-            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
-            tableRow.setOrientation(LinearLayout.HORIZONTAL);
-
-            TextView word1 = new TextView(this);
-            word1.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
-            word1.setText(mList.mLanguage1Words.get(i));
-            tableRow.addView(word1);
-
-            TextView word2 = new TextView(this);
-            word2.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
-            word2.setText(mList.mLanguage2Words.get(i));
-            tableRow.addView(word2);
-
-            table.addView(tableRow);
-        }
+        recyclerViewAdapter.addItem(List.getLanguageName(this, mList.mLanguage1), List.getLanguageName(this, mList.mLanguage2));
+        recyclerViewAdapter.addItems(mList.mLanguage1Words, mList.mLanguage2Words);
     }
 
     private void getList() {
@@ -215,11 +207,11 @@ public class ListViewActivity extends AppCompatActivity {
         // the progress spinner.
         int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-        mLinearLayout.setVisibility(show ? View.GONE : View.VISIBLE);
-        mLinearLayout.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+        mRecyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mRecyclerView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                mLinearLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+                mRecyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
             }
         });
 
