@@ -177,18 +177,18 @@ public class PracticeActivity extends AppCompatActivity
         switch (mAskedLanguage) {
             case 0:
                 if (!mList.mLanguage1.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, List.getLocale(mList.mLanguage1));
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.mLanguage1));
                 if (!mList.mLanguage2.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, List.getLocale(mList.mLanguage2));
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.mLanguage2));
                 break;
 
             case 1:
                 if (!mList.mLanguage1.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, List.getLocale(mList.mLanguage1));
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.mLanguage1));
                 break;
             case 2:
                 if (!mList.mLanguage2.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, List.getLocale(mList.mLanguage2));
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.mLanguage2));
                 break;
         }
     }
@@ -334,7 +334,7 @@ public class PracticeActivity extends AppCompatActivity
 
     @Override
     public void onRmsChanged(float rmsdB) {
-        Log.i(TAG, "onRmsChanged: " + rmsdB);
+        return;
     }
 
     public String getErrorText(int errorCode) {
