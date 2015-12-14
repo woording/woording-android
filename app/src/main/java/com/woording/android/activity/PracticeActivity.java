@@ -97,9 +97,7 @@ public class PracticeActivity extends AppCompatActivity
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         // Setup adapter
-        recyclerViewAdapter = new TableListViewAdapter(this,
-                new ArrayList<>(Arrays.asList(new String[] {getString(R.string.wrong_words)})),
-                new ArrayList<>(Arrays.asList(new String[] {getString(R.string.my_translation)})));
+        recyclerViewAdapter = new TableListViewAdapter(new ArrayList<String>(), new ArrayList<String>());
         mRecyclerView.setAdapter(recyclerViewAdapter);
 
         // Load intent extras
@@ -291,7 +289,6 @@ public class PracticeActivity extends AppCompatActivity
     @Override
     public void onBeginningOfSpeech() {
         Log.i(TAG, "onBeginningOfSpeech");
-
     }
 
     @Override
@@ -302,8 +299,6 @@ public class PracticeActivity extends AppCompatActivity
     @Override
     public void onEndOfSpeech() {
         Log.i(TAG, "onEndOfSpeech");
-        mMenu.findItem(R.id.enable_speech).setVisible(true);
-        mMenu.findItem(R.id.disable_speech).setVisible(false);
     }
 
     @Override
@@ -342,7 +337,7 @@ public class PracticeActivity extends AppCompatActivity
         Log.i(TAG, "onRmsChanged: " + rmsdB);
     }
 
-    public static String getErrorText(int errorCode) {
+    public String getErrorText(int errorCode) {
         String message;
         switch (errorCode) {
             case SpeechRecognizer.ERROR_AUDIO:
@@ -365,12 +360,16 @@ public class PracticeActivity extends AppCompatActivity
                 break;
             case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
                 message = "RecognitionService busy";
+                mMenu.findItem(R.id.enable_speech).setVisible(true);
+                mMenu.findItem(R.id.disable_speech).setVisible(false);
                 break;
             case SpeechRecognizer.ERROR_SERVER:
                 message = "error from server";
                 break;
             case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
                 message = "No speech input";
+                mMenu.findItem(R.id.enable_speech).setVisible(true);
+                mMenu.findItem(R.id.disable_speech).setVisible(false);
                 break;
             default:
                 message = "Didn't understand, please try again.";

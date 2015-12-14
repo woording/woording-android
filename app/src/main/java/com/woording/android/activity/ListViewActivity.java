@@ -73,7 +73,7 @@ public class ListViewActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         // Setup adapter
-        recyclerViewAdapter = new TableListViewAdapter(this, new ArrayList<String>(), new ArrayList<String>());
+        recyclerViewAdapter = new TableListViewAdapter(new ArrayList<String>(), new ArrayList<String>());
         mRecyclerView.setAdapter(recyclerViewAdapter);
 
         // Load List from Intent
@@ -177,7 +177,8 @@ public class ListViewActivity extends AppCompatActivity {
         // Set title and languages
         getSupportActionBar().setTitle(mList.mName);
 
-        recyclerViewAdapter.addItem(List.getLanguageName(this, mList.mLanguage1), List.getLanguageName(this, mList.mLanguage2));
+        ((TextView) findViewById(R.id.head_1)).setText(List.getLanguageName(this, mList.mLanguage1));
+        ((TextView) findViewById(R.id.head_2)).setText(List.getLanguageName(this, mList.mLanguage2));
         recyclerViewAdapter.addItems(mList.mLanguage1Words, mList.mLanguage2Words);
     }
 

@@ -1,7 +1,5 @@
 package com.woording.android;
 
-import android.content.Context;
-import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,12 +10,10 @@ import java.util.ArrayList;
 
 public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdapter.ViewHolder> {
 
-    private Context mContext;
     private ArrayList<String> Column1;
     private ArrayList<String> Column2;
 
-    public TableListViewAdapter(Context context, ArrayList<String> column1, ArrayList<String> column2) {
-        this.mContext = context;
+    public TableListViewAdapter(ArrayList<String> column1, ArrayList<String> column2) {
         this.Column1 = column1;
         this.Column2 = column2;
     }
@@ -25,21 +21,23 @@ public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdap
     public void addItem(String column1, String column2) {
         Column1.add(column1);
         Column2.add(column2);
-        notifyDataSetChanged();
+        notifyItemInserted(getItemCount() - 1);
     }
 
     public void addItems(ArrayList<String> column1, ArrayList<String> column2) {
+        int oldLength = getItemCount();
         Column1.addAll(column1);
         Column2.addAll(column2);
-        notifyDataSetChanged();
+        notifyItemRangeInserted(oldLength, column1.size() - 1);
     }
 
     public void addItems(ArrayList<String[]> columns) {
+        int oldLength = getItemCount();
         for (String[] column : columns) {
             Column1.add(column[0]);
             Column2.add(column[1]);
         }
-        notifyDataSetChanged();
+        notifyItemRangeInserted(oldLength, columns.size() - 1);
     }
 
     // Create new views (invoked by the layout manager)
@@ -55,10 +53,12 @@ public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdap
     public void onBindViewHolder(ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        if (position == 0) {
-            holder.mColumn1.setTypeface(null, Typeface.BOLD);
-            holder.mColumn2.setTypeface(null, Typeface.BOLD);
-        }
+//        Log.d("onBind", "Position = " + position);
+//        if(position == 0){
+//            Log.d("onBind", "PAINT THE FIRST ELEMENT!");
+//            holder.mColumn1.setTypeface(null, Typeface.BOLD);
+//            holder.mColumn2.setTypeface(null, Typeface.BOLD);
+//        }
 
         holder.mColumn1.setText(Column1.get(position));
         holder.mColumn2.setText(Column2.get(position));

@@ -15,13 +15,12 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_practice"
-    tools:context=".PracticeActivity"
+    tools:context=".activity.PracticeActivity"
     android:id="@+id/practice_results_layout"
     android:visibility="gone"
-    tools:visibility="gone">
+    tools:visibility="visible">
 
     <TextView
         android:layout_width="match_parent"
@@ -34,28 +33,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/right_text"
         tools:text="@string/right_text"/>
-
-    <!--<LinearLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="horizontal">-->
-
-        <!--<ProgressBar-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:id="@+id/right_progress_bar"-->
-            <!--tools:progress="56"-->
-            <!--style="?android:attr/progressBarStyleHorizontal"-->
-            <!--android:max="100"-->
-            <!--android:indeterminate="false"/>-->
-
-        <!--<TextView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:id="@+id/progress_text"-->
-            <!--tools:text="56%"/>-->
-
-    <!--</LinearLayout>-->
 
     <Space
         android:layout_width="match_parent"
@@ -75,39 +52,8 @@
             android:text="@string/wrong_words"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
 
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/wrong_words_list"
-            tools:listitem="@layout/layout_table_row_list_item"/>
+        <include layout="@layout/content_results_table_list" />
 
-        <!--<TableLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:id="@+id/wrong_words"-->
-            <!--android:showDividers="none"-->
-            <!--android:orientation="vertical"-->
-            <!--android:stretchColumns="2">-->
-
-            <!--<TableRow-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_weight="1"-->
-                <!--android:orientation="horizontal">-->
-
-                <!--<TextView-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:textStyle="bold"-->
-                    <!--android:text="@string/right_word"/>-->
-
-                <!--<TextView-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:textStyle="bold"-->
-                    <!--android:text="@string/my_translation"/>-->
-
-            <!--</TableRow>-->
-
-        <!--</TableLayout>-->
     </LinearLayout>
 
 </LinearLayout>

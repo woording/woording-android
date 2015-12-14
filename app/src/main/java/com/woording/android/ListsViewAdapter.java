@@ -60,7 +60,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         mLists.addAll(Arrays.asList(lists));
 
         // Report that the data changed
-        notifyDataSetChanged();
+        notifyItemRangeInserted(0, lists.length -1);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
