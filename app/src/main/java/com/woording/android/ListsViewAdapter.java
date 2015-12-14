@@ -14,6 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.woording.android.activity.ListViewActivity;
+import com.woording.android.activity.MainActivity;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 

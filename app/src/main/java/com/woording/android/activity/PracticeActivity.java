@@ -302,6 +302,8 @@ public class PracticeActivity extends AppCompatActivity
     @Override
     public void onEndOfSpeech() {
         Log.i(TAG, "onEndOfSpeech");
+        mMenu.findItem(R.id.enable_speech).setVisible(true);
+        mMenu.findItem(R.id.disable_speech).setVisible(false);
     }
 
     @Override

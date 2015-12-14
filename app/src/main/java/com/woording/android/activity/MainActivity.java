@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static ListsViewAdapter mListsViewAdapter;
 
-    protected static Context mContext;
+    public static Context mContext;
     private boolean doubleBackToExitPressedOnce = false;
 
     @Override
