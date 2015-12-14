@@ -55,26 +55,38 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/username"
-                    android:layout_width="match_parent"
+                <android.support.design.widget.TextInputLayout
                     android:layout_height="wrap_content"
-                    android:hint="@string/prompt_username"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:inputType="text" />
+                    android:layout_width="match_parent" >
 
-                <EditText
-                    android:id="@+id/password"
-                    android:layout_width="match_parent"
+                    <EditText
+                        android:id="@+id/username"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/prompt_username"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:inputType="text" />
+
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
                     android:layout_height="wrap_content"
-                    android:hint="@string/prompt_password"
-                    android:imeActionId="@+id/login"
-                    android:imeActionLabel="@string/action_sign_in_short"
-                    android:imeOptions="actionUnspecified"
-                    android:inputType="textPassword"
-                    android:maxLines="1"
-                    android:singleLine="true" />
+                    android:layout_width="match_parent" >
+
+                    <EditText
+                        android:id="@+id/password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/prompt_password"
+                        android:imeActionId="@+id/login"
+                        android:imeActionLabel="@string/action_sign_in_short"
+                        android:imeOptions="actionUnspecified"
+                        android:inputType="textPassword"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+
+                </android.support.design.widget.TextInputLayout>
 
                 <Button android:id="@+id/sign_in_button"
                     style="?android:textAppearanceSmall"

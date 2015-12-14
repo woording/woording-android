@@ -21,7 +21,7 @@
     tools:context=".PracticeActivity"
     android:id="@+id/practice_results_layout"
     android:visibility="gone"
-    tools:visibility="visible">
+    tools:visibility="gone">
 
     <TextView
         android:layout_width="match_parent"

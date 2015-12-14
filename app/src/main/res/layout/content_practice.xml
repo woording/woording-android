@@ -25,16 +25,16 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/word_to_translate"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        tools:text="car"/>
+        android:id="@+id/language"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        tools:text="English"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/language"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        tools:text="English"/>
+        android:id="@+id/word_to_translate"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        tools:text="car"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -45,14 +45,20 @@
         android:visibility="gone"
         tools:text="auto"/>
 
-    <EditText
-        android:layout_width="match_parent"
+    <android.support.design.widget.TextInputLayout
         android:layout_height="wrap_content"
-        android:hint="@string/translation"
-        android:id="@+id/translation"
-        android:inputType="text"
-        android:imeActionId="@+id/next_word"
-        android:imeOptions="actionGo"/>
+        android:layout_width="match_parent" >
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/translation"
+            android:id="@+id/translation"
+            android:inputType="text"
+            android:imeActionId="@+id/next_word"
+            android:imeOptions="actionGo"/>
+
+    </android.support.design.widget.TextInputLayout>
 
     <Button
         android:layout_width="match_parent"
