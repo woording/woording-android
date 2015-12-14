@@ -22,7 +22,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,35 +31,35 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".activity.LoginActivity"
             android:label="@string/title_activity_login"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".activity.MainActivity"
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.woording.android.MainActivity" />
+                android:value="com.woording.android.activity.MainActivity" />
         </activity>
         <activity
-            android:name=".ListViewActivity"
+            android:name=".activity.ListViewActivity"
             android:label="@string/title_activity_list_view"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".activity.MainActivity"
             android:theme="@style/AppTheme" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.woording.android.MainActivity" />
+                android:value="com.woording.android.activity.MainActivity" />
         </activity>
         <activity
-            android:name=".PracticeActivity"
+            android:name=".activity.PracticeActivity"
             android:label="@string/title_activity_practice"
-            android:parentActivityName=".ListViewActivity"
+            android:parentActivityName=".activity.ListViewActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize|stateVisible">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.woording.android.ListViewActivity" />
+                android:value="com.woording.android.activity.ListViewActivity" />
         </activity>
     </application>
 
