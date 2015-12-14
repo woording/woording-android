@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/translation"
             android:id="@+id/translation"
-            android:inputType="text"
+            android:inputType="textNoSuggestions"
             android:imeActionId="@+id/next_word"
             android:imeOptions="actionGo"/>
 
