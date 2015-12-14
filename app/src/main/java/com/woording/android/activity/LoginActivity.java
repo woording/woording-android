@@ -4,7 +4,7 @@
  * Copyright (c) 2015.
  */
 
-package com.woording.android;
+package com.woording.android.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -20,6 +20,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.woording.android.NetworkCaller;
+import com.woording.android.R;
 
 /**
  * A login screen that offers login via email/password.

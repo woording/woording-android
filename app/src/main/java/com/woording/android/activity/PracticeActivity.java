@@ -4,7 +4,7 @@
  * Copyright (c) 2015.
  */
 
-package com.woording.android;
+package com.woording.android.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,12 +27,12 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
+import com.woording.android.List;
+import com.woording.android.R;
+import com.woording.android.TableListViewAdapter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 

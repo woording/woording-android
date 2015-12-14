@@ -4,7 +4,7 @@
  * Copyright (c) 2015.
  */
 
-package com.woording.android;
+package com.woording.android.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +24,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.woording.android.CacheHandler;
+import com.woording.android.List;
+import com.woording.android.ListsViewAdapter;
+import com.woording.android.NetworkCaller;
+import com.woording.android.R;
 
 import org.json.JSONException;
 

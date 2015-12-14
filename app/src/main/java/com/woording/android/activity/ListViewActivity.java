@@ -4,7 +4,7 @@
  * Copyright (c) 2015.
  */
 
-package com.woording.android;
+package com.woording.android.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -26,6 +26,12 @@ import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+
+import com.woording.android.CacheHandler;
+import com.woording.android.List;
+import com.woording.android.NetworkCaller;
+import com.woording.android.R;
+import com.woording.android.TableListViewAdapter;
 
 import org.json.JSONException;
 
