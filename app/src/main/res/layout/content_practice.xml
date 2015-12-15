@@ -20,7 +20,7 @@
     tools:showIn="@layout/activity_practice"
     tools:context=".activity.PracticeActivity"
     android:id="@+id/practice_layout"
-    tools:visibility="gone">
+    tools:visibility="visible">
 
     <TextView
         android:layout_width="match_parent"

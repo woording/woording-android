@@ -7,6 +7,7 @@
 package com.woording.android;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -19,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class CacheHandler {
 
@@ -52,7 +54,18 @@ public class CacheHandler {
         for (int i = 0; i < files.length; i++) {
             lists[i] = readList(files[i]);
         }
-        return lists;
+
+        // Remove all null objects
+        ArrayList<List> tmp = new ArrayList<>(Arrays.asList(lists));
+        for (int i = 0; i < tmp.size(); i++) {
+            try {
+                if (tmp.get(i) == null) tmp.remove(i);
+            } catch (IndexOutOfBoundsException e) {
+                tmp.add(i, new List("Dummy", "Dummy", "Dummy", "Dummy"));
+                tmp.remove(i);
+            }
+        }
+        return tmp.toArray(new List[tmp.size()]);
     }
 
     public static List readList(Context context, String listname) throws IOException, JSONException {
@@ -60,7 +73,12 @@ public class CacheHandler {
         return readList(file);
     }
 
+    @Nullable
     public static List readList(File file) throws IOException, JSONException {
+        if (file.isDirectory()) {
+            file.delete();
+            return null;
+        }
         BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
         StringBuilder json = new StringBuilder();
         String line;

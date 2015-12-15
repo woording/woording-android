@@ -10,6 +10,7 @@
     <string name="title_activity_login">Sign in</string>
     <string name="title_activity_list_view">List</string>
     <string name="title_activity_practice">Practice List</string>
+    <string name="title_activity_edit_list">Edit List</string>
 
     <string name="error_no_connection">No connection</string>
     <string name="press_BACK_again_to_exit">Please click BACK again to exit</string>
@@ -53,6 +54,12 @@
     <string name="case_sensitive">Case sensitive</string>
 
     <string name="error_wrong_translation">Wrong translation</string>
+
+    <!-- Editing lists -->
+    <string name="list_title">List name</string>
+    <string name="language_1">Language 1</string>
+    <string name="language_2">Language 2</string>
+    <string name="sentence">Sentence</string>
 
     <!-- Languages -->
     <string name="english">English</string>
