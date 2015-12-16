@@ -26,13 +26,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.woording.android.CacheHandler;
 import com.woording.android.List;
 import com.woording.android.ListsViewAdapter;
+import com.woording.android.MySingleton;
 import com.woording.android.NetworkCaller;
 import com.woording.android.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,9 +55,6 @@ public class MainActivity extends AppCompatActivity {
 
     private List[] mLists = new List[]{};
     public static List lastDeletedList = null;
-
-    private GetListsTask mGetListsTask;
-    private SaveListTask mSaveListTask;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private CoordinatorLayout mCoordinatorLayout;
@@ -133,13 +137,11 @@ public class MainActivity extends AppCompatActivity {
                                 public void onClick(View v) {
                                     Log.d(TAG, "onClick: Undo delete");
                                     if (lastDeletedList != null) {
-                                        mSaveListTask = new SaveListTask(lastDeletedList, username);
-                                        mSaveListTask.execute();
+                                        saveList(lastDeletedList);
                                         getLists();
                                     }
                                 }
-                            })
-                            .show();
+                            }).show();
                     break;
             }
         }
@@ -265,100 +267,101 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getLists() {
-        if (mGetListsTask != null) {
-            return;
-        }
         mSwipeRefreshLayout.setRefreshing(true);
 
-        mGetListsTask = new GetListsTask();
-        mGetListsTask.execute((Void) null);
-    }
+        try {
+            // Create the data that is sent
+            JSONObject data = new JSONObject();
+            data.put("token", NetworkCaller.mToken);
+            // Create the request
+            JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                    (Request.Method.POST, NetworkCaller.API_LOCATION + "/" + username, data, new Response.Listener<JSONObject>() {
 
-    public class GetListsTask extends NetworkCaller {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                // Check for errors
+                                if (response.getString("username") != null && response.getString("username").contains("ERROR")) {
+                                    MainActivity.openLoginActivity(MainActivity.mContext);
+                                    return;
+                                }
 
-        GetListsTask() {
-        }
+                                // Handle the response
+                                JSONArray jsonArray = response.getJSONArray("lists");
+                                JSONObject listObject;
+                                List[] Lists = new List[jsonArray.length()];
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    listObject = jsonArray.getJSONObject(i);
+                                    List tmp = new List(listObject.getString("listname"), listObject.getString("language_1_tag"),
+                                            listObject.getString("language_2_tag"), listObject.getString("shared_with"));
+                                    Lists[i] = tmp;
+                                }
+                                mLists = Lists;
+                                mListsViewAdapter.updateList(mLists);
+                                // Write lists to cache
+                                try {
+                                    CacheHandler.writeLists(MainActivity.mContext, mLists);
+                                } catch (IOException e) {
+                                    Log.d("IO", "Something bad with the IO while writing cache: " + e);
+                                } catch (JSONException e) {
+                                    Log.d("JSON", "Something bad with the JSON while writing cache: " + e);
+                                }
+                            } catch (JSONException e) {
+                                Log.d("JSONException", "The JSON fails");
+                            }
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
+                    }, new Response.ErrorListener() {
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                mLists = getLists(username);
-                return mLists != null;
-            } catch (IOException e) {
-                Log.d("IOException", "Something bad happened on the IO");
-            } catch (JSONException e) {
-                Log.d("JSONException", "The JSON fails");
-            }
-            return false;
-        }
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // TODO Auto-generated method stub
+                            Log.e("VolleyError", error.toString());
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
 
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mGetListsTask = null;
+            // Access the RequestQueue through your singleton class.
+            MySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
+        } catch (JSONException e) {
             mSwipeRefreshLayout.setRefreshing(false);
-
-            if (success) {
-                mListsViewAdapter.updateList(mLists);
-                // Write lists to cache
-                try {
-                    CacheHandler.writeLists(MainActivity.mContext, mLists);
-                } catch (IOException e) {
-                    Log.d("IO", "Something bad with the IO: " + e);
-                } catch (JSONException e) {
-                    Log.d("JSON", "Something bad with the JSON: " + e);
-                }
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mGetListsTask = null;
+            Log.d("JSONException", "The JSON fails");
         }
     }
 
-    public class SaveListTask extends NetworkCaller {
+    public void saveList(final List list) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("token", NetworkCaller.mToken);
+            data.put("username", username);
+            data.put("list_data", list.toJSON());
 
-        private final List mList;
-        private final String mUsername;
-
-        SaveListTask(List list, String username) {
-            mList = list;
-            mUsername = username;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                saveList(mUsername, mList);
-                return true;
-            } catch (IOException e) {
-                Log.d("IOException", "Something bad happened on the IO");
-            } catch (JSONException e) {
-                Log.d("JSONException", "The JSON fails");
-            }
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mSaveListTask = null;
-
-            if (success) {
-                // Write lists to cache
-                try {
-                    CacheHandler.writeList(MainActivity.mContext, mList);
-                } catch (IOException e) {
-                    Log.d("IO", "Something bad with the IO: " + e);
-                } catch (JSONException e) {
-                    Log.d("JSON", "Something bad with the JSON: " + e);
+            // Create the request
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, NetworkCaller.API_LOCATION + "/savelist",
+                    data, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    // Write lists to cache
+                    try {
+                        CacheHandler.writeList(MainActivity.mContext, list);
+                    } catch (IOException e) {
+                        Log.d("IO", "Something bad with the IO: " + e);
+                    } catch (JSONException e) {
+                        Log.d("JSON", "Something bad with the JSON: " + e);
+                    }
+                    Snackbar.make(mCoordinatorLayout, R.string.restored, Snackbar.LENGTH_LONG).show();
                 }
-                Snackbar.make(mCoordinatorLayout, R.string.restored, Snackbar.LENGTH_LONG).show();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mSaveListTask = null;
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // TODO Auto-generated method stub
+                    Log.e("VolleyError", error.getMessage());
+                }
+            });
+            // Access the RequestQueue through your singleton class.
+            MySingleton.getInstance(this).addToRequestQueue(request);
+        } catch (JSONException e) {
+            Log.d("JSONException", "The JSON fails");
         }
     }
 }

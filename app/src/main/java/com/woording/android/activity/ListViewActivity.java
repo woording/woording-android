@@ -27,13 +27,22 @@ import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.woording.android.CacheHandler;
 import com.woording.android.List;
+import com.woording.android.MySingleton;
 import com.woording.android.NetworkCaller;
 import com.woording.android.R;
 import com.woording.android.TableListViewAdapter;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,9 +51,6 @@ public class ListViewActivity extends AppCompatActivity {
 
     public static final int NO_WORDS_DATA = 1;
     public static final int DELETED_LIST = 2;
-
-    private GetListTask mGetListTask = null;
-    private DeleteListTask mDeleteListTask = null;
 
     private List mList;
 
@@ -183,22 +189,125 @@ public class ListViewActivity extends AppCompatActivity {
     }
 
     private void getList() {
-        if (mGetListTask != null) {
-            return;
-        }
-
         showProgress(true);
-        mGetListTask = new GetListTask(mList.mName, MainActivity.username);
-        mGetListTask.execute((Void) null);
+
+        try {
+            JSONObject data = new JSONObject();
+            data.put("token", NetworkCaller.mToken);
+            // Create request
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
+                    NetworkCaller.API_LOCATION + "/" + MainActivity.username + "/" + mList.mName.replace(" ", "%20"), data,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            // Check for errors
+                            try {
+                                if (response.getString("username") != null) {
+                                    MainActivity.openLoginActivity(MainActivity.mContext);
+                                }
+                            } catch (JSONException e) {
+                                try {
+                                    List list = new List(response.getString("listname"), response.getString("language_1_tag"),
+                                            response.getString("language_2_tag"), response.getString("shared_with"));
+                                    JSONArray JSONWords = response.getJSONArray("words");
+                                    ArrayList<String> language1Words = new ArrayList<>();
+                                    ArrayList<String> language2Words = new ArrayList<>();
+                                    for (int i = 0; i < JSONWords.length(); i++) {
+                                        JSONObject object = JSONWords.getJSONObject(i);
+                                        language1Words.add(object.getString("language_1_text"));
+                                        language2Words.add(object.getString("language_2_text"));
+                                    }
+                                    list.setWords(language1Words, language2Words);
+                                    mList = list;
+                                    // Display the list
+                                    setWordsTable();
+                                    // Write list to cache
+                                    try {
+                                        CacheHandler.writeList(mContext, mList);
+                                    } catch (IOException exception) {
+                                        Log.d("IO", "Something bad with the IO: " + e);
+                                    } catch (JSONException exception) {
+                                        Log.d("JSON", "Something bad with the JSON: " + e);
+                                    }
+                                } catch (JSONException ex) {
+                                    Log.d("JSONException", "The JSON fails");
+                                }
+                            }
+                            // Stop displaying loading screen
+                            showProgress(false);
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // TODO Auto-generated method stub
+                    Log.e("VolleyError", error.toString());
+                    // Stop displaying loading screen
+                    showProgress(false);
+                    // Try to read from cache
+                    try {
+                        mList = CacheHandler.readList(mContext, mList.mName);
+                    } catch (IOException e) {
+                        Log.d("Cache", "Something went wrong with the IO: " + e);
+                    } catch (JSONException e) {
+                        Log.d("Cache", "Something went wrong with the JSON: " + e);
+                    }
+                    if (mList.getTotalWords() == 0) {
+                        finishActivity(NO_WORDS_DATA);
+                    }
+                    else setWordsTable();
+                }
+            });
+            // Access the RequestQueue through your singleton class.
+            MySingleton.getInstance(this).addToRequestQueue(request);
+        } catch (JSONException e) {
+            Log.d("JSONException", "The JSON fails");
+        }
     }
 
     private void deleteList() {
-        if (mDeleteListTask != null) {
-            return;
+        try {
+            final JSONObject data = new JSONObject()
+                    .put("token", NetworkCaller.mToken)
+                    .put("username", MainActivity.username)
+                    .put("listname", mList.mName);
+            // Create request
+            StringRequest request = new StringRequest(Request.Method.POST, NetworkCaller.API_LOCATION + "/deleteList",
+                    new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    // Delete list from cache
+                    try {
+                        CacheHandler.deleteList(mContext, mList.mName);
+                    } catch (IOException e) {
+                        Log.d("IO", "Something bad with the IO: " + e);
+                    }
+                    MainActivity.lastDeletedList = mList;
+                    finishActivity(DELETED_LIST);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // TODO Auto-generated method stub
+                    Log.e("VolleyError", error.toString());
+                }
+            }) {
+                // This needs to be done to send data with a StringRequest
+                // Get the data body
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    return data.toString().getBytes();
+                }
+                // Get the content type
+                @Override
+                public String getBodyContentType() {
+                    return "application/json";
+                }
+            };
+            // Access the RequestQueue through your singleton class.
+            MySingleton.getInstance(this).addToRequestQueue(request);
+        } catch (JSONException e) {
+            Log.d("JSONException", "The JSON fails");
         }
-
-        mDeleteListTask = new DeleteListTask(mList, MainActivity.username);
-        mDeleteListTask.execute((Void) null);
     }
 
     public void finishActivity(int requestCode) {
@@ -230,112 +339,4 @@ public class ListViewActivity extends AppCompatActivity {
             }
         });
     }
-
-    public class GetListTask extends NetworkCaller {
-
-        private final String mListName;
-        private final String mUsername;
-
-        GetListTask(String listName, String username) {
-            mListName = listName;
-            mUsername = username;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                mList = getList(mUsername, mListName);
-                return mList != null;
-            } catch (IOException e) {
-                Log.d("IOException", "Something bad happened on the IO");
-            } catch (JSONException e) {
-                Log.d("JSONException", "The JSON fails");
-            }
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mGetListTask = null;
-            showProgress(false);
-
-            if (success) {
-                setWordsTable();
-                // Write list to cache
-                try {
-                    CacheHandler.writeList(mContext, mList);
-                } catch (IOException e) {
-                    Log.d("IO", "Something bad with the IO: " + e);
-                } catch (JSONException e) {
-                    Log.d("JSON", "Something bad with the JSON: " + e);
-                }
-            } else {
-                // Try to read from cache
-                try {
-                    mList = CacheHandler.readList(mContext, mList.mName);
-                } catch (IOException e) {
-                    Log.d("Cache", "Something went wrong with the IO: " + e);
-                } catch (JSONException e) {
-                    Log.d("Cache", "Something went wrong with the JSON: " + e);
-                }
-                if (mList.getTotalWords() == 0) {
-                    finishActivity(NO_WORDS_DATA);
-                }
-                else setWordsTable();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mGetListTask = null;
-            showProgress(false);
-        }
-
-    }
-
-    public class DeleteListTask extends NetworkCaller {
-
-        private final List mList;
-        private final String mUsername;
-
-        DeleteListTask(List list, String username) {
-            mList = list;
-            mUsername = username;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                deleteList(mUsername, mList.mName);
-                return true;
-            } catch (IOException e) {
-                Log.d("IOException", "Something bad happened on the IO");
-            } catch (JSONException e) {
-                Log.d("JSONException", "The JSON fails");
-            }
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mDeleteListTask = null;
-
-            if (success) {
-                // Delete list from cache
-                try {
-                    CacheHandler.deleteList(mContext, mList.mName);
-                } catch (IOException e) {
-                    Log.d("IO", "Something bad with the IO: " + e);
-                }
-                MainActivity.lastDeletedList = mList;
-                finishActivity(DELETED_LIST);
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mDeleteListTask = null;
-        }
-    }
-
 }
