@@ -35,7 +35,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.woording.android.CacheHandler;
 import com.woording.android.List;
 import com.woording.android.ListsViewAdapter;
 import com.woording.android.NetworkCaller;
@@ -48,7 +47,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -81,15 +79,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Load cache
-        try {
-            mLists = CacheHandler.readLists(this);
-        } catch (IOException e) {
-            Log.d("Cache", "Something went wrong with the IO: " + e);
-        } catch (JSONException e) {
-            Log.d("Cache", "Something went wrong with the JSON: " + e);
-        }
 
         authToken = null;
         mAuthPreferences = new AuthPreferences(this);
@@ -254,20 +243,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             mListsViewAdapter.updateList(mLists);
-
-            // Then try to update or to read from cache
-            if (NetworkCaller.mToken != null && isNetworkAvailable(this)) getLists();
-            else {
-                // Load cache
-                try {
-                    mLists = CacheHandler.readLists(this);
-                } catch (IOException e) {
-                    Log.d("Cache", "Something went wrong with the IO: " + e);
-                } catch (JSONException e) {
-                    Log.d("Cache", "Something went wrong with the JSON: " + e);
-                }
-                mListsViewAdapter.updateList(mLists);
-            }
         }
     }
 
@@ -316,14 +291,6 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 mLists = lists;
                                 mListsViewAdapter.updateList(mLists);
-                                // Write lists to cache
-                                try {
-                                    CacheHandler.writeLists(MainActivity.mContext, mLists);
-                                } catch (IOException e) {
-                                    Log.d("IO", "Something bad with the IO while writing cache: " + e);
-                                } catch (JSONException e) {
-                                    Log.d("JSON", "Something bad with the JSON while writing cache: " + e);
-                                }
                             } catch (JSONException e) {
                                 Log.d("JSONException", "The JSON fails");
                             }
@@ -359,14 +326,6 @@ public class MainActivity extends AppCompatActivity {
                     data, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    // Write lists to cache
-                    try {
-                        CacheHandler.writeList(MainActivity.mContext, list);
-                    } catch (IOException e) {
-                        Log.d("IO", "Something bad with the IO: " + e);
-                    } catch (JSONException e) {
-                        Log.d("JSON", "Something bad with the JSON: " + e);
-                    }
                     Snackbar.make(mCoordinatorLayout, R.string.restored, Snackbar.LENGTH_LONG).show();
                 }
             }, new Response.ErrorListener() {

@@ -33,7 +33,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.woording.android.CacheHandler;
 import com.woording.android.List;
 import com.woording.android.NetworkCaller;
 import com.woording.android.R;
@@ -45,7 +44,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class ListViewActivity extends AppCompatActivity {
@@ -208,14 +206,6 @@ public class ListViewActivity extends AppCompatActivity {
                                     mList = list;
                                     // Display the list
                                     setWordsTable();
-                                    // Write list to cache
-                                    try {
-                                        CacheHandler.writeList(mContext, mList);
-                                    } catch (IOException exception) {
-                                        Log.d("IO", "Something bad with the IO: " + e);
-                                    } catch (JSONException exception) {
-                                        Log.d("JSON", "Something bad with the JSON: " + e);
-                                    }
                                 } catch (JSONException ex) {
                                     Log.d("JSONException", "The JSON fails");
                                 }
@@ -230,18 +220,7 @@ public class ListViewActivity extends AppCompatActivity {
                     Log.e("VolleyError", error.toString());
                     // Stop displaying loading screen
                     showProgress(false);
-                    // Try to read from cache
-                    try {
-                        mList = CacheHandler.readList(mContext, mList.mName);
-                    } catch (IOException e) {
-                        Log.d("Cache", "Something went wrong with the IO: " + e);
-                    } catch (JSONException e) {
-                        Log.d("Cache", "Something went wrong with the JSON: " + e);
-                    }
-                    if (mList.getTotalWords() == 0) {
-                        finishActivity(NO_WORDS_DATA);
-                    }
-                    else setWordsTable();
+                    error.printStackTrace();
                 }
             });
             // Access the RequestQueue through your singleton class.
@@ -262,12 +241,6 @@ public class ListViewActivity extends AppCompatActivity {
                     new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    // Delete list from cache
-                    try {
-                        CacheHandler.deleteList(mContext, mList.mName);
-                    } catch (IOException e) {
-                        Log.d("IO", "Something bad with the IO: " + e);
-                    }
                     MainActivity.lastDeletedList = mList;
                     finishActivity(DELETED_LIST);
                 }
