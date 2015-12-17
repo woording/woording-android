@@ -1,6 +1,6 @@
 package com.woording.android.account;
 
-import com.woording.android.NetworkCaller;
+import com.woording.android.App;
 
 import org.json.JSONObject;
 
@@ -44,7 +44,7 @@ public class MyServerAuthenticator implements IServerAuthenticator {
         String authToken = null;
         try {
             // Setup connection
-            URL url = new URL(NetworkCaller.API_LOCATION + "/authenticate");
+            URL url = new URL(App.API_LOCATION + "/authenticate");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setReadTimeout(15000);
             urlConnection.setConnectTimeout(15000);

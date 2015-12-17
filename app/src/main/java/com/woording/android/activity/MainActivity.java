@@ -35,9 +35,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.woording.android.App;
 import com.woording.android.List;
 import com.woording.android.ListsViewAdapter;
-import com.woording.android.NetworkCaller;
 import com.woording.android.R;
 import com.woording.android.VolleySingleton;
 import com.woording.android.account.AccountUtils;
@@ -124,11 +124,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_view);
-
-        // Load saved data
-//        SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
-//        username = sharedPreferences.getString("username", null);
-//        NetworkCaller.mToken = sharedPreferences.getString("token", null);
 
         mContext = this;
 
@@ -267,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
             data.put("token", mAuthPreferences.getAuthToken());
             // Create the request
             JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                    (Request.Method.POST, NetworkCaller.API_LOCATION + "/" + mAuthPreferences.getAccountName(),
+                    (Request.Method.POST, App.API_LOCATION + "/" + mAuthPreferences.getAccountName(),
                             data, new Response.Listener<JSONObject>() {
 
                         @Override
@@ -322,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
             data.put("list_data", list.toJSON());
 
             // Create the request
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, NetworkCaller.API_LOCATION + "/savelist",
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/savelist",
                     data, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {

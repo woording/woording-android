@@ -33,8 +33,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.woording.android.App;
 import com.woording.android.List;
-import com.woording.android.NetworkCaller;
 import com.woording.android.R;
 import com.woording.android.TableListViewAdapter;
 import com.woording.android.VolleySingleton;
@@ -181,7 +181,7 @@ public class ListViewActivity extends AppCompatActivity {
             data.put("token", mAuthPreferences.getAuthToken());
             // Create request
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                    NetworkCaller.API_LOCATION + "/" + mAuthPreferences.getAccountName() + "/" + mList.mName.replace(" ", "%20"),
+                    App.API_LOCATION + "/" + mAuthPreferences.getAccountName() + "/" + mList.mName.replace(" ", "%20"),
                     data, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -237,7 +237,7 @@ public class ListViewActivity extends AppCompatActivity {
                     .put("username", mAuthPreferences.getAccountName())
                     .put("listname", mList.mName);
             // Create request
-            StringRequest request = new StringRequest(Request.Method.POST, NetworkCaller.API_LOCATION + "/deleteList",
+            StringRequest request = new StringRequest(Request.Method.POST, App.API_LOCATION + "/deleteList",
                     new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
