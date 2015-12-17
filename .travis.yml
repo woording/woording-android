@@ -11,10 +11,16 @@ jdk:
 android:
   components:
     - tools
+    # Used for :app
     - build-tools-23.0.2
     - android-23
+    # Used for :volley
+    - build-tools-22.0.1
     - android-22
+    # Extra dependencies
     - extra-android-m2repository
+  licences:
+    - 'android-sdk-license-.+'
 
 install: true
 
