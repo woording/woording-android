@@ -74,5 +74,6 @@
 
     <!-- Misc -->
     <string name="undo">Undo</string>
+    <string name="account_type">com.woording.android</string>
 
 </resources>

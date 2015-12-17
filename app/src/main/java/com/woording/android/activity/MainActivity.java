@@ -6,6 +6,11 @@
 
 package com.woording.android.activity;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,6 +41,8 @@ import com.woording.android.ListsViewAdapter;
 import com.woording.android.NetworkCaller;
 import com.woording.android.R;
 import com.woording.android.VolleySingleton;
+import com.woording.android.account.AccountUtils;
+import com.woording.android.account.AuthPreferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static String username;
+
+    private static final int REQ_SIGNUP = 1;
+
+    private AccountManager mAccountManager;
+    private AuthPreferences mAuthPreferences;
+    private String authToken;
 
     private List[] mLists = new List[]{};
     public static List lastDeletedList = null;
@@ -77,6 +90,14 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             Log.d("Cache", "Something went wrong with the JSON: " + e);
         }
+
+        authToken = null;
+        mAuthPreferences = new AuthPreferences(this);
+        mAccountManager = AccountManager.get(this);
+
+        // Ask for an auth token
+        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
+                null, this, null, null, new GetAuthTokenCallback(), null);
 
         // Setup toolbar
         Toolbar mToolbar;
@@ -116,9 +137,9 @@ public class MainActivity extends AppCompatActivity {
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_view);
 
         // Load saved data
-        SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
-        username = sharedPreferences.getString("username", null);
-        NetworkCaller.mToken = sharedPreferences.getString("token", null);
+//        SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
+//        username = sharedPreferences.getString("username", null);
+//        NetworkCaller.mToken = sharedPreferences.getString("token", null);
 
         mContext = this;
 
@@ -147,12 +168,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // TODO: Needs better logic
-        if (NetworkCaller.mToken == null || username == null) {
-            openLoginActivity(this);
-        } else {
-            if (isNetworkAvailable(this)) getLists();
-            else Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
-        }
+        getLists();
+        if (!isNetworkAvailable(this)) Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -272,10 +289,11 @@ public class MainActivity extends AppCompatActivity {
         try {
             // Create the data that is sent
             JSONObject data = new JSONObject();
-            data.put("token", NetworkCaller.mToken);
+            data.put("token", mAuthPreferences.getAuthToken());
             // Create the request
             JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                    (Request.Method.POST, NetworkCaller.API_LOCATION + "/" + username, data, new Response.Listener<JSONObject>() {
+                    (Request.Method.POST, NetworkCaller.API_LOCATION + "/" + mAuthPreferences.getAccountName(),
+                            data, new Response.Listener<JSONObject>() {
 
                         @Override
                         public void onResponse(JSONObject response) {
@@ -332,8 +350,8 @@ public class MainActivity extends AppCompatActivity {
     public void saveList(final List list) {
         try {
             JSONObject data = new JSONObject();
-            data.put("token", NetworkCaller.mToken);
-            data.put("username", username);
+            data.put("token", mAuthPreferences.getAuthToken());
+            data.put("username", mAuthPreferences.getAccountName());
             data.put("list_data", list.toJSON());
 
             // Create the request
@@ -363,5 +381,44 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             Log.d("JSONException", "The JSON fails");
         }
+    }
+
+    private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
+
+        @Override
+        public void run(AccountManagerFuture<Bundle> result) {
+            Bundle bundle;
+
+            try {
+                bundle = result.getResult();
+
+                final Intent intent = (Intent) bundle.get(AccountManager.KEY_INTENT);
+                if (intent != null) {
+                    startActivityForResult(intent, REQ_SIGNUP);
+                } else {
+                    authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                    final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
+
+                    // Save session username & auth token
+                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setUsername(accountName);
+
+                    // If the logged account didn't exist, we need to create it on the device
+                    Account account = AccountUtils.getAccount(MainActivity.this, accountName);
+                    if (account == null) {
+                        account = new Account(accountName, AccountUtils.ACCOUNT_TYPE);
+                        mAccountManager.addAccountExplicitly(account, bundle.getString(LoginActivity.PARAM_USER_PASSWORD), null);
+                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
+                    }
+                }
+            } catch(OperationCanceledException e) {
+                // If signup was cancelled, force activity termination
+                finish();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 }

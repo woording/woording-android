@@ -6,13 +6,16 @@
 
 package com.woording.android.activity;
 
+import android.accounts.Account;
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,13 +24,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.woording.android.NetworkCaller;
 import com.woording.android.R;
+import com.woording.android.account.AccountUtils;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
+
+    public static final String ARG_ACCOUNT_TYPE = "accountType";
+    public static final String ARG_AUTH_TOKEN_TYPE = "authTokenType";
+    public static final String ARG_IS_ADDING_NEW_ACCOUNT = "isAddingNewAccount";
+    public static final String PARAM_USER_PASSWORD = "password";
+
+    private AccountManager mAccountManager;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -48,6 +58,8 @@ public class LoginActivity extends AppCompatActivity {
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mAccountManager = AccountManager.get(this);
 
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.username);
@@ -160,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends NetworkCaller {
+    public class UserLoginTask extends AsyncTask<Void, Void, Intent> {
 
         private final String mUsername;
         private final String mPassword;
@@ -171,26 +183,27 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                // Server Request
-                return authorize(mUsername, mPassword);
-            } catch (Exception e) {
-                Log.d("InputStream", e.getMessage());
-            }
-            return false;
+        protected Intent doInBackground(Void... params) {
+            String authToken = AccountUtils.mServerAuthenticator.signIn(mUsername, mPassword);
+
+            final Intent res = new Intent();
+            res.putExtra(AccountManager.KEY_ACCOUNT_NAME, mUsername);
+            res.putExtra(AccountManager.KEY_ACCOUNT_TYPE, AccountUtils.ACCOUNT_TYPE);
+            res.putExtra(AccountManager.KEY_AUTHTOKEN, authToken);
+            res.putExtra(PARAM_USER_PASSWORD, mPassword);
+            return res;
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final Intent intent) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
-                finish();
-            } else {
+            if (intent.getStringExtra(AccountManager.KEY_AUTHTOKEN) == null) {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
+            } else {
+                finishLogin(intent);
             }
         }
 
@@ -198,6 +211,27 @@ public class LoginActivity extends AppCompatActivity {
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+
+        private void finishLogin(Intent intent) {
+            final String accountName = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+            final String accountPassword = intent.getStringExtra(PARAM_USER_PASSWORD);
+            final Account account = new Account(accountName, intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE));
+            String authToken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
+
+            if (getIntent().getBooleanExtra(ARG_IS_ADDING_NEW_ACCOUNT, false)) {
+                // Creating the account on the device and setting the auth token we got
+                // (Not setting the auth token will cause another call to the server to authenticate the user)
+                mAccountManager.addAccountExplicitly(account, accountPassword, null);
+                mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
+            } else {
+                mAccountManager.setPassword(account, accountPassword);
+            }
+
+            setAccountAuthenticatorResult(intent.getExtras());
+            setResult(AccountAuthenticatorActivity.RESULT_OK, intent);
+
+            finish();
         }
     }
 }

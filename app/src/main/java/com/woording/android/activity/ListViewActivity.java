@@ -39,6 +39,7 @@ import com.woording.android.NetworkCaller;
 import com.woording.android.R;
 import com.woording.android.TableListViewAdapter;
 import com.woording.android.VolleySingleton;
+import com.woording.android.account.AuthPreferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,6 +54,8 @@ public class ListViewActivity extends AppCompatActivity {
     public static final int DELETED_LIST = 2;
 
     private List mList;
+
+    private AuthPreferences mAuthPreferences;
 
     private ProgressBar mProgressBar;
     private RecyclerView mRecyclerView;
@@ -69,6 +72,8 @@ public class ListViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_view);
 
+        mAuthPreferences = new AuthPreferences(this);
+
         // Setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -84,24 +89,7 @@ public class ListViewActivity extends AppCompatActivity {
 
         // Load List from Intent
         mList = (List) getIntent().getSerializableExtra("list");
-        if (MainActivity.isNetworkAvailable(this)) getList();
-        else {
-            // Try to read from cache
-            try {
-                mList = CacheHandler.readList(this, mList.mName);
-            } catch (IOException e) {
-                Log.d("Cache", "Something went wrong with the IO: " + e);
-            } catch (JSONException e) {
-                Log.d("Cache", "Something went wrong with the JSON: " + e);
-            }
-            if (mList.getTotalWords() == 0) {
-                finishActivity(NO_WORDS_DATA);
-            }
-            else setWordsTable();
-        }
-
-
-
+        getList();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -155,8 +143,7 @@ public class ListViewActivity extends AppCompatActivity {
                         newIntent.putExtra("caseSensitive", caseSensitive);
                         startActivity(newIntent);
                     }
-                });
-                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         cancelled = true;
@@ -193,11 +180,11 @@ public class ListViewActivity extends AppCompatActivity {
 
         try {
             JSONObject data = new JSONObject();
-            data.put("token", NetworkCaller.mToken);
+            data.put("token", mAuthPreferences.getAuthToken());
             // Create request
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                    NetworkCaller.API_LOCATION + "/" + MainActivity.username + "/" + mList.mName.replace(" ", "%20"), data,
-                    new Response.Listener<JSONObject>() {
+                    NetworkCaller.API_LOCATION + "/" + mAuthPreferences.getAccountName() + "/" + mList.mName.replace(" ", "%20"),
+                    data, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             // Check for errors
@@ -267,8 +254,8 @@ public class ListViewActivity extends AppCompatActivity {
     private void deleteList() {
         try {
             final JSONObject data = new JSONObject()
-                    .put("token", NetworkCaller.mToken)
-                    .put("username", MainActivity.username)
+                    .put("token", mAuthPreferences.getAuthToken())
+                    .put("username", mAuthPreferences.getAccountName())
                     .put("listname", mList.mName);
             // Create request
             StringRequest request = new StringRequest(Request.Method.POST, NetworkCaller.API_LOCATION + "/deleteList",
