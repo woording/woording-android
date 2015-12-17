@@ -3,9 +3,18 @@ language: android
 notifications:
   email: false
 
+sudo: false
+
+jdk:
+  - openjdk7
+
 android:
   components:
+    - tools
     - build-tools-23.0.2
     - android-23
+    - extra-android-m2repository
 
-script: ./gradlew build connectedCheck
+install: true
+
+script: true
