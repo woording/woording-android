@@ -1,0 +1,13 @@
+language: android
+
+branches:
+	only:
+	- master
+
+notifications:
+  email: false
+
+android:
+	components:
+	- build-tools-23.0.2
+	- android-23
