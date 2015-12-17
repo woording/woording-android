@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Need this permission for speech recognition -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- Need permissions to add accounts -->
+    <!-- Need permissions to add, get and authenticate accounts -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />

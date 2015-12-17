@@ -13,7 +13,6 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -49,8 +48,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -159,13 +156,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        restoreLists();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        restoreLists();
     }
     
     @Override
@@ -173,17 +168,6 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         lastDeletedList = null;
 
-        if (mLists.length > 0) {
-            String[] lists = new String[mLists.length];
-            for (int i = 0; i < mLists.length; i++) {
-                lists[i] = mLists[i].toString();
-            }
-
-            SharedPreferences sharedPreferences = getSharedPreferences("nl.philipdb.woording_MainActivity", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putStringSet("Lists", new HashSet<>(Arrays.asList(lists)));
-            editor.apply();
-        }
     }
 
     @Override
@@ -221,24 +205,6 @@ public class MainActivity extends AppCompatActivity {
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
-    }
-
-    protected void restoreLists() {
-        if (mLists.length == 0) {
-            // First try to get from sharedPrefs
-            SharedPreferences sharedPreferences = getSharedPreferences("nl.philipdb.woording_MainActivity", MODE_PRIVATE);
-            Set listsSet = sharedPreferences.getStringSet("lists", new HashSet<String>(0));
-            String[] stringLists = (String[]) listsSet.toArray(new String[listsSet.size()]);
-            mLists = new List[stringLists.length];
-            for (int i = 0; i < stringLists.length; i++) {
-                try {
-                    mLists[i] = List.fromString(stringLists[i]);
-                } catch (JSONException e) {
-                    Log.d(TAG, "onStart: Error while converting string to list");
-                }
-            }
-            mListsViewAdapter.updateList(mLists);
-        }
     }
 
     public static boolean isNetworkAvailable(Context context) {
