@@ -17,4 +17,4 @@ android:
 
 install: true
 
-script: true
+script: ./gradlew build connectedCheck
