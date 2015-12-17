@@ -24,4 +24,4 @@ android:
 
 install: true
 
-script: ./gradlew build connectedCheck
+script: ./gradlew build -x :volley:testDebugUnitTest -x :volley:testReleaseUnitTest
