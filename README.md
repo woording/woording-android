@@ -1,4 +1,6 @@
 # woording-android
+[![Build Status](https://travis-ci.org/woording/woording-android.svg?branch=master)](https://travis-ci.org/woording/woording-android)
+
 Woording's Android app.
 
 This app is built with de latest Android-Studio Preview and the latest alpha version of Gradle.
