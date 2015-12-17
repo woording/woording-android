@@ -35,10 +35,10 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.woording.android.CacheHandler;
 import com.woording.android.List;
-import com.woording.android.MySingleton;
 import com.woording.android.NetworkCaller;
 import com.woording.android.R;
 import com.woording.android.TableListViewAdapter;
+import com.woording.android.VolleySingleton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -258,7 +258,7 @@ public class ListViewActivity extends AppCompatActivity {
                 }
             });
             // Access the RequestQueue through your singleton class.
-            MySingleton.getInstance(this).addToRequestQueue(request);
+            VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {
             Log.d("JSONException", "The JSON fails");
         }
@@ -304,7 +304,7 @@ public class ListViewActivity extends AppCompatActivity {
                 }
             };
             // Access the RequestQueue through your singleton class.
-            MySingleton.getInstance(this).addToRequestQueue(request);
+            VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {
             Log.d("JSONException", "The JSON fails");
         }

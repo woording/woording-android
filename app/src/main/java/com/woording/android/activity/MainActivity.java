@@ -33,9 +33,9 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.woording.android.CacheHandler;
 import com.woording.android.List;
 import com.woording.android.ListsViewAdapter;
-import com.woording.android.MySingleton;
 import com.woording.android.NetworkCaller;
 import com.woording.android.R;
+import com.woording.android.VolleySingleton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -289,14 +289,14 @@ public class MainActivity extends AppCompatActivity {
                                 // Handle the response
                                 JSONArray jsonArray = response.getJSONArray("lists");
                                 JSONObject listObject;
-                                List[] Lists = new List[jsonArray.length()];
+                                List[] lists = new List[jsonArray.length()];
                                 for (int i = 0; i < jsonArray.length(); i++) {
                                     listObject = jsonArray.getJSONObject(i);
                                     List tmp = new List(listObject.getString("listname"), listObject.getString("language_1_tag"),
                                             listObject.getString("language_2_tag"), listObject.getString("shared_with"));
-                                    Lists[i] = tmp;
+                                    lists[i] = tmp;
                                 }
-                                mLists = Lists;
+                                mLists = lists;
                                 mListsViewAdapter.updateList(mLists);
                                 // Write lists to cache
                                 try {
@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
                     });
 
             // Access the RequestQueue through your singleton class.
-            MySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
+            VolleySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
         } catch (JSONException e) {
             mSwipeRefreshLayout.setRefreshing(false);
             Log.d("JSONException", "The JSON fails");
@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             // Access the RequestQueue through your singleton class.
-            MySingleton.getInstance(this).addToRequestQueue(request);
+            VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {
             Log.d("JSONException", "The JSON fails");
         }
