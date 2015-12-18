@@ -2,14 +2,24 @@ package com.woording.android.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.woording.android.EditTextListAdapter;
 import com.woording.android.R;
 
+import java.util.ArrayList;
+
 public class EditListActivity extends AppCompatActivity {
+
+    // UI elements
+    private RecyclerView mRecyclerView;
+
+    private EditTextListAdapter mEditTextListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +41,12 @@ public class EditListActivity extends AppCompatActivity {
         // Apply the adapter to the spinner
         spinnerLanguage1.setAdapter(adapter);
         spinnerLanguage2.setAdapter(adapter);
+
+        // Setup RecyclerView
+        mRecyclerView = (RecyclerView) findViewById(R.id.edit_words_list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mEditTextListAdapter = new EditTextListAdapter(new ArrayList<String>(), new ArrayList<String>());
+        mRecyclerView.setAdapter(mEditTextListAdapter);
     }
 
     @Override
