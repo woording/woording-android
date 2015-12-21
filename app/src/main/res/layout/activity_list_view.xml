@@ -28,15 +28,13 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <ProgressBar
-        android:id="@+id/get_list_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
+    <fragment
+        android:id="@+id/list_view_fragment"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_gravity="center_horizontal"
-        android:visibility="gone" />
+        android:name="com.woording.android.ListViewFragment"
+        tools:layout="@layout/fragment_list_view"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-    <include layout="@layout/content_list_view" />
 
 </android.support.design.widget.CoordinatorLayout>

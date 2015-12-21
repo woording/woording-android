@@ -28,19 +28,13 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh_layout"
+    <fragment
+        android:id="@+id/lists_view_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/lists_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:listitem="@layout/layout_lists_list_item"/>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+        android:name="com.woording.android.ListsListFragment"
+        tools:layout="@layout/fragment_lists_list"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -51,7 +45,7 @@
         android:src="@drawable/ic_add_white_24dp"
         android:layout_gravity="bottom|end"
         app:fabSize="normal"
-        app:layout_anchor="@id/lists_view"
+        app:layout_anchor="@id/lists_view_fragment"
         app:layout_anchorGravity="bottom|right|end"/>
 
 </android.support.design.widget.CoordinatorLayout>

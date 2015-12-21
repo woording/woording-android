@@ -13,7 +13,7 @@ public class App extends Application {
 
     private static Context context;
 
-    public static final String API_LOCATION = "http://api.woording.com";
+    public static final String API_LOCATION = "http://192.168.178.188:5000";
 
     @Override
     public void onCreate(){

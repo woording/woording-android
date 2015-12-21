@@ -6,6 +6,11 @@
 
 package com.woording.android.activity;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.OperationCanceledException;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
@@ -28,6 +33,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -35,9 +41,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.woording.android.App;
 import com.woording.android.List;
+import com.woording.android.ListViewFragment;
 import com.woording.android.R;
 import com.woording.android.TableListViewAdapter;
 import com.woording.android.VolleySingleton;
+import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
 
 import org.json.JSONArray;
@@ -46,19 +54,18 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ListViewActivity extends AppCompatActivity {
+public class ListViewActivity extends AppCompatActivity implements ListViewFragment.OnFragmentInteractionListener {
 
     public static final int NO_WORDS_DATA = 1;
     public static final int DELETED_LIST = 2;
 
     private List mList;
 
+    private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
+    private String authToken;
 
-    private ProgressBar mProgressBar;
-    private RecyclerView mRecyclerView;
-
-    private TableListViewAdapter recyclerViewAdapter;
+    private ListViewFragment mListViewFragment;
 
     public int askedLanguage = 1;
     public boolean caseSensitive = true;
@@ -70,23 +77,29 @@ public class ListViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_view);
 
+        // If should be in two-pane mode, finish to return to main activity
+        if (getResources().getBoolean(R.bool.is_dual_pane)) {
+            finish();
+            return;
+        }
+
+        // Load List from Intent
+        mList = (List) getIntent().getSerializableExtra("list");
+
+        authToken = null;
         mAuthPreferences = new AuthPreferences(this);
+        mAccountManager = AccountManager.get(this);
+
+        // Ask for an auth token
+        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
+                null, this, null, null, new GetAuthTokenCallback(0), null);
 
         // Setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.get_list_progress);
-        mRecyclerView = (RecyclerView) findViewById(R.id.words_list);
-        // Setup LinearLayoutManager
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(linearLayoutManager);
-        // Setup adapter
-        recyclerViewAdapter = new TableListViewAdapter(new ArrayList<String>(), new ArrayList<String>());
-        mRecyclerView.setAdapter(recyclerViewAdapter);
+        mListViewFragment = (ListViewFragment) getSupportFragmentManager().findFragmentById(R.id.list_view_fragment);
 
-        // Load List from Intent
-        mList = (List) getIntent().getSerializableExtra("list");
         getList();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -104,7 +117,6 @@ public class ListViewActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-
        switch (item.getItemId()) {
            case R.id.action_practice:
                 // Create custom AlertDialog
@@ -170,11 +182,19 @@ public class ListViewActivity extends AppCompatActivity {
 
         ((TextView) findViewById(R.id.head_1)).setText(List.getLanguageName(this, mList.mLanguage1));
         ((TextView) findViewById(R.id.head_2)).setText(List.getLanguageName(this, mList.mLanguage2));
-        recyclerViewAdapter.addItems(mList.mLanguage1Words, mList.mLanguage2Words);
+        mListViewFragment.addItems(mList.mLanguage1Words, mList.mLanguage2Words);
+    }
+
+    private void getNewAuthToken(int taskToRun) {
+        // Invalidate the old token
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
+        // Now get a new one
+        mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
+                AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
     }
 
     private void getList() {
-        showProgress(true);
+        mListViewFragment.showProgress(true);
 
         try {
             JSONObject data = new JSONObject();
@@ -187,46 +207,44 @@ public class ListViewActivity extends AppCompatActivity {
                         public void onResponse(JSONObject response) {
                             // Check for errors
                             try {
-                                if (response.getString("username") != null) {
-                                    MainActivity.openLoginActivity(MainActivity.mContext);
+                                List list = new List(response.getString("listname"), response.getString("language_1_tag"),
+                                        response.getString("language_2_tag"), response.getString("shared_with"));
+                                JSONArray JSONWords = response.getJSONArray("words");
+                                ArrayList<String> language1Words = new ArrayList<>();
+                                ArrayList<String> language2Words = new ArrayList<>();
+                                for (int i = 0; i < JSONWords.length(); i++) {
+                                    JSONObject object = JSONWords.getJSONObject(i);
+                                    language1Words.add(object.getString("language_1_text"));
+                                    language2Words.add(object.getString("language_2_text"));
                                 }
-                            } catch (JSONException e) {
-                                try {
-                                    List list = new List(response.getString("listname"), response.getString("language_1_tag"),
-                                            response.getString("language_2_tag"), response.getString("shared_with"));
-                                    JSONArray JSONWords = response.getJSONArray("words");
-                                    ArrayList<String> language1Words = new ArrayList<>();
-                                    ArrayList<String> language2Words = new ArrayList<>();
-                                    for (int i = 0; i < JSONWords.length(); i++) {
-                                        JSONObject object = JSONWords.getJSONObject(i);
-                                        language1Words.add(object.getString("language_1_text"));
-                                        language2Words.add(object.getString("language_2_text"));
-                                    }
-                                    list.setWords(language1Words, language2Words);
-                                    mList = list;
-                                    // Display the list
-                                    setWordsTable();
-                                } catch (JSONException ex) {
-                                    Log.d("JSONException", "The JSON fails");
-                                }
+                                list.setWords(language1Words, language2Words);
+                                mList = list;
+                                // Display the list
+                                setWordsTable();
+                            } catch (JSONException ex) {
+                                Log.d("JSONException", "The JSON fails");
                             }
                             // Stop displaying loading screen
-                            showProgress(false);
+                            mListViewFragment.showProgress(false);
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    // TODO Auto-generated method stub
-                    Log.e("VolleyError", error.toString());
-                    // Stop displaying loading screen
-                    showProgress(false);
-                    error.printStackTrace();
+                    NetworkResponse networkResponse = error.networkResponse;
+                    if (networkResponse != null && networkResponse.statusCode == 401) {
+                        // HTTP Status Code: 401 Unauthorized
+                        getNewAuthToken(0);
+                    } else {
+                        error.printStackTrace();
+                        // Stop displaying loading screen
+                        mListViewFragment.showProgress(false);
+                    }
                 }
             });
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {
-            Log.d("JSONException", "The JSON fails");
+            e.printStackTrace();
         }
     }
 
@@ -247,8 +265,13 @@ public class ListViewActivity extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    // TODO Auto-generated method stub
-                    Log.e("VolleyError", error.toString());
+                    NetworkResponse networkResponse = error.networkResponse;
+                    if (networkResponse != null && networkResponse.statusCode == 401) {
+                        // HTTP Status Code: 401 Unauthorized
+                        getNewAuthToken(1);
+                    } else {
+                        error.printStackTrace();
+                    }
                 }
             }) {
                 // This needs to be done to send data with a StringRequest
@@ -266,7 +289,7 @@ public class ListViewActivity extends AppCompatActivity {
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {
-            Log.d("JSONException", "The JSON fails");
+            e.printStackTrace();
         }
     }
 
@@ -277,26 +300,56 @@ public class ListViewActivity extends AppCompatActivity {
         finish();
     }
 
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+    private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
+        private int taskToRun;
 
-        mRecyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-        mRecyclerView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mRecyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-            }
-        });
+        public GetAuthTokenCallback(int taskToRun) {
+            this.taskToRun = taskToRun;
+        }
 
-        mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        mProgressBar.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        @Override
+        public void run(AccountManagerFuture<Bundle> result) {
+            Bundle bundle;
+
+            try {
+                bundle = result.getResult();
+
+                final Intent intent = (Intent) bundle.get(AccountManager.KEY_INTENT);
+                if (null != intent) {
+                    startActivityForResult(intent, MainActivity.REQ_SIGNUP);
+                } else {
+                    authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                    final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
+
+                    // Save session username & auth token
+                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setUsername(accountName);
+                    // Run task
+                    switch (taskToRun) {
+                        case 0:
+                            getList();
+                            break;
+                        case 1:
+                            deleteList();
+                            break;
+                    }
+
+                    // If the logged account didn't exist, we need to create it on the device
+                    Account account = AccountUtils.getAccount(ListViewActivity.this, accountName);
+                    if (null == account) {
+                        account = new Account(accountName, AccountUtils.ACCOUNT_TYPE);
+                        mAccountManager.addAccountExplicitly(account, bundle.getString(LoginActivity.PARAM_USER_PASSWORD), null);
+                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
+                    }
+                }
+            } catch(OperationCanceledException e) {
+                // If signup was cancelled, force activity termination
+                finish();
+            } catch(Exception e) {
+                e.printStackTrace();
             }
-        });
+
+        }
+
     }
 }

@@ -30,12 +30,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.woording.android.App;
 import com.woording.android.List;
+import com.woording.android.ListsListFragment;
 import com.woording.android.ListsViewAdapter;
 import com.woording.android.R;
 import com.woording.android.VolleySingleton;
@@ -49,13 +51,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ListsListFragment.OnFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    public static String username;
-
-    private static final int REQ_SIGNUP = 1;
+    public static final int REQ_SIGNUP = 1;
+    public static boolean mDualPane;
 
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
@@ -64,10 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private List[] mLists = new List[]{};
     public static List lastDeletedList = null;
 
-    private SwipeRefreshLayout mSwipeRefreshLayout;
     private CoordinatorLayout mCoordinatorLayout;
-
-    private static ListsViewAdapter mListsViewAdapter;
+    private ListsListFragment mListsListFragment;
 
     public static Context mContext;
     private boolean doubleBackToExitPressedOnce = false;
@@ -76,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mDualPane = getResources().getBoolean(R.bool.is_dual_pane);
 
         authToken = null;
         mAuthPreferences = new AuthPreferences(this);
@@ -83,32 +83,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Ask for an auth token
         mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
-                null, this, null, null, new GetAuthTokenCallback(), null);
+                null, this, null, null, new GetAuthTokenCallback(0), null);
 
         // Setup toolbar
         Toolbar mToolbar;
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-        // Setup RecyclerView
-        RecyclerView mRecyclerView;
-        mRecyclerView = (RecyclerView) findViewById(R.id.lists_view);
-        // Setup LinearLayoutManager
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(linearLayoutManager);
-        // Setup RecyclerView Adapter
-        mListsViewAdapter = new ListsViewAdapter(new ArrayList<>(Arrays.asList(mLists)));
-        mRecyclerView.setAdapter(mListsViewAdapter);
-
-        // Setup SwipeRefreshLayout
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.accent);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                getLists();
-            }
-        });
+        mListsListFragment = (ListsListFragment) getSupportFragmentManager().findFragmentById(R.id.lists_view_fragment);
 
         // Setup Floating Action Button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -219,8 +201,17 @@ public class MainActivity extends AppCompatActivity {
         context.startActivity(loginIntent);
     }
 
-    private void getLists() {
-        mSwipeRefreshLayout.setRefreshing(true);
+    private void getNewAuthToken(int taskToRun) {
+        // Invalidate the old token
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
+        // Now get a new one
+        mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
+                AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
+    }
+
+    @Override
+    public void getLists() {
+        mListsListFragment.mSwipeRefreshLayout.setRefreshing(true);
 
         try {
             // Create the data that is sent
@@ -234,12 +225,6 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-                                // Check for errors
-                                if (response.getString("username") != null && response.getString("username").contains("ERROR")) {
-                                    MainActivity.openLoginActivity(MainActivity.mContext);
-                                    return;
-                                }
-
                                 // Handle the response
                                 JSONArray jsonArray = response.getJSONArray("lists");
                                 JSONObject listObject;
@@ -251,27 +236,32 @@ public class MainActivity extends AppCompatActivity {
                                     lists[i] = tmp;
                                 }
                                 mLists = lists;
-                                mListsViewAdapter.updateList(mLists);
+                                mListsListFragment.updateList(mLists);
                             } catch (JSONException e) {
                                 Log.d("JSONException", "The JSON fails");
                             }
-                            mSwipeRefreshLayout.setRefreshing(false);
+                            mListsListFragment.mSwipeRefreshLayout.setRefreshing(false);
                         }
                     }, new Response.ErrorListener() {
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            // TODO Auto-generated method stub
-                            Log.e("VolleyError", error.toString());
-                            mSwipeRefreshLayout.setRefreshing(false);
+                            NetworkResponse networkResponse = error.networkResponse;
+                            if (networkResponse != null && networkResponse.statusCode == 401) {
+                                // HTTP Status Code: 401 Unauthorized
+                                getNewAuthToken(0);
+                            } else {
+                                error.printStackTrace();
+                                mListsListFragment.mSwipeRefreshLayout.setRefreshing(false);
+                            }
                         }
                     });
 
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
         } catch (JSONException e) {
-            mSwipeRefreshLayout.setRefreshing(false);
-            Log.d("JSONException", "The JSON fails");
+            mListsListFragment.mSwipeRefreshLayout.setRefreshing(false);
+            e.printStackTrace();
         }
     }
 
@@ -292,18 +282,28 @@ public class MainActivity extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    // TODO Auto-generated method stub
-                    Log.e("VolleyError", error.getMessage());
+                    NetworkResponse networkResponse = error.networkResponse;
+                    if (networkResponse != null && networkResponse.statusCode == 401) {
+                        // HTTP Status Code: 401 Unauthorized
+                        getNewAuthToken(1);
+                    } else {
+                        error.printStackTrace();
+                    }
                 }
             });
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {
-            Log.d("JSONException", "The JSON fails");
+            e.printStackTrace();
         }
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
+        private int taskToRun;
+
+        public GetAuthTokenCallback(int taskToRun) {
+            this.taskToRun = taskToRun;
+        }
 
         @Override
         public void run(AccountManagerFuture<Bundle> result) {
@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
                 bundle = result.getResult();
 
                 final Intent intent = (Intent) bundle.get(AccountManager.KEY_INTENT);
-                if (intent != null) {
+                if (null != intent) {
                     startActivityForResult(intent, REQ_SIGNUP);
                 } else {
                     authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
@@ -322,10 +322,19 @@ public class MainActivity extends AppCompatActivity {
                     // Save session username & auth token
                     mAuthPreferences.setAuthToken(authToken);
                     mAuthPreferences.setUsername(accountName);
+                    // Run task
+                    switch (taskToRun) {
+                        case 0:
+                            getLists();
+                            break;
+                        case 1:
+                            saveList(lastDeletedList);
+                            break;
+                    }
 
                     // If the logged account didn't exist, we need to create it on the device
                     Account account = AccountUtils.getAccount(MainActivity.this, accountName);
-                    if (account == null) {
+                    if (null == account) {
                         account = new Account(accountName, AccountUtils.ACCOUNT_TYPE);
                         mAccountManager.addAccountExplicitly(account, bundle.getString(LoginActivity.PARAM_USER_PASSWORD), null);
                         mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
