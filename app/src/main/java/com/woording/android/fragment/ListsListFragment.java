@@ -1,7 +1,6 @@
-package com.woording.android;
+package com.woording.android.fragment;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,6 +9,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.woording.android.List;
+import com.woording.android.ListsViewAdapter;
+import com.woording.android.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +28,6 @@ public class ListsListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    private RecyclerView mRecyclerView;
     public SwipeRefreshLayout mSwipeRefreshLayout;
 
     private ListsViewAdapter mAdapter;
@@ -46,7 +48,7 @@ public class ListsListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_lists_list, container, false);
 
         // Setup the recyclerView
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.lists_view);
+        RecyclerView mRecyclerView = (RecyclerView) rootView.findViewById(R.id.lists_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         mAdapter = new ListsViewAdapter(new ArrayList<>(Arrays.asList(new List[0])));

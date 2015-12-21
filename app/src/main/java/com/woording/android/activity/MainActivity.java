@@ -34,11 +34,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.woording.android.App;
 import com.woording.android.List;
-import com.woording.android.ListsListFragment;
 import com.woording.android.R;
 import com.woording.android.VolleySingleton;
 import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
+import com.woording.android.fragment.ListsListFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -187,11 +187,6 @@ public class MainActivity extends AppCompatActivity implements ListsListFragment
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
-    public static void openLoginActivity(Context context) {
-        Intent loginIntent = new Intent(context, LoginActivity.class);
-        context.startActivity(loginIntent);
     }
 
     private void getNewAuthToken(int taskToRun) {

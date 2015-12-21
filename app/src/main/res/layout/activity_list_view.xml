@@ -32,7 +32,7 @@
         android:id="@+id/list_view_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:name="com.woording.android.ListViewFragment"
+        android:name="com.woording.android.fragment.ListViewFragment"
         tools:layout="@layout/fragment_list_view"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
