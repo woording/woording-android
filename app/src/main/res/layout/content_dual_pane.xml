@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/pane_root"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    tools:showIn="@layout/activity_main">
+
+    <fragment
+        android:id="@+id/lists_view_fragment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:name="com.woording.android.fragment.ListsListFragment"
+        tools:layout="@layout/fragment_lists_list"
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:id="@+id/second_pane"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2" />
+
+</LinearLayout>
