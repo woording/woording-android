@@ -7,6 +7,8 @@
 package com.woording.android;
 
 import android.content.Intent;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 
 import com.woording.android.activity.ListViewActivity;
 import com.woording.android.activity.MainActivity;
+import com.woording.android.fragment.ListViewFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +51,13 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                     Intent intent = new Intent(MainActivity.mContext, ListViewActivity.class);
                     intent.putExtra("list", mLists.get(position));
                     MainActivity.mContext.startActivity(intent);
+                } else {
+                    // Display fragment in same activity (Tablet)
+                    ListViewFragment fragment = ListViewFragment.newInstance(mLists.get(position));
+                    FragmentTransaction ft = ((AppCompatActivity) MainActivity.mContext).getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.second_pane, fragment)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                            .addToBackStack(null).commit();
                 }
             }
         });
