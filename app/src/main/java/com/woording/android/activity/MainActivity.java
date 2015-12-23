@@ -19,7 +19,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 
 import com.woording.android.List;
 import com.woording.android.R;
@@ -35,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     public static List lastDeletedList = null;
 
     public static CoordinatorLayout mCoordinatorLayout;
-    public static FrameLayout mFrameLayout;
     private ListsListFragment mListsListFragment;
 
     public static Context mContext;
@@ -67,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_view);
-        mFrameLayout = (FrameLayout) findViewById(R.id.second_pane);
 
         mContext = this;
 
