@@ -1,32 +1,53 @@
 package com.woording.android.fragment;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.OperationCanceledException;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.woording.android.App;
 import com.woording.android.List;
 import com.woording.android.ListsViewAdapter;
 import com.woording.android.R;
+import com.woording.android.VolleySingleton;
+import com.woording.android.account.AccountUtils;
+import com.woording.android.account.AuthPreferences;
+import com.woording.android.activity.LoginActivity;
+import com.woording.android.activity.MainActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ListsListFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- */
 public class ListsListFragment extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
+    private AccountManager mAccountManager;
+    private AuthPreferences mAuthPreferences;
+    private String authToken;
+
+    private List[] mLists = new List[]{};
 
     public SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -59,7 +80,7 @@ public class ListsListFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mListener.getLists();
+                getLists();
             }
         });
 
@@ -69,35 +90,173 @@ public class ListsListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+
+        authToken = null;
+        mAuthPreferences = new AuthPreferences(getActivity());
+        mAccountManager = AccountManager.get(getActivity());
+
+        // Ask for an auth token
+        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
+                null, getActivity(), null, null, new GetAuthTokenCallback(0), null);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
-    public void updateList(List[] lists) {
-        mAdapter.updateList(lists);
+    @Override
+    public void onStop() {
+        super.onStop();
+        MainActivity.lastDeletedList = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        void getLists();
+    private void getNewAuthToken(int taskToRun) {
+        // Invalidate the old token
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
+        // Now get a new one
+        mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
+                AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
+    }
+
+    public void getLists() {
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        try {
+            // Create the data that is sent
+            JSONObject data = new JSONObject();
+            data.put("token", mAuthPreferences.getAuthToken());
+            // Create the request
+            JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                    (Request.Method.POST, App.API_LOCATION + "/" + mAuthPreferences.getAccountName(),
+                            data, new Response.Listener<JSONObject>() {
+
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                // Handle the response
+                                JSONArray jsonArray = response.getJSONArray("lists");
+                                JSONObject listObject;
+                                List[] lists = new List[jsonArray.length()];
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    listObject = jsonArray.getJSONObject(i);
+                                    List tmp = new List(listObject.getString("listname"), listObject.getString("language_1_tag"),
+                                            listObject.getString("language_2_tag"), listObject.getString("shared_with"));
+                                    lists[i] = tmp;
+                                }
+                                mLists = lists;
+                                mAdapter.updateList(mLists);
+                            } catch (JSONException e) {
+                                Log.d("JSONException", "The JSON fails");
+                            }
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            NetworkResponse networkResponse = error.networkResponse;
+                            if (networkResponse != null && networkResponse.statusCode == 401) {
+                                // HTTP Status Code: 401 Unauthorized
+                                getNewAuthToken(0);
+                            } else {
+                                error.printStackTrace();
+                                mSwipeRefreshLayout.setRefreshing(false);
+                            }
+                        }
+                    });
+
+            // Access the RequestQueue through your singleton class.
+            VolleySingleton.getInstance(getActivity()).addToRequestQueue(jsObjRequest);
+        } catch (JSONException e) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            e.printStackTrace();
+        }
+    }
+
+    public void saveList(final List list) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("token", mAuthPreferences.getAuthToken());
+            data.put("username", mAuthPreferences.getAccountName());
+            data.put("list_data", list.toJSON());
+
+            // Create the request
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/savelist",
+                    data, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Snackbar.make(MainActivity.mCoordinatorLayout, R.string.restored, Snackbar.LENGTH_LONG).show();
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    NetworkResponse networkResponse = error.networkResponse;
+                    if (networkResponse != null && networkResponse.statusCode == 401) {
+                        // HTTP Status Code: 401 Unauthorized
+                        getNewAuthToken(1);
+                    } else {
+                        error.printStackTrace();
+                    }
+                }
+            });
+            // Access the RequestQueue through your singleton class.
+            VolleySingleton.getInstance(getActivity()).addToRequestQueue(request);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
+        private int taskToRun;
+
+        public GetAuthTokenCallback(int taskToRun) {
+            this.taskToRun = taskToRun;
+        }
+
+        @Override
+        public void run(AccountManagerFuture<Bundle> result) {
+            Bundle bundle;
+
+            try {
+                bundle = result.getResult();
+
+                final Intent intent = (Intent) bundle.get(AccountManager.KEY_INTENT);
+                if (null != intent) {
+                    startActivityForResult(intent, MainActivity.REQ_SIGNUP);
+                } else {
+                    authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                    final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
+
+                    // Save session username & auth token
+                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setUsername(accountName);
+                    // Run task
+                    switch (taskToRun) {
+                        case 0:
+                            getLists();
+                            break;
+                        case 1:
+                            saveList(MainActivity.lastDeletedList);
+                            break;
+                    }
+
+                    // If the logged account didn't exist, we need to create it on the device
+                    Account account = AccountUtils.getAccount(getActivity(), accountName);
+                    if (null == account) {
+                        account = new Account(accountName, AccountUtils.ACCOUNT_TYPE);
+                        mAccountManager.addAccountExplicitly(account, bundle.getString(LoginActivity.PARAM_USER_PASSWORD), null);
+                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
+                    }
+                }
+            } catch(OperationCanceledException e) {
+                // If signup was cancelled, force activity termination
+                getActivity().finish();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 }
