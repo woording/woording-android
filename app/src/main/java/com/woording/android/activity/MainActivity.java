@@ -43,9 +43,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mDualPane = getResources().getBoolean(R.bool.is_dual_pane);
-
-
 
         // Setup toolbar
         Toolbar mToolbar;
@@ -98,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-           finish();
+            finish();
             return;
         }
 

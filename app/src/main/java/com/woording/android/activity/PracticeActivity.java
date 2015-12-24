@@ -59,7 +59,6 @@ public class PracticeActivity extends AppCompatActivity
     private EditText mTranslation;
     private TextView mRightWord;
     private Menu mMenu;
-    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +91,7 @@ public class PracticeActivity extends AppCompatActivity
             }
         });
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.wrong_words_list);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.wrong_words_list);
         // Setup LinearLayoutManager
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(linearLayoutManager);

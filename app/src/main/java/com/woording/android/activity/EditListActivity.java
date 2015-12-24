@@ -16,8 +16,7 @@ import java.util.ArrayList;
 
 public class EditListActivity extends AppCompatActivity {
 
-    // UI elements
-    private RecyclerView mRecyclerView;
+    public static int EXTRA_ROWS;
 
     private EditTextListAdapter mEditTextListAdapter;
 
@@ -25,6 +24,9 @@ public class EditListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_list);
+
+        EXTRA_ROWS = getResources().getInteger(R.integer.extra_rows_list_edit);
+
         // Setup the Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -43,7 +45,7 @@ public class EditListActivity extends AppCompatActivity {
         spinnerLanguage2.setAdapter(adapter);
 
         // Setup RecyclerView
-        mRecyclerView = (RecyclerView) findViewById(R.id.edit_words_list);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.edit_words_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mEditTextListAdapter = new EditTextListAdapter(new ArrayList<String>(), new ArrayList<String>());
         mRecyclerView.setAdapter(mEditTextListAdapter);
