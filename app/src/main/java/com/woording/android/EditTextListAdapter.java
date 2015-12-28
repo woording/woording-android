@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.woording.android.activity.EditListActivity;
-
 import java.util.ArrayList;
 
 public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapter.ViewHolder> {
@@ -37,6 +35,7 @@ public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapte
         // - replace the contents of the view with that element
         holder.language1Watcher.updatePosition(position);
         holder.language2Watcher.updatePosition(position);
+
         if (position < mLanguage1Words.size()) {
             holder.language1Word.setText(mLanguage1Words.get(position));
         }
@@ -48,7 +47,7 @@ public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapte
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mLanguage1Words.size() + EditListActivity.EXTRA_ROWS;
+        return mLanguage1Words.size() + 1;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

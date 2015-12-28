@@ -16,16 +16,12 @@ import java.util.ArrayList;
 
 public class EditListActivity extends AppCompatActivity {
 
-    public static int EXTRA_ROWS;
-
     private EditTextListAdapter mEditTextListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_list);
-
-        EXTRA_ROWS = getResources().getInteger(R.integer.extra_rows_list_edit);
 
         // Setup the Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
