@@ -12,8 +12,8 @@ import java.util.ArrayList;
 
 public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapter.ViewHolder> {
 
-    private ArrayList<String> mLanguage1Words;
-    private ArrayList<String> mLanguage2Words;
+    public ArrayList<String> mLanguage1Words;
+    public ArrayList<String> mLanguage2Words;
 
     public EditTextListAdapter(ArrayList<String> language1Words, ArrayList<String> language2Words) {
         this.mLanguage1Words = language1Words;
@@ -85,7 +85,7 @@ public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapte
 
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-            if (mLanguage1Words.size() > position && mLanguage1Words.get(position) != null) {
+            if (mLanguage1Words.size() > position) {
                 mLanguage1Words.remove(position);
             }
             mLanguage1Words.add(position, charSequence.toString());
@@ -115,7 +115,7 @@ public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapte
 
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-            if (mLanguage2Words.size() > position && mLanguage2Words.get(position) != null) {
+            if (mLanguage2Words.size() > position) {
                 mLanguage2Words.remove(position);
             }
             mLanguage2Words.add(position, charSequence.toString());

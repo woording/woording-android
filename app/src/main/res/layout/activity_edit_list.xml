@@ -22,7 +22,13 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_edit_list" />
+    <fragment
+        android:id="@+id/edit_list_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="com.woording.android.fragment.EditListFragment"
+        tools:layout="@layout/fragment_edit_list"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

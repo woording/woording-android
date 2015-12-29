@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list_editor_layout"
     android:layout_width="match_parent"
@@ -9,9 +7,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.woording.android.activity.EditListActivity"
-    tools:showIn="@layout/activity_edit_list"
+    tools:showIn="@layout/fragment_edit_list"
     android:orientation="vertical">
 
     <android.support.design.widget.TextInputLayout
@@ -40,7 +37,7 @@
             android:id="@+id/spinner_language_1"
             android:prompt="@string/language_1"
             android:spinnerMode="dropdown"
-            tools:listitem="@android:layout/simple_dropdown_item_1line"/>
+            tools:listitem="@android:layout/simple_spinner_item"/>
 
         <Spinner
             android:layout_width="0dp"
@@ -49,7 +46,7 @@
             android:id="@+id/spinner_language_2"
             android:prompt="@string/language_2"
             android:spinnerMode="dropdown"
-            tools:listitem="@android:layout/simple_dropdown_item_1line"/>
+            tools:listitem="@android:layout/simple_spinner_item"/>
 
     </LinearLayout>
 
