@@ -201,6 +201,7 @@ public class ListsListFragment extends Fragment {
                     }
                 }
             });
+            request.setShouldCache(false);
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(getActivity()).addToRequestQueue(request);
         } catch (JSONException e) {
