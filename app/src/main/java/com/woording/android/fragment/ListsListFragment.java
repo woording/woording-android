@@ -80,7 +80,7 @@ public class ListsListFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getLists();
+                getLists(false);
             }
         });
 
@@ -119,7 +119,7 @@ public class ListsListFragment extends Fragment {
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
     }
 
-    public void getLists() {
+    public void getLists(final boolean useCached) {
         mSwipeRefreshLayout.setRefreshing(true);
 
         try {
@@ -158,14 +158,15 @@ public class ListsListFragment extends Fragment {
                             NetworkResponse networkResponse = error.networkResponse;
                             if (networkResponse != null && networkResponse.statusCode == 401) {
                                 // HTTP Status Code: 401 Unauthorized
-                                getNewAuthToken(0);
+                                if (useCached) getNewAuthToken(0);
+                                else getNewAuthToken(2);
                             } else {
                                 error.printStackTrace();
                                 mSwipeRefreshLayout.setRefreshing(false);
                             }
                         }
                     });
-
+            if (!useCached) jsObjRequest.setShouldCache(false);
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(getActivity()).addToRequestQueue(jsObjRequest);
         } catch (JSONException e) {
@@ -234,10 +235,13 @@ public class ListsListFragment extends Fragment {
                     // Run task
                     switch (taskToRun) {
                         case 0:
-                            getLists();
+                            getLists(true);
                             break;
                         case 1:
                             saveList(MainActivity.lastDeletedList);
+                            break;
+                        case 2:
+                            getLists(false);
                             break;
                     }
 

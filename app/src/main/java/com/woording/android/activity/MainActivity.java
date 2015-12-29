@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                                     Log.d(TAG, "onClick: Undo delete");
                                     if (lastDeletedList != null) {
                                         mListsListFragment.saveList(lastDeletedList);
-                                        mListsListFragment.getLists();
+                                        mListsListFragment.getLists(false);
                                     }
                                 }
                             }).show();
