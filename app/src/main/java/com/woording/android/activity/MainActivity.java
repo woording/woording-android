@@ -15,6 +15,8 @@ import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,6 +24,7 @@ import android.view.View;
 
 import com.woording.android.List;
 import com.woording.android.R;
+import com.woording.android.fragment.EditListFragment;
 import com.woording.android.fragment.ListsListFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public static List lastDeletedList = null;
 
     public static CoordinatorLayout mCoordinatorLayout;
+    public static FloatingActionButton fab;
     private ListsListFragment mListsListFragment;
 
     public static Context mContext;
@@ -54,12 +58,22 @@ public class MainActivity extends AppCompatActivity {
         mListsListFragment = (ListsListFragment) getSupportFragmentManager().findFragmentById(R.id.lists_view_fragment);
 
         // Setup Floating Action Button
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, EditListActivity.class);
-                startActivity(intent);
+                if (!mDualPane) {
+                    Intent intent = new Intent(mContext, EditListActivity.class);
+                    startActivity(intent);
+                } else {
+                    EditListFragment fragment = new EditListFragment();
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.second_pane, fragment)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                            .addToBackStack(null).commit();
+                    // Change the FAB
+                    fab.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_save_white_24dp));
+                }
             }
         });
 

@@ -16,6 +16,12 @@ public class EditListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_list);
 
+        // If should be in two-pane mode, finish to return to main activity
+        if (getResources().getBoolean(R.bool.is_dual_pane)) {
+            finish();
+            return;
+        }
+
         // Setup the Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
