@@ -9,14 +9,21 @@
         android:id="@+id/sentence"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight=".5"
-        android:hint="@string/sentence"/>
+        android:layout_weight="1"
+        android:hint="@string/sentence"
+        android:inputType="text"
+        android:singleLine="true"
+        android:imeOptions="actionNext"
+        android:nextFocusForward="@+id/sentence_translation"/>
 
     <EditText
         android:id="@+id/sentence_translation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight=".5"
-        android:hint="@string/translation"/>
+        android:layout_weight="1"
+        android:hint="@string/translation"
+        android:inputType="text"
+        android:singleLine="true"
+        android:imeOptions="actionNext"/>
 
 </LinearLayout>

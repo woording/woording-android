@@ -16,12 +16,10 @@ import com.woording.android.List;
 import com.woording.android.R;
 import com.woording.android.fragment.ListViewFragment;
 
-public class ListViewActivity extends AppCompatActivity implements ListViewFragment.OnFragmentInteractionListener {
+public class ListViewActivity extends AppCompatActivity {
 
     public static final int NO_WORDS_DATA = 1;
     public static final int DELETED_LIST = 2;
-
-    private ListViewFragment mListViewFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +33,7 @@ public class ListViewActivity extends AppCompatActivity implements ListViewFragm
         }
 
         // Setup fragment
-        mListViewFragment = (ListViewFragment) getSupportFragmentManager().findFragmentById(R.id.list_view_fragment);
+        ListViewFragment mListViewFragment = (ListViewFragment) getSupportFragmentManager().findFragmentById(R.id.list_view_fragment);
         // Load List from Intent
         List mList = (List) getIntent().getSerializableExtra("list");
         mListViewFragment.setList(mList);
