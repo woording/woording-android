@@ -27,7 +27,7 @@
     <string name="error_field_required">This field is required</string>
 
     <!-- Strings related to the lists -->
-    <string name="list_item_subtitle">%1$s ↔ %2$s</string>
+    <string name="list_item_subtitle" translatable="false">%1$s ↔ %2$s</string>
     <string name="my_lists">My lists</string>
     <string name="others_lists">%1$s\'s lists</string>
     <string name="edit_list">Edit</string>
@@ -72,8 +72,14 @@
     <string name="portuguese">Portuguese</string>
     <string name="italian">Italian</string>
 
+    <!-- Sharing -->
+    <string name="shared_with">Shared with</string>
+    <string name="shared_nobody">Nobody</string>
+    <string name="shared_friends">Friends</string>
+    <string name="shared_everybody">Everybody</string>
+
     <!-- Misc -->
     <string name="undo">Undo</string>
-    <string name="account_type">com.woording.android</string>
+    <string name="account_type" translatable="false">com.woording.android</string>
 
 </resources>

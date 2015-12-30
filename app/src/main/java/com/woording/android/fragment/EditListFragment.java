@@ -58,6 +58,7 @@ public class EditListFragment extends Fragment {
     // UI Elements
     private Spinner mLanguage1Spinner;
     private Spinner mLanguage2Spinner;
+    private Spinner mSharedWith;
     private EditText mListName;
 
     public EditListFragment() {
@@ -105,6 +106,15 @@ public class EditListFragment extends Fragment {
         // Apply the adapter to the spinner
         mLanguage1Spinner.setAdapter(adapter);
         mLanguage2Spinner.setAdapter(adapter);
+
+        mSharedWith = (Spinner) rootView.findViewById(R.id.spinner_shared_with);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> sharedWithAdapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.shared_with, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        sharedWithAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        mSharedWith.setAdapter(sharedWithAdapter);
 
         // Setup RecyclerView
         RecyclerView mRecyclerView = (RecyclerView) rootView.findViewById(R.id.edit_words_list);
@@ -157,7 +167,7 @@ public class EditListFragment extends Fragment {
 
     public List getListData() {
         List list = new List(mListName.getText().toString(),
-                getLanguage1(), getLanguage2(), "0");
+                getLanguage1(), getLanguage2(), mSharedWith.getSelectedItemPosition() + "");
         list.setWords(mEditTextListAdapter.mLanguage1Words, mEditTextListAdapter.mLanguage2Words);
         return list;
     }

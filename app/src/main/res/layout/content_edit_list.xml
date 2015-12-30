@@ -28,12 +28,36 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/shared_with"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/spinner_shared_with"
+            android:prompt="@string/shared_with"
+            android:spinnerMode="dropdown"
+            tools:listitem="@android:layout/simple_spinner_item"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <Spinner
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight=".5"
+            android:layout_weight="1"
             android:id="@+id/spinner_language_1"
             android:prompt="@string/language_1"
             android:spinnerMode="dropdown"
@@ -42,7 +66,7 @@
         <Spinner
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight=".5"
+            android:layout_weight="1"
             android:id="@+id/spinner_language_2"
             android:prompt="@string/language_2"
             android:spinnerMode="dropdown"

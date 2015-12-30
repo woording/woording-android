@@ -31,4 +31,10 @@
         <item>ita</item>
     </string-array>
 
+    <string-array name="shared_with">
+        <item>@string/shared_nobody</item>
+        <item>@string/shared_friends</item>
+        <item>@string/shared_everybody</item>
+    </string-array>
+
 </resources>
