@@ -202,6 +202,7 @@ public class ListViewFragment extends Fragment {
 
     public void setList(List list) {
         mList = list;
+        if (mList != null) getList();
     }
 
     private void setWordsTable() {

@@ -60,6 +60,8 @@
     <string name="language_1">Language 1</string>
     <string name="language_2">Language 2</string>
     <string name="sentence">Sentence</string>
+    <string name="discard_dialog_text">Discard made changes?</string>
+    <string name="discard">Discard</string>
 
     <!-- Languages -->
     <string name="english">English</string>

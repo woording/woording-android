@@ -6,9 +6,13 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -51,11 +55,12 @@ public class EditListFragment extends Fragment {
     private AuthPreferences mAuthPreferences;
     private String authToken;
 
-    public boolean isModifiedSinceLastSave = false;
+    public static boolean isModifiedSinceLastSave = false;
     public boolean isNewList = true;
 
     private EditTextListAdapter mEditTextListAdapter;
-    private List list = null;
+    private List mList = null;
+    private List lastSavedList = null;
 
     // UI Elements
     private Spinner mLanguage1Spinner;
@@ -87,7 +92,7 @@ public class EditListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (getArguments() != null) {
-            list = (List) getArguments().getSerializable("list");
+            mList = ((List) getArguments().getSerializable("list")).deepClone();
         }
     }
 
@@ -141,21 +146,78 @@ public class EditListFragment extends Fragment {
         mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
                 null, getActivity(), null, null, new GetAuthTokenCallback(0), null);
 
-        if (list != null) {
-            loadList(list);
+        if (mList != null) {
+            loadList(mList);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // TODO: 12-14-2015 Ask user to save or discard any changes made
+            // First check if changes are made
+            areChangesMade();
             if (isModifiedSinceLastSave && !isNewList) {
-
+                // Build alertDialog
+                createAlertDialog(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        // Go intent up
+                        Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
+                        upIntent.putExtra("list", mList);
+                        if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)) {
+                            // This activity is NOT part of this app's task, so create a new task
+                            // when navigating up, with a synthesized back stack.
+                            TaskStackBuilder.create(getActivity())
+                                    // Add all of this activity's parents to the back stack
+                                    .addNextIntentWithParentStack(upIntent)
+                                    // Navigate up to the closest parent
+                                    .startActivities();
+                        } else {
+                            // This activity is part of this app's task, so simply
+                            // navigate up to the logical parent activity.
+                            NavUtils.navigateUpTo(getActivity(), upIntent);
+                        }
+                    }
+                }).create().show();
+                return true;
             } else if (isModifiedSinceLastSave) {
-
+                createAlertDialog(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        // Navigate up
+                        NavUtils.navigateUpFromSameTask(getActivity());
+                    }
+                }).create().show();
+                return true;
             } else if (!isNewList) {
-
+                Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
+                upIntent.putExtra("list", mList);
+                if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)) {
+                    // This activity is NOT part of this app's task, so create a new task
+                    // when navigating up, with a synthesized back stack.
+                    TaskStackBuilder.create(getActivity())
+                            // Add all of this activity's parents to the back stack
+                            .addNextIntentWithParentStack(upIntent)
+                            // Navigate up to the closest parent
+                            .startActivities();
+                } else {
+                    // This activity is part of this app's task, so simply
+                    // navigate up to the logical parent activity.
+                    NavUtils.navigateUpTo(getActivity(), upIntent);
+                }
+                return true;
             }
         }
 
@@ -171,7 +233,21 @@ public class EditListFragment extends Fragment {
         return -1;
     }
 
+    public AlertDialog.Builder createAlertDialog(DialogInterface.OnClickListener negativeButtonOnClick,
+                                                 DialogInterface.OnClickListener positiveButtonOnClick) {
+        // Build alertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog)
+                .setMessage(R.string.discard_dialog_text)
+                .setCancelable(true);
+        // Add buttons
+        builder.setNegativeButton(android.R.string.cancel, negativeButtonOnClick);
+        builder.setPositiveButton(R.string.discard, positiveButtonOnClick);
+        return builder;
+    }
+
     public void loadList(List list) {
+        mList = list.deepClone();
+        lastSavedList = list.deepClone();
         isNewList = false;
         // Set list name
         mListName.setText(list.mName);
@@ -208,6 +284,12 @@ public class EditListFragment extends Fragment {
         return list;
     }
 
+    public void areChangesMade() {
+        mList = getListData().deepClone();
+        if (lastSavedList == null) lastSavedList = new List("", "eng", "eng", "0");
+        isModifiedSinceLastSave = !mList.equals(lastSavedList);
+    }
+
     public void saveList() {
         try {
             // Create data
@@ -221,6 +303,7 @@ public class EditListFragment extends Fragment {
                 @Override
                 public void onResponse(String response) {
                     isModifiedSinceLastSave = false;
+                    lastSavedList = getListData().deepClone();
                 }
             }, new Response.ErrorListener() {
                 @Override

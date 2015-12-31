@@ -13,11 +13,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class List implements Serializable {
+public class List implements Serializable, Cloneable {
     public String mName;
     public String mLanguage1;
     public String mLanguage2;
@@ -30,24 +35,49 @@ public class List implements Serializable {
     public static HashMap<String, String> mLocales = null;
 
     public List(String name, String language1, String language2, String sharedWith) {
-        mName = name;
-        mLanguage1 = language1;
-        mLanguage2 = language2;
-        mSharedWith = sharedWith;
+        this.mName = name;
+        this.mLanguage1 = language1;
+        this.mLanguage2 = language2;
+        this.mSharedWith = sharedWith;
     }
 
     public void setWords(ArrayList<String> language1, ArrayList<String> language2) {
         if (language1.size() == language2.size()) {
-            mLanguage1Words = language1;
-            mLanguage2Words = language2;
+            this.mLanguage1Words = language1;
+            this.mLanguage2Words = language2;
         }
     }
 
-//    public String getTranslation(String word) {
-//        if (mLanguage1Words.contains(word)) return mLanguage2Words.get(mLanguage1Words.indexOf(word));
-//        else if (mLanguage2Words.contains(word)) return mLanguage1Words.get(mLanguage1Words.indexOf(word));
-//        else return null;
-//    }
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof List)) {
+            return false;
+        }
+
+        List list = (List) o;
+        return this.mName.equals(list.mName)
+                && this.mLanguage1.equals(list.mLanguage1)
+                && this.mLanguage2.equals(list.mLanguage2)
+                && this.mSharedWith.equals(list.mSharedWith)
+                && this.mLanguage1Words.equals(list.mLanguage1Words)
+                && this.mLanguage2Words.equals(list.mLanguage2Words);
+    }
+
+    public List deepClone() {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(this);
+
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            return (List) ois.readObject();
+        } catch (IOException e) {
+            return null;
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
 
     public static String getLanguageName(Context context, String languageCode) {
         if (mLanguageCodes == null) {
