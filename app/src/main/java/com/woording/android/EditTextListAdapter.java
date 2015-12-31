@@ -38,16 +38,23 @@ public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapte
 
         if (position < mLanguage1Words.size()) {
             holder.language1Word.setText(mLanguage1Words.get(position));
-        }
+        } else holder.language1Word.setText(null);
         if (position < mLanguage2Words.size()) {
             holder.language2Word.setText(mLanguage2Words.get(position));
-        }
+        } else holder.language2Word.setText(null);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return mLanguage1Words.size() + 1;
+    }
+
+    public void setWords(ArrayList<String> language1Words, ArrayList<String> language2Words) {
+        mLanguage1Words = language1Words;
+        mLanguage2Words = language2Words;
+
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -84,10 +91,10 @@ public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapte
         }
 
         @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
             if (mLanguage1Words.size() > position) {
                 mLanguage1Words.remove(position);
-            }
+            } else if (charSequence.length() == 0) return;
             mLanguage1Words.add(position, charSequence.toString());
 
             while (mLanguage1Words.size() > mLanguage2Words.size()) {
@@ -114,10 +121,10 @@ public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapte
         }
 
         @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
             if (mLanguage2Words.size() > position) {
                 mLanguage2Words.remove(position);
-            }
+            } else if (charSequence.length() == 0) return;
             mLanguage2Words.add(position, charSequence.toString());
 
             while (mLanguage2Words.size() > mLanguage1Words.size()) {

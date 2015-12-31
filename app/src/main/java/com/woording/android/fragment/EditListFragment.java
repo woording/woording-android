@@ -52,8 +52,10 @@ public class EditListFragment extends Fragment {
     private String authToken;
 
     public boolean isModifiedSinceLastSave = false;
+    public boolean isNewList = true;
 
     private EditTextListAdapter mEditTextListAdapter;
+    private List list = null;
 
     // UI Elements
     private Spinner mLanguage1Spinner;
@@ -85,7 +87,7 @@ public class EditListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (getArguments() != null) {
-            // TODO load in list
+            list = (List) getArguments().getSerializable("list");
         }
     }
 
@@ -138,15 +140,49 @@ public class EditListFragment extends Fragment {
         // Ask for an auth token
         mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
                 null, getActivity(), null, null, new GetAuthTokenCallback(0), null);
+
+        if (list != null) {
+            loadList(list);
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home && isModifiedSinceLastSave) {
+        if (item.getItemId() == android.R.id.home) {
             // TODO: 12-14-2015 Ask user to save or discard any changes made
+            if (isModifiedSinceLastSave && !isNewList) {
+
+            } else if (isModifiedSinceLastSave) {
+
+            } else if (!isNewList) {
+
+            }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public int getElementThatContains(String[] ips, String key) {
+        for (int i = 0; i < ips.length; i++) {
+            if (ips[i].contains(key)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public void loadList(List list) {
+        isNewList = false;
+        // Set list name
+        mListName.setText(list.mName);
+        // Set shared with
+        mSharedWith.setSelection(Integer.parseInt(list.mSharedWith));
+        // Set languages
+        String[] languageCodes = getResources().getStringArray(R.array.language_codes);
+        mLanguage1Spinner.setSelection(getElementThatContains(languageCodes, list.mLanguage1));
+        mLanguage2Spinner.setSelection(getElementThatContains(languageCodes, list.mLanguage2));
+        // Set words
+        mEditTextListAdapter.setWords(list.mLanguage1Words, list.mLanguage2Words);
     }
 
     private void getNewAuthToken(int taskToRun) {

@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.woording.android.List;
 import com.woording.android.R;
 import com.woording.android.fragment.EditListFragment;
 
@@ -28,6 +29,10 @@ public class EditListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final EditListFragment fragment = (EditListFragment) getSupportFragmentManager().findFragmentById(R.id.edit_list_fragment);
+        // Load in list
+        if (getIntent().getSerializableExtra("list") != null) {
+            fragment.loadList((List) getIntent().getSerializableExtra("list"));
+        }
 
         // Setup FAB
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

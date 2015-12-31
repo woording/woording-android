@@ -42,6 +42,7 @@ import com.woording.android.TableListViewAdapter;
 import com.woording.android.VolleySingleton;
 import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
+import com.woording.android.activity.EditListActivity;
 import com.woording.android.activity.ListViewActivity;
 import com.woording.android.activity.LoginActivity;
 import com.woording.android.activity.MainActivity;
@@ -190,7 +191,9 @@ public class ListViewFragment extends Fragment {
                 deleteList();
                 break;
             case R.id.action_edit:
-                // TODO
+                Intent intent = new Intent(getActivity(), EditListActivity.class)
+                        .putExtra("list", mList);
+                startActivity(intent);
                 break;
         }
 
