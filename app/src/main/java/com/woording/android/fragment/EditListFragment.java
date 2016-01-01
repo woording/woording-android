@@ -55,7 +55,7 @@ public class EditListFragment extends Fragment {
     private AuthPreferences mAuthPreferences;
     private String authToken;
 
-    public static boolean isModifiedSinceLastSave = false;
+    public boolean isModifiedSinceLastSave = false;
     public boolean isNewList = true;
 
     private EditTextListAdapter mEditTextListAdapter;
@@ -92,7 +92,7 @@ public class EditListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (getArguments() != null) {
-            mList = ((List) getArguments().getSerializable("list")).deepClone();
+            mList = (List) getArguments().getSerializable("list");
         }
     }
 
@@ -145,10 +145,13 @@ public class EditListFragment extends Fragment {
         // Ask for an auth token
         mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
                 null, getActivity(), null, null, new GetAuthTokenCallback(0), null);
+    }
 
-        if (mList != null) {
-            loadList(mList);
-        }
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (mList != null) loadList(mList);
     }
 
     @Override
@@ -168,21 +171,7 @@ public class EditListFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         // Go intent up
-                        Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-                        upIntent.putExtra("list", mList);
-                        if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)) {
-                            // This activity is NOT part of this app's task, so create a new task
-                            // when navigating up, with a synthesized back stack.
-                            TaskStackBuilder.create(getActivity())
-                                    // Add all of this activity's parents to the back stack
-                                    .addNextIntentWithParentStack(upIntent)
-                                    // Navigate up to the closest parent
-                                    .startActivities();
-                        } else {
-                            // This activity is part of this app's task, so simply
-                            // navigate up to the logical parent activity.
-                            NavUtils.navigateUpTo(getActivity(), upIntent);
-                        }
+                        navigateUp();
                     }
                 }).create().show();
                 return true;
@@ -202,21 +191,7 @@ public class EditListFragment extends Fragment {
                 }).create().show();
                 return true;
             } else if (!isNewList) {
-                Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-                upIntent.putExtra("list", mList);
-                if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)) {
-                    // This activity is NOT part of this app's task, so create a new task
-                    // when navigating up, with a synthesized back stack.
-                    TaskStackBuilder.create(getActivity())
-                            // Add all of this activity's parents to the back stack
-                            .addNextIntentWithParentStack(upIntent)
-                            // Navigate up to the closest parent
-                            .startActivities();
-                } else {
-                    // This activity is part of this app's task, so simply
-                    // navigate up to the logical parent activity.
-                    NavUtils.navigateUpTo(getActivity(), upIntent);
-                }
+                navigateUp();
                 return true;
             }
         }
@@ -243,6 +218,24 @@ public class EditListFragment extends Fragment {
         builder.setNegativeButton(android.R.string.cancel, negativeButtonOnClick);
         builder.setPositiveButton(R.string.discard, positiveButtonOnClick);
         return builder;
+    }
+
+    public void navigateUp() {
+        Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
+        upIntent.putExtra("list", mList);
+        if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)) {
+            // This activity is NOT part of this app's task, so create a new task
+            // when navigating up, with a synthesized back stack.
+            TaskStackBuilder.create(getActivity())
+                    // Add all of this activity's parents to the back stack
+                    .addNextIntentWithParentStack(upIntent)
+                    // Navigate up to the closest parent
+                    .startActivities();
+        } else {
+            // This activity is part of this app's task, so simply
+            // navigate up to the logical parent activity.
+            NavUtils.navigateUpTo(getActivity(), upIntent);
+        }
     }
 
     public void loadList(List list) {

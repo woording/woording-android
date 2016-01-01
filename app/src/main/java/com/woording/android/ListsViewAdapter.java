@@ -61,6 +61,12 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                             .addToBackStack(null).commit();
                     // Change the FAB
                     MainActivity.fab.setImageDrawable(ContextCompat.getDrawable(MainActivity.mContext, R.drawable.ic_add_white_24dp));
+                    MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            MainActivity.newList();
+                        }
+                    });
                 }
             }
         });

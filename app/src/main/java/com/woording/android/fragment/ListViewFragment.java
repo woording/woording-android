@@ -13,6 +13,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -191,9 +193,26 @@ public class ListViewFragment extends Fragment {
                 deleteList();
                 break;
             case R.id.action_edit:
-                Intent intent = new Intent(getActivity(), EditListActivity.class)
-                        .putExtra("list", mList);
-                startActivity(intent);
+                if (!MainActivity.mDualPane) {
+                    Intent intent = new Intent(getActivity(), EditListActivity.class)
+                            .putExtra("list", mList);
+                    startActivity(intent);
+                } else {
+                    // Load on second pane
+                    final EditListFragment fragment = EditListFragment.newInstance(mList);
+                    FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.second_pane, fragment)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                            .addToBackStack(null).commit();
+                    // Change the FAB
+                    MainActivity.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_save_white_24dp));
+                    MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            fragment.saveList();
+                        }
+                    });
+                }
                 break;
         }
 
@@ -207,7 +226,7 @@ public class ListViewFragment extends Fragment {
 
     private void setWordsTable() {
         // Set title and languages
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.mName);
+        if (!MainActivity.mDualPane) ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.mName);
 
         ((TextView) getActivity().findViewById(R.id.head_1)).setText(List.getLanguageName(getActivity(), mList.mLanguage1));
         ((TextView) getActivity().findViewById(R.id.head_2)).setText(List.getLanguageName(getActivity(), mList.mLanguage2));

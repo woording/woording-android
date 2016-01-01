@@ -62,18 +62,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mDualPane) {
-                    Intent intent = new Intent(mContext, EditListActivity.class);
-                    startActivity(intent);
-                } else {
-                    EditListFragment fragment = new EditListFragment();
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.second_pane, fragment)
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                            .addToBackStack(null).commit();
-                    // Change the FAB
-                    fab.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_save_white_24dp));
-                }
+                newList();
             }
         });
 
@@ -131,5 +120,26 @@ public class MainActivity extends AppCompatActivity {
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public static void newList() {
+        if (!mDualPane) {
+            Intent intent = new Intent(mContext, EditListActivity.class);
+            mContext.startActivity(intent);
+        } else {
+            final EditListFragment fragment = new EditListFragment();
+            FragmentTransaction ft = ((AppCompatActivity) mContext).getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.second_pane, fragment)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .addToBackStack(null).commit();
+            // Change the FAB
+            fab.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_save_white_24dp));
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fragment.saveList();
+                }
+            });
+        }
     }
 }

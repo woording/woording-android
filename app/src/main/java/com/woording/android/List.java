@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class List implements Serializable, Cloneable {
+public class List implements Serializable {
     public String mName;
     public String mLanguage1;
     public String mLanguage2;
@@ -73,8 +73,10 @@ public class List implements Serializable, Cloneable {
             ObjectInputStream ois = new ObjectInputStream(bais);
             return (List) ois.readObject();
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
             return null;
         }
     }
