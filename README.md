@@ -13,11 +13,11 @@ First screenshots are here
 
 Phone:
 
-<img alt="Lists overview" src="./screenshots/phone/lists overview.PNG" width="25%" /><img alt="List overview" src="./screenshots/phone/list overview.PNG" width="25%" /><img alt="New list" src="./screenshots/phone/new list.PNG" width="25%" /><img alt="Practice" src="./screenshots/phone/practice.PNG" width="25%" />
+<img alt="Lists overview" src="./screenshots/phone/Lists overview.PNG" width="25%" /><img alt="List overview" src="./screenshots/phone/List overview.PNG" width="25%" /><img alt="New list" src="./screenshots/phone/New list.PNG" width="25%" /><img alt="Practice" src="./screenshots/phone/Practice.PNG" width="25%" />
 
 Tablet:
 
-<img alt="Lists and list overview" src="./screenshots/tablet/lists and list overview.PNG" />
+<img alt="Lists and list overview" src="./screenshots/tablet/Lists and list overview.PNG" />
 
 #### Submodules
 To cloning the submodules you have to normal clone this project and then run the following commands:
