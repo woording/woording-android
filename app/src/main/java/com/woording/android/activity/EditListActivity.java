@@ -16,9 +16,9 @@ import com.woording.android.fragment.EditListFragment;
 
 public class EditListActivity extends AppCompatActivity {
 
-    public EditListFragment mEditListFragment;
+    private EditListFragment mEditListFragment;
 
-    protected final Context mContext = this;
+    private final Context mContext = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

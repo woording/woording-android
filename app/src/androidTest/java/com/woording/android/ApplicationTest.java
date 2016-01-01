@@ -4,7 +4,7 @@
  * Copyright (c) 2015.
  */
 
-package nl.philipdb.wording;
+package com.woording.android;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -26,13 +26,13 @@ public class AuthPreferences {
     public void setUsername(String accountName) {
         final SharedPreferences.Editor editor = preferences.edit();
         editor.putString(KEY_ACCOUNT_NAME, accountName);
-        editor.commit();
+        editor.apply();
     }
 
     public void setAuthToken(String authToken) {
         final SharedPreferences.Editor editor = preferences.edit();
         editor.putString(KEY_AUTH_TOKEN, authToken);
-        editor.commit();
+        editor.apply();
     }
 
 }

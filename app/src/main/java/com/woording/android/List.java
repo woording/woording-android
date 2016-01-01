@@ -31,8 +31,8 @@ public class List implements Serializable {
     public ArrayList<String> mLanguage1Words = new ArrayList<>();
     public ArrayList<String> mLanguage2Words = new ArrayList<>();
 
-    public static HashMap<String, String> mLanguageCodes = null;
-    public static HashMap<String, String> mLocales = null;
+    private static HashMap<String, String> mLanguageCodes = null;
+    private static HashMap<String, String> mLocales = null;
 
     public List(String name, String language1, String language2, String sharedWith) {
         this.mName = name;
@@ -135,6 +135,7 @@ public class List implements Serializable {
         return json;
     }
 
+    @Override
     public String toString() {
         try {
             return toJSON().toString();

@@ -199,7 +199,7 @@ public class EditListFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public int getElementThatContains(String[] ips, String key) {
+    private int getElementThatContains(String[] ips, String key) {
         for (int i = 0; i < ips.length; i++) {
             if (ips[i].contains(key)) {
                 return i;
@@ -254,12 +254,12 @@ public class EditListFragment extends Fragment {
         mEditTextListAdapter.setWords(list.mLanguage1Words, list.mLanguage2Words);
     }
 
-    private void getNewAuthToken(int taskToRun) {
+    private void getNewAuthToken() {
         // Invalidate the old token
         mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
-                AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
+                AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(1), null);
     }
 
     private String getLanguage1() {
@@ -270,7 +270,7 @@ public class EditListFragment extends Fragment {
         return getResources().getStringArray(R.array.language_codes)[mLanguage2Spinner.getSelectedItemPosition()];
     }
 
-    public List getListData() {
+    private List getListData() {
         List list = new List(mListName.getText().toString(),
                 getLanguage1(), getLanguage2(), mSharedWith.getSelectedItemPosition() + "");
         list.setWords(mEditTextListAdapter.mLanguage1Words, mEditTextListAdapter.mLanguage2Words);
@@ -304,7 +304,7 @@ public class EditListFragment extends Fragment {
                     NetworkResponse networkResponse = error.networkResponse;
                     if (networkResponse != null && networkResponse.statusCode == 401) {
                         // HTTP Status Code: 401 Unauthorized
-                        getNewAuthToken(1);
+                        getNewAuthToken();
                     } else {
                         error.printStackTrace();
                     }

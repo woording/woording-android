@@ -12,25 +12,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MyServerAuthenticator implements IServerAuthenticator {
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static Map<String, String> mCredentialsRepo;
-
-    static {
-        Map<String, String> credentials = new HashMap<String, String>();
-        credentials.put("demo@example.com", "demo");
-        credentials.put("foo@example.com", "foobar");
-        credentials.put("user@example.com", "pass");
-        mCredentialsRepo = Collections.unmodifiableMap(credentials);
-    }
 
     @Override
     public String signUp(String email, String username, String password) {
@@ -40,7 +23,6 @@ public class MyServerAuthenticator implements IServerAuthenticator {
 
     @Override
     public String signIn(String username, String password) {
-        // TODO: 12-17-2015 Get Auth token from server
         String authToken = null;
         try {
             // Setup connection

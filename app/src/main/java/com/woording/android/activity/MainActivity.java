@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         }, 2000);
     }
 
-    public static boolean isNetworkAvailable(Context context) {
+    private static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();

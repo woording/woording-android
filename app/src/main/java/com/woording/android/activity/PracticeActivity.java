@@ -333,10 +333,9 @@ public class PracticeActivity extends AppCompatActivity
 
     @Override
     public void onRmsChanged(float rmsdB) {
-        return;
     }
 
-    public String getErrorText(int errorCode) {
+    private String getErrorText(int errorCode) {
         String message;
         switch (errorCode) {
             case SpeechRecognizer.ERROR_AUDIO:
