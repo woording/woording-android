@@ -1,3 +1,9 @@
+/*
+ * Woording for Android is a project by PhiliPdB.
+ *
+ * Copyright (c) 2016.
+ */
+
 package com.woording.android.fragment;
 
 import android.accounts.Account;

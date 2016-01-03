@@ -1,3 +1,9 @@
+/*
+ * Woording for Android is a project by PhiliPdB.
+ *
+ * Copyright (c) 2016.
+ */
+
 package com.woording.android;
 
 import android.support.v7.widget.RecyclerView;
