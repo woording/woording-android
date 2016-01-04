@@ -63,6 +63,9 @@
     <string name="discard_dialog_text">Discard made changes?</string>
     <string name="discard">Discard</string>
 
+    <!-- Friends -->
+    <string name="friends">Friends</string>
+
     <!-- Languages -->
     <string name="english">English</string>
     <string name="dutch">Dutch</string>
