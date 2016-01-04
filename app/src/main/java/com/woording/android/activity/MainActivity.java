@@ -42,6 +42,7 @@ import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.woording.android.App;
 import com.woording.android.CustomJsonArrayRequest;
+import com.woording.android.LetterTileDrawable;
 import com.woording.android.List;
 import com.woording.android.R;
 import com.woording.android.VolleySingleton;
@@ -144,16 +145,18 @@ public class MainActivity extends AppCompatActivity {
         AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header_background)
-                .addProfiles(
-                        new ProfileDrawerItem().withName(mAuthPreferences.getAccountName())
-                )
                 .build();
+
+        // For every account found (Currently just one account supported)
+        String userName = mAuthPreferences.getAccountName();
+        LetterTileDrawable icon = new LetterTileDrawable(this);
+        icon.setContactDetails(userName, userName);
+        headerResult.addProfiles(new ProfileDrawerItem().withName(userName).withIcon(icon));
 
         // Setup material navigation drawer
         drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(mToolbar)
-                .withTranslucentStatusBar(true)
                 .withAccountHeader(headerResult)
                 .addDrawerItems(
                         home,

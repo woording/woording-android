@@ -86,5 +86,7 @@
     <!-- Misc -->
     <string name="undo">Undo</string>
     <string name="account_type" translatable="false">com.woording.android</string>
+    <!-- Font family used when drawing letters for letter tile avatars. -->
+    <string name="letter_tile_letter_font_family">sans-serif-medium</string>
 
 </resources>

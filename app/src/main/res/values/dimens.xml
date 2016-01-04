@@ -14,4 +14,10 @@
     <item name="dialog_min_width_major" type="dimen">65%</item>
     <item name="dialog_min_width_minor" type="dimen">95%</item>
     <dimen name="dialog_padding_material">24dp</dimen>
+
+    <!-- Dimensions for contact letter tiles -->
+    <dimen name="tile_letter_font_size">40dp</dimen>
+    <dimen name="tile_letter_font_size_small">20dp</dimen>
+    <dimen name="tile_divider_width">1dp</dimen>
+    <item name="letter_to_tile_ratio" type="fraction">67%</item>
 </resources>
