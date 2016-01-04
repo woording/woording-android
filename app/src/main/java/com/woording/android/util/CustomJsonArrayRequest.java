@@ -4,7 +4,7 @@
  * Copyright (c) 2016.
  */
 
-package com.woording.android;
+package com.woording.android.util;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;

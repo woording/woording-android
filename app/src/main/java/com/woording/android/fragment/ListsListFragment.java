@@ -31,13 +31,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.woording.android.App;
 import com.woording.android.List;
-import com.woording.android.ListsViewAdapter;
 import com.woording.android.R;
 import com.woording.android.VolleySingleton;
 import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
 import com.woording.android.activity.LoginActivity;
 import com.woording.android.activity.MainActivity;
+import com.woording.android.adapter.ListsViewAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -46,7 +46,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.woording.android.App;
 import com.woording.android.List;
 import com.woording.android.R;
-import com.woording.android.TableListViewAdapter;
 import com.woording.android.VolleySingleton;
 import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
@@ -55,6 +54,7 @@ import com.woording.android.activity.ListViewActivity;
 import com.woording.android.activity.LoginActivity;
 import com.woording.android.activity.MainActivity;
 import com.woording.android.activity.PracticeActivity;
+import com.woording.android.adapter.TableListViewAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;

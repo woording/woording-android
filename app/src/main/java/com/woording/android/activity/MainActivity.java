@@ -41,8 +41,6 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.woording.android.App;
-import com.woording.android.CustomJsonArrayRequest;
-import com.woording.android.LetterTileDrawable;
 import com.woording.android.List;
 import com.woording.android.R;
 import com.woording.android.VolleySingleton;
@@ -50,6 +48,8 @@ import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
 import com.woording.android.fragment.EditListFragment;
 import com.woording.android.fragment.ListsListFragment;
+import com.woording.android.util.CustomJsonArrayRequest;
+import com.woording.android.util.LetterTileDrawable;
 
 import org.json.JSONArray;
 import org.json.JSONException;

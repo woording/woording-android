@@ -4,7 +4,7 @@
  * Copyright (c) 2016.
  */
 
-package com.woording.android;
+package com.woording.android.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+
+import com.woording.android.R;
 
 import java.util.ArrayList;
 

@@ -36,7 +36,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.woording.android.App;
-import com.woording.android.EditTextListAdapter;
 import com.woording.android.List;
 import com.woording.android.R;
 import com.woording.android.VolleySingleton;
@@ -44,6 +43,7 @@ import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
 import com.woording.android.activity.LoginActivity;
 import com.woording.android.activity.MainActivity;
+import com.woording.android.adapter.EditTextListAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;

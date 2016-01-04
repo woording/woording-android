@@ -4,13 +4,15 @@
  * Copyright (c) 2016.
  */
 
-package com.woording.android;
+package com.woording.android.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.woording.android.R;
 
 import java.util.ArrayList;
 

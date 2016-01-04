@@ -31,7 +31,7 @@ import android.widget.TextView;
 
 import com.woording.android.List;
 import com.woording.android.R;
-import com.woording.android.TableListViewAdapter;
+import com.woording.android.adapter.TableListViewAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;

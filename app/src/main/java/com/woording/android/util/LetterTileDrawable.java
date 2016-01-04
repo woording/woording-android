@@ -4,7 +4,7 @@
  * Copyright (c) 2016.
  */
 
-package com.woording.android;
+package com.woording.android.util;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -19,6 +19,8 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+
+import com.woording.android.R;
 
 import junit.framework.Assert;
 

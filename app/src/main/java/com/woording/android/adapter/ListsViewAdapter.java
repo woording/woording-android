@@ -4,7 +4,7 @@
  * Copyright (c) 2016.
  */
 
-package com.woording.android;
+package com.woording.android.adapter;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentTransaction;
@@ -17,6 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.woording.android.App;
+import com.woording.android.List;
+import com.woording.android.R;
 import com.woording.android.activity.ListViewActivity;
 import com.woording.android.activity.MainActivity;
 import com.woording.android.fragment.ListViewFragment;
