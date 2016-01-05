@@ -11,6 +11,7 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -64,9 +65,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final int REQ_SIGNUP = 1;
+
+    // MaterialDrawer identifier
     private static final int PROFILE_SETTING = 1;
 
     public static List lastDeletedList = null;
+    public static boolean accountAdded = false;
 
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
@@ -86,8 +90,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        App.mDualPane = getResources().getBoolean(R.bool.is_dual_pane);
 
         // Setup toolbar
         Toolbar mToolbar;
@@ -139,8 +141,6 @@ public class MainActivity extends AppCompatActivity {
         mAuthPreferences = new AuthPreferences(this);
         mAccountManager = AccountManager.get(this);
 
-        App.selectedAccount = mAuthPreferences.getSelectedAccount();
-
         Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[App.selectedAccount];
         // Ask for an auth token
         mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, null, this, new GetAuthTokenCallback(0), null);
@@ -165,7 +165,14 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(addAccountIntent);
                             return true;
                         } else if (profile instanceof  IDrawerItem) {
-                            // TODO: 1-5-2016 Change user
+                            // Save selected position
+                            int position = headerResult.getProfiles().indexOf(profile);
+                            App.selectedAccount = position;
+
+                            Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[position];
+                            // Ask for an auth token
+                            mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE,
+                                    null, (Activity) mContext, new GetAuthTokenCallback(2), null);
                         }
 
                         return false;
@@ -180,8 +187,9 @@ public class MainActivity extends AppCompatActivity {
             LetterTileDrawable icon = new LetterTileDrawable(this);
             icon.setContactDetails(userName, userName);
             headerResult.addProfile(new ProfileDrawerItem().withName(userName).withIcon(icon), headerResult.getProfiles().size() - 1);
+
+            if (userName.equals(mAuthPreferences.getAccountName())) headerResult.setActiveProfile(i);
         }
-        headerResult.setActiveProfile(App.selectedAccount);
 
         // Setup material navigation drawer
         drawer = new DrawerBuilder()
@@ -235,6 +243,21 @@ public class MainActivity extends AppCompatActivity {
             }, 2000);
         }
     }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // TODO: 1-5-2016 Reload change lists and stuff when selected user changes
+        if (accountAdded) {
+            // Switch to new account
+            Account[] accounts = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE);
+            Account addedAccount = accounts[accounts.length - 1];
+            // Ask for an auth token
+            mAccountManager.getAuthToken(addedAccount, AccountUtils.AUTH_TOKEN_TYPE,
+                    null, this, new GetAuthTokenCallback(2), null);
+        }
+    }
 
     private static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager
@@ -266,22 +289,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void getNewAuthToken() {
         // Invalidate the old token
-        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken(App.selectedAccount));
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(1), null);
     }
 
+    /**
+     * This function helps you getting friends from our API server. ;)
+     */
     private void getFriends() {
         try {
             JSONObject data = new JSONObject()
-                    .put("username", mAuthPreferences.getAccountName(App.selectedAccount))
-                    .put("token", mAuthPreferences.getAuthToken(App.selectedAccount));
+                    .put("username", mAuthPreferences.getAccountName())
+                    .put("token", mAuthPreferences.getAuthToken());
             // Send the request
             CustomJsonArrayRequest request = new CustomJsonArrayRequest(Request.Method.POST, App.API_LOCATION + "/getFriends",
                     data, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
+                    // Remove all friend items
+                    for (int position = 3; position < drawer.getDrawerItems().size() - 0; position++) {
+                        drawer.removeItemByPosition(position);
+                    }
+
                     for (int i = 0; i < response.length(); i++) {
                         try {
                             JSONObject friend = response.getJSONObject(i);
@@ -334,11 +365,15 @@ public class MainActivity extends AppCompatActivity {
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken, App.selectedAccount);
-                    mAuthPreferences.setUsername(accountName, App.selectedAccount);
+                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setUsername(accountName);
                     // Run task
                     switch (taskToRun) {
                         case 1:
+                            getFriends();
+                            break;
+                        case 2:
+                            mListsListFragment.changeUser(accountName);
                             getFriends();
                             break;
                     }

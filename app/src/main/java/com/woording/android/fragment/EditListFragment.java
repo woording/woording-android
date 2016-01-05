@@ -263,7 +263,7 @@ public class EditListFragment extends Fragment {
 
     private void getNewAuthToken() {
         // Invalidate the old token
-        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken(App.selectedAccount));
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(1), null);
@@ -294,8 +294,8 @@ public class EditListFragment extends Fragment {
         try {
             // Create data
             final JSONObject data = new JSONObject()
-                    .put("username", mAuthPreferences.getAccountName(App.selectedAccount))
-                    .put("token", mAuthPreferences.getAuthToken(App.selectedAccount))
+                    .put("username", mAuthPreferences.getAccountName())
+                    .put("token", mAuthPreferences.getAuthToken())
                     .put("list_data", getListData().toJSON());
             // Create Volley request
             StringRequest request = new StringRequest(Request.Method.POST, App.API_LOCATION + "/savelist",
@@ -359,8 +359,8 @@ public class EditListFragment extends Fragment {
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken, App.selectedAccount);
-                    mAuthPreferences.setUsername(accountName, App.selectedAccount);
+                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setUsername(accountName);
                     // Run task
                     switch (taskToRun) {
                         case 1:

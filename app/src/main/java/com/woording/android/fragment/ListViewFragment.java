@@ -81,15 +81,17 @@ public class ListViewFragment extends Fragment {
     private int askedLanguage = 1;
     private boolean caseSensitive = true;
     private boolean cancelled = false;
+    private String username = null;
 
     public ListViewFragment() {
         // Required empty public constructor
     }
 
-    public static ListViewFragment newInstance(List list) {
+    public static ListViewFragment newInstance(List list, String username) {
         ListViewFragment f = new ListViewFragment();
         Bundle args = new Bundle();
         args.putSerializable("list", list);
+        args.putString("username", username);
         f.setArguments(args);
         return f;
     }
@@ -101,6 +103,7 @@ public class ListViewFragment extends Fragment {
 
         if (getArguments() != null) {
             mList = (List) getArguments().getSerializable("list");
+            username = getArguments().getString("username", null);
         }
     }
 
@@ -231,6 +234,10 @@ public class ListViewFragment extends Fragment {
         if (mList != null) getList();
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     private void setWordsTable() {
         // Set title and languages
         if (!App.mDualPane) ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.mName);
@@ -242,7 +249,7 @@ public class ListViewFragment extends Fragment {
 
     private void getNewAuthToken(int taskToRun) {
         // Invalidate the old token
-        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken(App.selectedAccount));
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
@@ -276,11 +283,11 @@ public class ListViewFragment extends Fragment {
 
         try {
             JSONObject data = new JSONObject();
-            data.put("token", mAuthPreferences.getAuthToken(App.selectedAccount));
+            data.put("token", mAuthPreferences.getAuthToken());
+            if (username == null) username = mAuthPreferences.getAccountName();
             // Create request
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                    App.API_LOCATION + "/" + mAuthPreferences.getAccountName(App.selectedAccount)
-                            + "/" + mList.mName.replace(" ", "%20"),
+                    App.API_LOCATION + "/" + username + "/" + mList.mName.replace(" ", "%20"),
                     data, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -330,8 +337,8 @@ public class ListViewFragment extends Fragment {
     private void deleteList() {
         try {
             final JSONObject data = new JSONObject()
-                    .put("token", mAuthPreferences.getAuthToken(App.selectedAccount))
-                    .put("username", mAuthPreferences.getAccountName(App.selectedAccount))
+                    .put("token", mAuthPreferences.getAuthToken())
+                    .put("username", mAuthPreferences.getAccountName())
                     .put("listname", mList.mName);
             // Create request
             StringRequest request = new StringRequest(Request.Method.POST, App.API_LOCATION + "/deleteList",
@@ -395,8 +402,8 @@ public class ListViewFragment extends Fragment {
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken, App.selectedAccount);
-                    mAuthPreferences.setUsername(accountName, App.selectedAccount);
+                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setUsername(accountName);
                     // Run task
                     switch (taskToRun) {
                         case 0:

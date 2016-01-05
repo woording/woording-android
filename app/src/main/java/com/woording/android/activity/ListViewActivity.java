@@ -21,6 +21,8 @@ public class ListViewActivity extends AppCompatActivity {
     public static final int NO_WORDS_DATA = 1;
     public static final int DELETED_LIST = 2;
 
+    private ListViewFragment mListViewFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,16 +35,25 @@ public class ListViewActivity extends AppCompatActivity {
         }
 
         // Setup fragment
-        ListViewFragment mListViewFragment = (ListViewFragment) getSupportFragmentManager().findFragmentById(R.id.list_view_fragment);
-        // Load List from Intent
-        List mList = (List) getIntent().getSerializableExtra("list");
-        mListViewFragment.setList(mList);
+        mListViewFragment = (ListViewFragment) getSupportFragmentManager().findFragmentById(R.id.list_view_fragment);
 
         // Setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Load List from Intent
+        List mList = (List) getIntent().getSerializableExtra("list");
+        mListViewFragment.setList(mList);
+        // Load username
+        String username = getIntent().getStringExtra("username");
+        mListViewFragment.setUsername(username);
     }
 
     public void finishActivity(int requestCode) {

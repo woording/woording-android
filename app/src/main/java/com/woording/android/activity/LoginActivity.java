@@ -11,6 +11,7 @@ import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,6 +50,8 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+
+    private final Context mContext = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,6 +227,8 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
                 // (Not setting the auth token will cause another call to the server to authenticate the user)
                 mAccountManager.addAccountExplicitly(account, accountPassword, null);
                 mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
+
+                MainActivity.accountAdded = true;
             } else {
                 mAccountManager.setPassword(account, accountPassword);
             }

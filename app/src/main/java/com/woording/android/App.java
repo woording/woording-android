@@ -22,6 +22,8 @@ public class App extends Application {
     public void onCreate(){
         super.onCreate();
         App.context = getApplicationContext();
+
+        mDualPane = getResources().getBoolean(R.bool.is_dual_pane);
     }
 
     public static Context getAppContext() {

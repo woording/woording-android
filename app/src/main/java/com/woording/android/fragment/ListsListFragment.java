@@ -16,6 +16,8 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -52,7 +54,7 @@ public class ListsListFragment extends Fragment {
     private AuthPreferences mAuthPreferences;
     private String authToken;
 
-    private String currentUsername;
+    public static String currentUsername;
 
     private List[] mLists = new List[]{};
 
@@ -97,6 +99,8 @@ public class ListsListFragment extends Fragment {
         mAuthPreferences = new AuthPreferences(getActivity());
         mAccountManager = AccountManager.get(getActivity());
 
+        currentUsername = mAuthPreferences.getAccountName();
+
         Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[App.selectedAccount];
         // Ask for an auth token
         mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, null, getActivity(), new GetAuthTokenCallback(0), null);
@@ -112,10 +116,20 @@ public class ListsListFragment extends Fragment {
 
     private void getNewAuthToken(int taskToRun) {
         // Invalidate the old token
-        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken(App.selectedAccount));
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
+    }
+
+    public void changeUser(String username) {
+        currentUsername = username;
+        getLists(true);
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (!username.equals(mAuthPreferences.getAccountName())) {
+            actionBar.setTitle(getString(R.string.others_lists, username));
+        } else actionBar.setTitle(R.string.my_lists);
     }
 
     public void getLists(final boolean useCached) {
@@ -124,11 +138,11 @@ public class ListsListFragment extends Fragment {
         try {
             // Create the data that is sent
             JSONObject data = new JSONObject();
-            data.put("token", mAuthPreferences.getAuthToken(App.selectedAccount));
-            final String username = currentUsername != null ? currentUsername : mAuthPreferences.getAccountName(App.selectedAccount);
+            data.put("token", mAuthPreferences.getAuthToken());
+            final String username = currentUsername != null ? currentUsername : mAuthPreferences.getAccountName();
             // Create the request
             JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                    (Request.Method.POST, App.API_LOCATION + "/" + mAuthPreferences.getAccountName(App.selectedAccount),
+                    (Request.Method.POST, App.API_LOCATION + "/" + username,
                             data, new Response.Listener<JSONObject>() {
 
                         @Override
@@ -178,8 +192,8 @@ public class ListsListFragment extends Fragment {
     public void saveList(final List list) {
         try {
             JSONObject data = new JSONObject();
-            data.put("token", mAuthPreferences.getAuthToken(App.selectedAccount));
-            data.put("username", mAuthPreferences.getAccountName(App.selectedAccount));
+            data.put("token", mAuthPreferences.getAuthToken());
+            data.put("username", mAuthPreferences.getAccountName());
             data.put("list_data", list.toJSON());
 
             // Create the request
@@ -231,8 +245,8 @@ public class ListsListFragment extends Fragment {
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken, App.selectedAccount);
-                    mAuthPreferences.setUsername(accountName, App.selectedAccount);
+                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setUsername(accountName);
                     // Run task
                     switch (taskToRun) {
                         case 0:

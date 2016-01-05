@@ -23,6 +23,7 @@ import com.woording.android.R;
 import com.woording.android.activity.ListViewActivity;
 import com.woording.android.activity.MainActivity;
 import com.woording.android.fragment.ListViewFragment;
+import com.woording.android.fragment.ListsListFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,10 +55,11 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                     // Start intent
                     Intent intent = new Intent(MainActivity.mContext, ListViewActivity.class);
                     intent.putExtra("list", mLists.get(position));
+                    intent.putExtra("username", ListsListFragment.currentUsername);
                     MainActivity.mContext.startActivity(intent);
                 } else {
                     // Display fragment in same activity (Tablet)
-                    ListViewFragment fragment = ListViewFragment.newInstance(mLists.get(position));
+                    ListViewFragment fragment = ListViewFragment.newInstance(mLists.get(position), ListsListFragment.currentUsername);
                     FragmentTransaction ft = ((AppCompatActivity) MainActivity.mContext).getSupportFragmentManager().beginTransaction();
                     ft.replace(R.id.second_pane, fragment)
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
