@@ -254,7 +254,6 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        // TODO: 1-5-2016 Reload change lists and stuff when selected user changes
         if (accountAdded) {
             // Switch to new account
             Account[] accounts = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE);
