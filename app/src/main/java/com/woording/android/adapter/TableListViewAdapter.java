@@ -79,8 +79,8 @@ public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdap
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView mColumn1;
-        public TextView mColumn2;
+        public final TextView mColumn1;
+        public final TextView mColumn2;
 
         public ViewHolder(View view) {
             super(view);

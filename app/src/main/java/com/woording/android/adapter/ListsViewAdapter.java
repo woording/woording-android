@@ -94,9 +94,9 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public CardView mCardView;
-        public TextView mTitle;
-        public TextView mSubTitle;
+        public final CardView mCardView;
+        public final TextView mTitle;
+        public final TextView mSubTitle;
 
         public ViewHolder(View view) {
             super(view);

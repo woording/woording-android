@@ -27,6 +27,8 @@ import junit.framework.Assert;
 /**
  * A drawable that encapsulates all the functionality needed to display a letter tile to
  * represent a contact image.
+ *
+ * This is copied from com.android.contacts.ContactsCommon and then edited by me.
  */
 public class LetterTileDrawable extends Drawable {
 
@@ -46,13 +48,8 @@ public class LetterTileDrawable extends Drawable {
     private static final Rect sRect = new Rect();
     private static final char[] sFirstChar = new char[1];
 
-    /** Contact type constants */
-    public static final int TYPE_PERSON = 1;
-    public static final int TYPE_DEFAULT = TYPE_PERSON;
-
     private String mDisplayName;
     private String mIdentifier;
-    private int mContactType = TYPE_DEFAULT;
     private float mScale = 1.0f;
     private float mOffset = 0.0f;
     private boolean mIsCircle = true;
@@ -140,7 +137,7 @@ public class LetterTileDrawable extends Drawable {
                     sPaint);
         } else {
             // Draw the default image if there is no letter/digit to be drawn
-            final Bitmap bitmap = getBitmapForContactType(mContactType);
+            final Bitmap bitmap = DEFAULT_PERSON_AVATAR;
             drawBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(),
                     canvas);
         }
@@ -163,15 +160,6 @@ public class LetterTileDrawable extends Drawable {
         // The email should already have been normalized by the ContactRequest.
         final int color = Math.abs(identifier.hashCode()) % sColors.length();
         return sColors.getColor(color, sDefaultColor);
-    }
-
-    private static Bitmap getBitmapForContactType(int contactType) {
-        switch (contactType) {
-            case TYPE_PERSON:
-                return DEFAULT_PERSON_AVATAR;
-            default:
-                return DEFAULT_PERSON_AVATAR;
-        }
     }
 
     private static boolean isEnglishLetter(final char c) {
@@ -223,10 +211,6 @@ public class LetterTileDrawable extends Drawable {
     public void setContactDetails(final String displayName, final String identifier) {
         mDisplayName = displayName;
         mIdentifier = identifier;
-    }
-
-    public void setContactType(int contactType) {
-        mContactType = contactType;
     }
 
     public void setIsCircular(boolean isCircle) {

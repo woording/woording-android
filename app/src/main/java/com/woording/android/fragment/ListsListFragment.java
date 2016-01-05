@@ -55,7 +55,7 @@ public class ListsListFragment extends Fragment {
 
     private List[] mLists = new List[]{};
 
-    public SwipeRefreshLayout mSwipeRefreshLayout;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private ListsViewAdapter mAdapter;
 
@@ -206,7 +206,7 @@ public class ListsListFragment extends Fragment {
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
-        private int taskToRun;
+        private final int taskToRun;
 
         public GetAuthTokenCallback(int taskToRun) {
             this.taskToRun = taskToRun;

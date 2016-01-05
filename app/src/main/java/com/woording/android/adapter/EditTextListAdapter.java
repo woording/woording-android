@@ -67,11 +67,11 @@ public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // UI Elements
-        public EditText language1Word;
-        public EditText language2Word;
+        public final EditText language1Word;
+        public final EditText language2Word;
         // Text watchers
-        public Language1Watcher language1Watcher;
-        public Language2Watcher language2Watcher;
+        public final Language1Watcher language1Watcher;
+        public final Language2Watcher language2Watcher;
 
         public ViewHolder(View view, Language1Watcher language1Watcher, Language2Watcher language2Watcher) {
             super(view);

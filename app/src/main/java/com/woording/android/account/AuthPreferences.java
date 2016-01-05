@@ -15,7 +15,7 @@ public class AuthPreferences {
     private static final String KEY_ACCOUNT_NAME = "account_name";
     private static final String KEY_AUTH_TOKEN = "auth_token";
 
-    private SharedPreferences preferences;
+    private final SharedPreferences preferences;
 
     public AuthPreferences(Context context) {
         preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);

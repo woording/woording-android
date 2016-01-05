@@ -79,9 +79,9 @@ public class ListViewFragment extends Fragment {
 
     private TableListViewAdapter recyclerViewAdapter;
 
-    public int askedLanguage = 1;
-    public boolean caseSensitive = true;
-    public boolean cancelled = false;
+    private int askedLanguage = 1;
+    private boolean caseSensitive = true;
+    private boolean cancelled = false;
 
     public ListViewFragment() {
         // Required empty public constructor
@@ -247,7 +247,7 @@ public class ListViewFragment extends Fragment {
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
     }
 
-    public void showProgress(final boolean show) {
+    private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
@@ -372,7 +372,7 @@ public class ListViewFragment extends Fragment {
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
-        private int taskToRun;
+        private final int taskToRun;
 
         public GetAuthTokenCallback(int taskToRun) {
             this.taskToRun = taskToRun;

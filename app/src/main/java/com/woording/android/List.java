@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class List implements Serializable {
-    public String mName;
-    public String mLanguage1;
-    public String mLanguage2;
-    public String mSharedWith;
+    public final String mName;
+    public final String mLanguage1;
+    public final String mLanguage2;
+    public final String mSharedWith;
 
     public ArrayList<String> mLanguage1Words = new ArrayList<>();
     public ArrayList<String> mLanguage2Words = new ArrayList<>();

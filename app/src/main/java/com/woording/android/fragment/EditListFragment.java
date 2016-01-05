@@ -337,7 +337,7 @@ public class EditListFragment extends Fragment {
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
-        private int taskToRun;
+        private final int taskToRun;
 
         public GetAuthTokenCallback(int taskToRun) {
             this.taskToRun = taskToRun;

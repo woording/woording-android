@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int REQ_SIGNUP = 1;
     public static boolean mDualPane;
+    public static int selectedAccount = 0;
 
     public static List lastDeletedList = null;
 
@@ -72,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
     public static FloatingActionButton fab;
     private ListsListFragment mListsListFragment;
 
-    public Drawer drawer;
+    private AccountHeader headerResult;
+    private Drawer drawer;
 
     public static Context mContext;
     private boolean doubleBackToExitPressedOnce = false;
@@ -138,13 +140,11 @@ public class MainActivity extends AppCompatActivity {
         mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
                 null, this, null, null, new GetAuthTokenCallback(0), null);
 
-        // Setup items
-        PrimaryDrawerItem home = new PrimaryDrawerItem().withName(R.string.my_lists).withIcon(GoogleMaterial.Icon.gmd_list);
-
         // Build the accountHeader
-        AccountHeader headerResult = new AccountHeaderBuilder()
+        headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header_background)
+                .withSavedInstance(savedInstanceState)
                 .build();
 
         // For every account found (Currently just one account supported)
@@ -159,12 +159,23 @@ public class MainActivity extends AppCompatActivity {
                 .withToolbar(mToolbar)
                 .withAccountHeader(headerResult)
                 .addDrawerItems(
-                        home,
+                        new PrimaryDrawerItem().withName(R.string.my_lists).withIcon(GoogleMaterial.Icon.gmd_list),
                         new SectionDrawerItem().withName(R.string.friends)
                 )
+                .withSavedInstance(savedInstanceState)
                 .build();
 
+        getSupportActionBar().setTitle(R.string.my_lists);
         getFriends();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //add the values which need to be saved from the drawer to the bundle
+        outState = drawer.saveInstanceState(outState);
+        //add the values which need to be saved from the accountHeader to the bundle
+        outState = headerResult.saveInstanceState(outState);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -221,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(1), null);
     }
 
-    public void getFriends() {
+    private void getFriends() {
         try {
             JSONObject data = new JSONObject()
                     .put("username", mAuthPreferences.getAccountName())
@@ -262,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
-        private int taskToRun;
+        private final int taskToRun;
 
         public GetAuthTokenCallback(int taskToRun) {
             this.taskToRun = taskToRun;

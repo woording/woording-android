@@ -16,7 +16,7 @@ public class AccountUtils {
     public static final String ACCOUNT_TYPE = "com.woording.android";
     public static final String AUTH_TOKEN_TYPE = "com.woording.android.auth";
 
-    public static IServerAuthenticator mServerAuthenticator = new MyServerAuthenticator();
+    public static final IServerAuthenticator mServerAuthenticator = new MyServerAuthenticator();
 
     @Nullable
     public static Account getAccount(Context context, String accountName) {
