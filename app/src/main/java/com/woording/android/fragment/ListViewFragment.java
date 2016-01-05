@@ -244,7 +244,7 @@ public class ListViewFragment extends Fragment {
 
         ((TextView) getActivity().findViewById(R.id.head_1)).setText(List.getLanguageName(getActivity(), mList.mLanguage1));
         ((TextView) getActivity().findViewById(R.id.head_2)).setText(List.getLanguageName(getActivity(), mList.mLanguage2));
-        recyclerViewAdapter.addItems(mList.mLanguage1Words, mList.mLanguage2Words);
+        recyclerViewAdapter.setItems(mList.mLanguage1Words, mList.mLanguage2Words);
     }
 
     private void getNewAuthToken(int taskToRun) {

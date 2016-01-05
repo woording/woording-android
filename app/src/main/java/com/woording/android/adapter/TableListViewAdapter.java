@@ -26,6 +26,12 @@ public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdap
         this.Column2 = column2;
     }
 
+    public void setItems(ArrayList<String> column1, ArrayList<String> column2) {
+        Column1 = column1;
+        Column2 = column2;
+        notifyItemRangeChanged(0, column1.size() - 1);
+    }
+
     public void addItem(String column1, String column2) {
         Column1.add(column1);
         Column2.add(column2);
@@ -61,13 +67,6 @@ public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdap
     public void onBindViewHolder(ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-//        Log.d("onBind", "Position = " + position);
-//        if(position == 0){
-//            Log.d("onBind", "PAINT THE FIRST ELEMENT!");
-//            holder.mColumn1.setTypeface(null, Typeface.BOLD);
-//            holder.mColumn2.setTypeface(null, Typeface.BOLD);
-//        }
-
         holder.mColumn1.setText(Column1.get(position));
         holder.mColumn2.setText(Column2.get(position));
     }
