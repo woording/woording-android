@@ -11,7 +11,6 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -53,6 +52,8 @@ public class ListsListFragment extends Fragment {
     private AuthPreferences mAuthPreferences;
     private String authToken;
 
+    private String currentUsername;
+
     private List[] mLists = new List[]{};
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -89,16 +90,18 @@ public class ListsListFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         authToken = null;
         mAuthPreferences = new AuthPreferences(getActivity());
         mAccountManager = AccountManager.get(getActivity());
 
+        Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[App.selectedAccount];
         // Ask for an auth token
-        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
-                null, getActivity(), null, null, new GetAuthTokenCallback(0), null);
+        mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, null, getActivity(), new GetAuthTokenCallback(0), null);
+//        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
+//                null, this, null, null, new GetAuthTokenCallback(0), null);
     }
 
     @Override
@@ -109,7 +112,7 @@ public class ListsListFragment extends Fragment {
 
     private void getNewAuthToken(int taskToRun) {
         // Invalidate the old token
-        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken(App.selectedAccount));
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
@@ -121,10 +124,11 @@ public class ListsListFragment extends Fragment {
         try {
             // Create the data that is sent
             JSONObject data = new JSONObject();
-            data.put("token", mAuthPreferences.getAuthToken());
+            data.put("token", mAuthPreferences.getAuthToken(App.selectedAccount));
+            final String username = currentUsername != null ? currentUsername : mAuthPreferences.getAccountName(App.selectedAccount);
             // Create the request
             JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                    (Request.Method.POST, App.API_LOCATION + "/" + mAuthPreferences.getAccountName(),
+                    (Request.Method.POST, App.API_LOCATION + "/" + mAuthPreferences.getAccountName(App.selectedAccount),
                             data, new Response.Listener<JSONObject>() {
 
                         @Override
@@ -174,8 +178,8 @@ public class ListsListFragment extends Fragment {
     public void saveList(final List list) {
         try {
             JSONObject data = new JSONObject();
-            data.put("token", mAuthPreferences.getAuthToken());
-            data.put("username", mAuthPreferences.getAccountName());
+            data.put("token", mAuthPreferences.getAuthToken(App.selectedAccount));
+            data.put("username", mAuthPreferences.getAccountName(App.selectedAccount));
             data.put("list_data", list.toJSON());
 
             // Create the request
@@ -227,8 +231,8 @@ public class ListsListFragment extends Fragment {
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken);
-                    mAuthPreferences.setUsername(accountName);
+                    mAuthPreferences.setAuthToken(authToken, App.selectedAccount);
+                    mAuthPreferences.setUsername(accountName, App.selectedAccount);
                     // Run task
                     switch (taskToRun) {
                         case 0:

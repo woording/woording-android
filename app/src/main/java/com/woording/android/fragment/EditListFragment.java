@@ -11,7 +11,6 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -141,16 +140,18 @@ public class EditListFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         authToken = null;
         mAuthPreferences = new AuthPreferences(getActivity());
         mAccountManager = AccountManager.get(getActivity());
 
+        Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[App.selectedAccount];
         // Ask for an auth token
-        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
-                null, getActivity(), null, null, new GetAuthTokenCallback(0), null);
+        mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, null, getActivity(), new GetAuthTokenCallback(0), null);
+//        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
+//                null, this, null, null, new GetAuthTokenCallback(0), null);
     }
 
     @Override
@@ -262,7 +263,7 @@ public class EditListFragment extends Fragment {
 
     private void getNewAuthToken() {
         // Invalidate the old token
-        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken(App.selectedAccount));
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(1), null);
@@ -293,8 +294,8 @@ public class EditListFragment extends Fragment {
         try {
             // Create data
             final JSONObject data = new JSONObject()
-                    .put("username", mAuthPreferences.getAccountName())
-                    .put("token", mAuthPreferences.getAuthToken())
+                    .put("username", mAuthPreferences.getAccountName(App.selectedAccount))
+                    .put("token", mAuthPreferences.getAuthToken(App.selectedAccount))
                     .put("list_data", getListData().toJSON());
             // Create Volley request
             StringRequest request = new StringRequest(Request.Method.POST, App.API_LOCATION + "/savelist",
@@ -358,8 +359,8 @@ public class EditListFragment extends Fragment {
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken);
-                    mAuthPreferences.setUsername(accountName);
+                    mAuthPreferences.setAuthToken(authToken, App.selectedAccount);
+                    mAuthPreferences.setUsername(accountName, App.selectedAccount);
                     // Run task
                     switch (taskToRun) {
                         case 1:

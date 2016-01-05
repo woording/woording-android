@@ -32,14 +32,18 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.woording.android.App;
 import com.woording.android.List;
 import com.woording.android.R;
@@ -60,8 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final int REQ_SIGNUP = 1;
-    public static boolean mDualPane;
-    public static int selectedAccount = 0;
+    private static final int PROFILE_SETTING = 1;
 
     public static List lastDeletedList = null;
 
@@ -84,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDualPane = getResources().getBoolean(R.bool.is_dual_pane);
+        App.mDualPane = getResources().getBoolean(R.bool.is_dual_pane);
 
         // Setup toolbar
         Toolbar mToolbar;
@@ -136,22 +139,49 @@ public class MainActivity extends AppCompatActivity {
         mAuthPreferences = new AuthPreferences(this);
         mAccountManager = AccountManager.get(this);
 
+        App.selectedAccount = mAuthPreferences.getSelectedAccount();
+
+        Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[App.selectedAccount];
         // Ask for an auth token
-        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
-                null, this, null, null, new GetAuthTokenCallback(0), null);
+        mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, null, this, new GetAuthTokenCallback(0), null);
+//        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
+//                null, this, null, null, new GetAuthTokenCallback(0), null);
 
         // Build the accountHeader
         headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header_background)
+                .addProfiles(
+                        new ProfileSettingDrawerItem().withName(getString(R.string.add_account))
+                                .withIcon(new IconicsDrawable(this, GoogleMaterial.Icon.gmd_add).actionBar()
+                                        .paddingDp(5).colorRes(R.color.material_drawer_primary_text)).withIdentifier(PROFILE_SETTING)
+                )
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean current) {
+                        if (profile instanceof IDrawerItem && profile.getIdentifier() == PROFILE_SETTING) {
+                            Intent addAccountIntent = new Intent(mContext, LoginActivity.class);
+                            addAccountIntent.putExtra(LoginActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
+                            startActivity(addAccountIntent);
+                            return true;
+                        } else if (profile instanceof  IDrawerItem) {
+                            // TODO: 1-5-2016 Change user
+                        }
+
+                        return false;
+                    }
+                })
                 .withSavedInstance(savedInstanceState)
                 .build();
 
-        // For every account found (Currently just one account supported)
-        String userName = mAuthPreferences.getAccountName();
-        LetterTileDrawable icon = new LetterTileDrawable(this);
-        icon.setContactDetails(userName, userName);
-        headerResult.addProfiles(new ProfileDrawerItem().withName(userName).withIcon(icon));
+        // For every account found
+        for (int i = 0; i < mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE).length; i++) {
+            String userName = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[i].name;
+            LetterTileDrawable icon = new LetterTileDrawable(this);
+            icon.setContactDetails(userName, userName);
+            headerResult.addProfile(new ProfileDrawerItem().withName(userName).withIcon(icon), headerResult.getProfiles().size() - 1);
+        }
+        headerResult.setActiveProfile(App.selectedAccount);
 
         // Setup material navigation drawer
         drawer = new DrawerBuilder()
@@ -162,6 +192,12 @@ public class MainActivity extends AppCompatActivity {
                         new PrimaryDrawerItem().withName(R.string.my_lists).withIcon(GoogleMaterial.Icon.gmd_list),
                         new SectionDrawerItem().withName(R.string.friends)
                 )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        return false;
+                    }
+                })
                 .withSavedInstance(savedInstanceState)
                 .build();
 
@@ -208,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void newList() {
-        if (!mDualPane) {
+        if (!App.mDualPane) {
             Intent intent = new Intent(mContext, EditListActivity.class);
             mContext.startActivity(intent);
         } else {
@@ -230,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getNewAuthToken() {
         // Invalidate the old token
-        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken(App.selectedAccount));
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(1), null);
@@ -239,8 +275,8 @@ public class MainActivity extends AppCompatActivity {
     private void getFriends() {
         try {
             JSONObject data = new JSONObject()
-                    .put("username", mAuthPreferences.getAccountName())
-                    .put("token", mAuthPreferences.getAuthToken());
+                    .put("username", mAuthPreferences.getAccountName(App.selectedAccount))
+                    .put("token", mAuthPreferences.getAuthToken(App.selectedAccount));
             // Send the request
             CustomJsonArrayRequest request = new CustomJsonArrayRequest(Request.Method.POST, App.API_LOCATION + "/getFriends",
                     data, new Response.Listener<JSONArray>() {
@@ -298,8 +334,8 @@ public class MainActivity extends AppCompatActivity {
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken);
-                    mAuthPreferences.setUsername(accountName);
+                    mAuthPreferences.setAuthToken(authToken, App.selectedAccount);
+                    mAuthPreferences.setUsername(accountName, App.selectedAccount);
                     // Run task
                     switch (taskToRun) {
                         case 1:

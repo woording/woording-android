@@ -14,7 +14,6 @@ import android.accounts.OperationCanceledException;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -123,16 +122,18 @@ public class ListViewFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         authToken = null;
         mAuthPreferences = new AuthPreferences(getActivity());
         mAccountManager = AccountManager.get(getActivity());
 
+        Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[App.selectedAccount];
         // Ask for an auth token
-        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
-                null, getActivity(), null, null, new GetAuthTokenCallback(0), null);
+        mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, null, getActivity(), new GetAuthTokenCallback(0), null);
+//        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
+//                null, this, null, null, new GetAuthTokenCallback(0), null);
     }
 
     @Override
@@ -199,7 +200,7 @@ public class ListViewFragment extends Fragment {
                 deleteList();
                 break;
             case R.id.action_edit:
-                if (!MainActivity.mDualPane) {
+                if (!App.mDualPane) {
                     Intent intent = new Intent(getActivity(), EditListActivity.class)
                             .putExtra("list", mList);
                     startActivity(intent);
@@ -232,7 +233,7 @@ public class ListViewFragment extends Fragment {
 
     private void setWordsTable() {
         // Set title and languages
-        if (!MainActivity.mDualPane) ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.mName);
+        if (!App.mDualPane) ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.mName);
 
         ((TextView) getActivity().findViewById(R.id.head_1)).setText(List.getLanguageName(getActivity(), mList.mLanguage1));
         ((TextView) getActivity().findViewById(R.id.head_2)).setText(List.getLanguageName(getActivity(), mList.mLanguage2));
@@ -241,7 +242,7 @@ public class ListViewFragment extends Fragment {
 
     private void getNewAuthToken(int taskToRun) {
         // Invalidate the old token
-        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
+        mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken(App.selectedAccount));
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
@@ -275,10 +276,11 @@ public class ListViewFragment extends Fragment {
 
         try {
             JSONObject data = new JSONObject();
-            data.put("token", mAuthPreferences.getAuthToken());
+            data.put("token", mAuthPreferences.getAuthToken(App.selectedAccount));
             // Create request
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                    App.API_LOCATION + "/" + mAuthPreferences.getAccountName() + "/" + mList.mName.replace(" ", "%20"),
+                    App.API_LOCATION + "/" + mAuthPreferences.getAccountName(App.selectedAccount)
+                            + "/" + mList.mName.replace(" ", "%20"),
                     data, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -328,8 +330,8 @@ public class ListViewFragment extends Fragment {
     private void deleteList() {
         try {
             final JSONObject data = new JSONObject()
-                    .put("token", mAuthPreferences.getAuthToken())
-                    .put("username", mAuthPreferences.getAccountName())
+                    .put("token", mAuthPreferences.getAuthToken(App.selectedAccount))
+                    .put("username", mAuthPreferences.getAccountName(App.selectedAccount))
                     .put("listname", mList.mName);
             // Create request
             StringRequest request = new StringRequest(Request.Method.POST, App.API_LOCATION + "/deleteList",
@@ -393,8 +395,8 @@ public class ListViewFragment extends Fragment {
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken);
-                    mAuthPreferences.setUsername(accountName);
+                    mAuthPreferences.setAuthToken(authToken, App.selectedAccount);
+                    mAuthPreferences.setUsername(accountName, App.selectedAccount);
                     // Run task
                     switch (taskToRun) {
                         case 0:

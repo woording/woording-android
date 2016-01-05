@@ -15,7 +15,7 @@ public interface IServerAuthenticator {
      * @param password user's password
      * @return Access token
      */
-    public String signUp (final String email, final String username, final String password);
+    String signUp (final String email, final String username, final String password);
 
     /**
      * Logs the user in and returns its auth token.
@@ -23,6 +23,6 @@ public interface IServerAuthenticator {
      * @param password user's password
      * @return Access token
      */
-    public String signIn (final String username, final String password);
+    String signIn (final String username, final String password);
 
 }

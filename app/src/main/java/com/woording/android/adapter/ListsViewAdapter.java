@@ -50,7 +50,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!MainActivity.mDualPane) {
+                if (!App.mDualPane) {
                     // Start intent
                     Intent intent = new Intent(MainActivity.mContext, ListViewActivity.class);
                     intent.putExtra("list", mLists.get(position));

@@ -16,6 +16,7 @@
     <string name="press_BACK_again_to_exit">Please click BACK again to exit</string>
 
     <!-- Strings related to login -->
+    <string name="add_account">Add account</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
@@ -87,6 +88,6 @@
     <string name="undo">Undo</string>
     <string name="account_type" translatable="false">com.woording.android</string>
     <!-- Font family used when drawing letters for letter tile avatars. -->
-    <string name="letter_tile_letter_font_family">sans-serif-medium</string>
+    <string name="letter_tile_letter_font_family" translatable="false">sans-serif-light</string>
 
 </resources>
