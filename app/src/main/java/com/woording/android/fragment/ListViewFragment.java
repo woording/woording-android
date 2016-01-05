@@ -132,11 +132,21 @@ public class ListViewFragment extends Fragment {
         mAuthPreferences = new AuthPreferences(getActivity());
         mAccountManager = AccountManager.get(getActivity());
 
-        Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[App.selectedAccount];
-        // Ask for an auth token
-        mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, null, getActivity(), new GetAuthTokenCallback(0), null);
+        Account[] accounts = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE);
+        Account currentAccount = null;
+        if (accounts.length != 0) {
+            String username = mAuthPreferences.getAccountName();
+            for (Account account : accounts) {
+                if (account.name.equals(username)) currentAccount = account;
+            }
+        }
+        if (currentAccount != null) {
+            // Ask for an auth token
+            mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null,
+                    getActivity(), new GetAuthTokenCallback(0), null);
 //        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
 //                null, this, null, null, new GetAuthTokenCallback(0), null);
+        }
     }
 
     @Override

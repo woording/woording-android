@@ -32,6 +32,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -53,7 +54,6 @@ import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
 import com.woording.android.fragment.EditListFragment;
 import com.woording.android.fragment.ListsListFragment;
-import com.woording.android.util.CustomJsonArrayRequest;
 import com.woording.android.util.LetterTileDrawable;
 
 import org.json.JSONArray;
@@ -141,11 +141,25 @@ public class MainActivity extends AppCompatActivity {
         mAuthPreferences = new AuthPreferences(this);
         mAccountManager = AccountManager.get(this);
 
-        Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[App.selectedAccount];
-        // Ask for an auth token
-        mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, null, this, new GetAuthTokenCallback(0), null);
+        Account[] accounts = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE);
+        Account currentAccount = null;
+        if (accounts.length != 0) {
+            String username = mAuthPreferences.getAccountName();
+            for (Account account : accounts) {
+                if (account.name.equals(username)) currentAccount = account;
+            }
+        }
+        if (currentAccount != null) {
+            // Ask for an auth token
+            mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null, this, new GetAuthTokenCallback(0), null);
 //        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
 //                null, this, null, null, new GetAuthTokenCallback(0), null);
+        } else {
+            // Add new account
+            Intent addAccountIntent = new Intent(this, LoginActivity.class);
+            addAccountIntent.putExtra(LoginActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
+            startActivity(addAccountIntent);
+        }
 
         // Build the accountHeader
         headerResult = new AccountHeaderBuilder()
@@ -181,15 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 .withSavedInstance(savedInstanceState)
                 .build();
 
-        // For every account found
-        for (int i = 0; i < mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE).length; i++) {
-            String userName = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[i].name;
-            LetterTileDrawable icon = new LetterTileDrawable(this);
-            icon.setContactDetails(userName, userName);
-            headerResult.addProfile(new ProfileDrawerItem().withName(userName).withIcon(icon), headerResult.getProfiles().size() - 1);
-
-            if (userName.equals(mAuthPreferences.getAccountName())) headerResult.setActiveProfile(i);
-        }
+        addAccounts();
 
         // Setup material navigation drawer
         drawer = new DrawerBuilder()
@@ -210,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         getSupportActionBar().setTitle(R.string.my_lists);
-        getFriends();
+        getFriends(true);
     }
 
     @Override
@@ -256,7 +262,30 @@ public class MainActivity extends AppCompatActivity {
             // Ask for an auth token
             mAccountManager.getAuthToken(addedAccount, AccountUtils.AUTH_TOKEN_TYPE,
                     null, this, new GetAuthTokenCallback(2), null);
+
+            removeAccounts();
+            addAccounts();
         }
+    }
+
+    private void removeAccounts() {
+        for (int i = headerResult.getProfiles().size() - 2; i > -1; i--) {
+            headerResult.removeProfile(i);
+        }
+    }
+
+    private void addAccounts() {
+        // Add every account found
+        for (int i = 0; i < mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE).length; i++) {
+            String userName = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[i].name;
+            LetterTileDrawable icon = new LetterTileDrawable(this);
+            icon.setContactDetails(userName, userName);
+            headerResult.addProfile(new ProfileDrawerItem().withName(userName).withIcon(icon), headerResult.getProfiles().size() - 1);
+
+            if (userName.equals(mAuthPreferences.getAccountName())) headerResult.setActiveProfile(i);
+        }
+
+        if (headerResult.getActiveProfile() instanceof ProfileSettingDrawerItem) headerResult.setActiveProfile(0);
     }
 
     private static boolean isNetworkAvailable(Context context) {
@@ -295,33 +324,42 @@ public class MainActivity extends AppCompatActivity {
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(1), null);
     }
 
+    private void removeFriendsFromDrawer() {
+        for (int i = drawer.getDrawerItems().size(); i > 2; i--) {
+            drawer.removeItemByPosition(i);
+        }
+    }
+
     /**
      * This function helps you getting friends from our API server. ;)
      */
-    private void getFriends() {
+    private void getFriends(boolean shouldUseCache) {
         try {
-            JSONObject data = new JSONObject()
+            final JSONObject data = new JSONObject()
                     .put("username", mAuthPreferences.getAccountName())
                     .put("token", mAuthPreferences.getAuthToken());
             // Send the request
-            CustomJsonArrayRequest request = new CustomJsonArrayRequest(Request.Method.POST, App.API_LOCATION + "/getFriends",
-                    data, new Response.Listener<JSONArray>() {
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/getFriends",
+                    data, new Response.Listener<JSONObject>() {
                 @Override
-                public void onResponse(JSONArray response) {
+                public void onResponse(JSONObject response) {
                     // Remove all friend items
-                    for (int position = 3; position < drawer.getDrawerItems().size() - 0; position++) {
-                        drawer.removeItemByPosition(position);
-                    }
-
-                    for (int i = 0; i < response.length(); i++) {
-                        try {
-                            JSONObject friend = response.getJSONObject(i);
-                            drawer.addItem(new SecondaryDrawerItem()
-                                    .withName(friend.getString("username"))
-                                    .withIcon(GoogleMaterial.Icon.gmd_person));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                    removeFriendsFromDrawer();
+                    // Try to load data
+                    try {
+                        JSONArray array = response.getJSONArray("friends");
+                        for (int i = 0; i < array.length(); i++) {
+                            try {
+                                JSONObject friend = array.getJSONObject(i);
+                                drawer.addItem(new SecondaryDrawerItem()
+                                        .withName(friend.getString("username"))
+                                        .withIcon(GoogleMaterial.Icon.gmd_person));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
             }, new Response.ErrorListener() {
@@ -336,6 +374,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
+            request.setShouldCache(shouldUseCache);
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {
@@ -370,11 +409,11 @@ public class MainActivity extends AppCompatActivity {
                     // Run task
                     switch (taskToRun) {
                         case 1:
-                            getFriends();
+                            getFriends(true);
                             break;
                         case 2:
                             mListsListFragment.changeUser(accountName);
-                            getFriends();
+                            getFriends(false);
                             break;
                     }
 
