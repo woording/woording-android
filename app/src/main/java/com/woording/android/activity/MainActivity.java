@@ -33,11 +33,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -218,7 +220,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem instanceof SecondaryDrawerItem && position == drawer.getDrawerItems().size()) {
-                            // TODO: 1-6-2016 Send friend request
                             // Inflate AlertDialog layout
                             View layoutView = getLayoutInflater().inflate(R.layout.content_friend_request_dialog, null);
                             final EditText friendNameInput = (EditText) layoutView.findViewById(R.id.friend_request_input);
@@ -243,12 +244,10 @@ public class MainActivity extends AppCompatActivity {
                             builder.create().show();
                             return false;
                         } else if (drawerItem instanceof SecondaryDrawerItem) {
-                            // TODO: 1-6-2016 Go to selected friend list
                             String friendName = ((SecondaryDrawerItem) drawerItem).getName().getText();
                             Log.d(TAG, "onItemClick: Go to the list of " + friendName);
                             gotoFriend(friendName);
                         } else if (position == 1) {
-                            // TODO: 1-6-2016 Go to own lists
                             Log.d(TAG, "onItemClick: Go to own list");
                             gotoFriend(mAuthPreferences.getAccountName());
                         }
@@ -453,8 +452,46 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void sendFriendRequest(String friendName) {
-        // TODO
+    private void sendFriendRequest(final String friendName) {
+        try {
+            final JSONObject data = new JSONObject()
+                    .put("username", mAuthPreferences.getAccountName())
+                    .put("friendname", friendName);
+            // Create Volley request
+            StringRequest request = new StringRequest(Request.Method.POST, App.API_LOCATION + "/friendRequest",
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            if (response.contains("ERROR")) {
+                                Snackbar.make(mCoordinatorLayout, R.string.error_already_friends, Snackbar.LENGTH_SHORT).show();
+                            } else {
+                                Snackbar.make(mCoordinatorLayout, R.string.friend_request_sent, Snackbar.LENGTH_SHORT).show();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                }
+            }) {
+                // This needs to be done to send data with a StringRequest
+                // Get the data body
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    return data.toString().getBytes();
+                }
+                // Get the content type
+                @Override
+                public String getBodyContentType() {
+                    return "application/json";
+                }
+            };
+            request.setShouldCache(false);
+            // Access the RequestQueue through your singleton class.
+            VolleySingleton.getInstance(this).addToRequestQueue(request);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {

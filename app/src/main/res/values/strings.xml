@@ -70,6 +70,8 @@
     <string name="send_request">Send request</string>
     <string name="send_request_title">Send a friend request</string>
     <string name="friend_name">Friend\'s name</string>
+    <string name="error_already_friends">Already friends</string>
+    <string name="friend_request_sent">Friend request sent</string>
 
     <!-- Languages -->
     <string name="english">English</string>
