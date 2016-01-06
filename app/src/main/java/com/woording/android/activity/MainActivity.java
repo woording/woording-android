@@ -13,6 +13,7 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -21,12 +22,16 @@ import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -135,7 +140,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if (!isNetworkAvailable(this)) Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
+        if (!isNetworkAvailable(this))
+            Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
 
         authToken = null;
         mAuthPreferences = new AuthPreferences(this);
@@ -204,11 +210,49 @@ public class MainActivity extends AppCompatActivity {
                 .withAccountHeader(headerResult)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(R.string.my_lists).withIcon(GoogleMaterial.Icon.gmd_list),
-                        new SectionDrawerItem().withName(R.string.friends)
+                        new SectionDrawerItem().withName(R.string.friends),
+                        new SecondaryDrawerItem().withName(R.string.add_friend).withIcon(GoogleMaterial.Icon.gmd_add)
+                                .withSelectable(false)
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        if (drawerItem instanceof SecondaryDrawerItem && position == drawer.getDrawerItems().size()) {
+                            // TODO: 1-6-2016 Send friend request
+                            // Inflate AlertDialog layout
+                            View layoutView = getLayoutInflater().inflate(R.layout.content_friend_request_dialog, null);
+                            final EditText friendNameInput = (EditText) layoutView.findViewById(R.id.friend_request_input);
+                            // First create dialog
+                            AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.AppTheme_AlertDialog)
+                                    .setTitle(R.string.send_request_title).setView(layoutView);
+
+                            builder.setPositiveButton(R.string.send_request, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    sendFriendRequest(friendNameInput.getText().toString());
+                                    dialog.dismiss();
+                                }
+                            }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                            // Show Dialog
+                            builder.create().show();
+                            return false;
+                        } else if (drawerItem instanceof SecondaryDrawerItem) {
+                            // TODO: 1-6-2016 Go to selected friend list
+                            String friendName = ((SecondaryDrawerItem) drawerItem).getName().getText();
+                            Log.d(TAG, "onItemClick: Go to the list of " + friendName);
+                            gotoFriend(friendName);
+                        } else if (position == 1) {
+                            // TODO: 1-6-2016 Go to own lists
+                            Log.d(TAG, "onItemClick: Go to own list");
+                            gotoFriend(mAuthPreferences.getAccountName());
+                        }
+
                         return false;
                     }
                 })
@@ -279,7 +323,9 @@ public class MainActivity extends AppCompatActivity {
             String userName = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[i].name;
             LetterTileDrawable icon = new LetterTileDrawable(this);
             icon.setContactDetails(userName, userName);
-            headerResult.addProfile(new ProfileDrawerItem().withName(userName).withIcon(icon), headerResult.getProfiles().size() - 1);
+            headerResult.addProfile(
+                    new ProfileDrawerItem().withName(userName).withIcon(icon), headerResult.getProfiles().size() - 1
+            );
 
             if (userName.equals(mAuthPreferences.getAccountName())) headerResult.setActiveProfile(i);
         }
@@ -292,6 +338,31 @@ public class MainActivity extends AppCompatActivity {
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void changeUser(String username) {
+        mListsListFragment.changeUser(username);
+        getFriends(false);
+
+        removeFragmentsFromSecondPane();
+    }
+
+    private void gotoFriend(String friendName) {
+        if (!mListsListFragment.getCurrentUsername().equals(friendName)) {
+            mListsListFragment.changeUser(friendName);
+
+            removeFragmentsFromSecondPane();
+        }
+    }
+
+    private void removeFragmentsFromSecondPane() {
+        if (App.mDualPane) {
+            // Remove fragment on second pane
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            Fragment fragment = fragmentManager.findFragmentById(R.id.second_pane);
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(fragment).commit();
+        }
     }
 
     public static void newList() {
@@ -324,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void removeFriendsFromDrawer() {
-        for (int i = drawer.getDrawerItems().size(); i > 2; i--) {
+        for (int i = drawer.getDrawerItems().size() - 1; i > 2; i--) {
             drawer.removeItemByPosition(i);
         }
     }
@@ -350,9 +421,10 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < array.length(); i++) {
                             try {
                                 JSONObject friend = array.getJSONObject(i);
-                                drawer.addItem(new SecondaryDrawerItem()
+                                drawer.addItemAtPosition(new SecondaryDrawerItem()
                                         .withName(friend.getString("username"))
-                                        .withIcon(GoogleMaterial.Icon.gmd_person));
+                                        .withIcon(GoogleMaterial.Icon.gmd_person),
+                                        drawer.getDrawerItems().size());
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -379,6 +451,10 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void sendFriendRequest(String friendName) {
+        // TODO
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
@@ -411,8 +487,7 @@ public class MainActivity extends AppCompatActivity {
                             getFriends(true);
                             break;
                         case 2:
-                            mListsListFragment.changeUser(accountName);
-                            getFriends(false);
+                            changeUser(accountName);
                             break;
                     }
 

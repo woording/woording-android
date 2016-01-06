@@ -113,8 +113,6 @@ public class ListsListFragment extends Fragment {
             // Ask for an auth token
             mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null,
                     getActivity(), new GetAuthTokenCallback(0), null);
-//        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
-//                null, this, null, null, new GetAuthTokenCallback(0), null);
         }
     }
 
@@ -130,6 +128,10 @@ public class ListsListFragment extends Fragment {
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
                 AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
+    }
+
+    public String getCurrentUsername() {
+        return currentUsername;
     }
 
     public void changeUser(String username) {

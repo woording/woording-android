@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Woording for Android is a project by PhiliPdB.
+  ~
+  ~ Copyright (c) 2016.
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/friend_request_dialog_layout"
+    android:paddingLeft="@dimen/dialog_padding_material"
+    android:paddingRight="@dimen/dialog_padding_material">
+
+    <EditText
+        android:id="@+id/friend_request_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/friend_name"
+        android:inputType="textPersonName|text"
+        android:singleLine="true" />
+
+</LinearLayout>
