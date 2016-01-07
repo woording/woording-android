@@ -12,13 +12,13 @@
         android:title="@string/enable_speech"
         android:icon="@drawable/ic_mic_white_24dp"
         android:id="@+id/enable_speech"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 
     <item
         android:title="@string/disable_speech"
         android:icon="@drawable/ic_mic_off_white_24dp"
         android:id="@+id/disable_speech"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:visible="false"/>
 
 </menu>
