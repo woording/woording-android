@@ -31,6 +31,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.android.volley.AuthFailureError;
@@ -231,18 +232,25 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     sendFriendRequest(friendNameInput.getText().toString());
-                                    dialog.dismiss();
+                                    // Hide keyboard
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(friendNameInput.getWindowToken(), 0);
                                 }
                             }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
+                                    // Hide keyboard
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(friendNameInput.getWindowToken(), 0);
                                 }
                             });
 
                             // Show Dialog
                             builder.create().show();
-                            return false;
+                            // Show input
+                            friendNameInput.requestFocus();
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                         } else if (drawerItem instanceof SecondaryDrawerItem) {
                             String friendName = ((SecondaryDrawerItem) drawerItem).getName().getText();
                             Log.d(TAG, "onItemClick: Go to the list of " + friendName);
