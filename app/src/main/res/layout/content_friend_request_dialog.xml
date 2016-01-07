@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/friend_name"
         android:inputType="textPersonName|text"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:imeOptions="actionGo" />
 
 </LinearLayout>
