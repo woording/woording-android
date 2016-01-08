@@ -64,6 +64,7 @@ import com.woording.android.VolleySingleton;
 import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
 import com.woording.android.fragment.EditListFragment;
+import com.woording.android.fragment.ListViewFragment;
 import com.woording.android.fragment.ListsListFragment;
 import com.woording.android.util.LetterTileDrawable;
 
@@ -275,10 +276,10 @@ public class MainActivity extends AppCompatActivity {
                         } else if (drawerItem instanceof SecondaryDrawerItem) {
                             String friendName = ((SecondaryDrawerItem) drawerItem).getName().getText();
                             Log.d(TAG, "onItemClick: Go to the list of " + friendName);
-                            gotoFriend(friendName);
+                            gotoUser(friendName);
                         } else if (position == 1) {
                             Log.d(TAG, "onItemClick: Go to own list");
-                            gotoFriend(mAuthPreferences.getAccountName());
+                            gotoUser(mAuthPreferences.getAccountName());
                         }
 
                         return false;
@@ -289,6 +290,27 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(R.string.my_lists);
         getFriends(true);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Check for extras in the Intent
+        if (getIntent().getStringExtra("username") != null) {
+            // Load user
+            gotoUser(getIntent().getStringExtra("username"));
+            drawer.setSelection(0);
+        }
+
+        if (App.mDualPane && getIntent().getStringExtra("listname") != null) {
+            // Load list
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            Fragment fragment = fragmentManager.findFragmentById(R.id.second_pane);
+            if (fragment instanceof ListViewFragment) {
+                ((ListViewFragment) fragment).setList(new List(getIntent().getStringExtra("listname"), "", "", ""));
+            }
+        }
     }
 
     @Override
@@ -375,9 +397,9 @@ public class MainActivity extends AppCompatActivity {
         removeFragmentsFromSecondPane();
     }
 
-    private void gotoFriend(String friendName) {
-        if (!mListsListFragment.getCurrentUsername().equals(friendName)) {
-            mListsListFragment.changeUser(friendName);
+    private void gotoUser(String username) {
+        if (!mListsListFragment.getCurrentUsername().equals(username)) {
+            mListsListFragment.changeUser(username);
 
             removeFragmentsFromSecondPane();
         }
