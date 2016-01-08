@@ -12,6 +12,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:id="@+id/root_view"
     tools:context="com.woording.android.activity.EditListActivity">
 
     <android.support.design.widget.AppBarLayout

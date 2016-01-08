@@ -63,6 +63,7 @@
     <string name="sentence">Sentence</string>
     <string name="discard_dialog_text">Discard made changes?</string>
     <string name="discard">Discard</string>
+    <string name="list_saved">List saved</string>
 
     <!-- Friends -->
     <string name="friends">Friends</string>

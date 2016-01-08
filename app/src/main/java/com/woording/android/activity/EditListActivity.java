@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +24,8 @@ import com.woording.android.fragment.EditListFragment;
 public class EditListActivity extends AppCompatActivity {
 
     private EditListFragment mEditListFragment;
+
+    public static CoordinatorLayout mCoordinatorLayout;
 
     private final Context mContext = this;
 
@@ -56,6 +59,9 @@ public class EditListActivity extends AppCompatActivity {
                 mEditListFragment.saveList();
             }
         });
+
+        // Load other UI elements
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.root_view);
     }
 
     @Override

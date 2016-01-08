@@ -14,6 +14,8 @@ import android.accounts.OperationCanceledException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
@@ -40,6 +42,7 @@ import com.woording.android.R;
 import com.woording.android.VolleySingleton;
 import com.woording.android.account.AccountUtils;
 import com.woording.android.account.AuthPreferences;
+import com.woording.android.activity.EditListActivity;
 import com.woording.android.activity.LoginActivity;
 import com.woording.android.activity.MainActivity;
 import com.woording.android.adapter.EditTextListAdapter;
@@ -314,6 +317,13 @@ public class EditListFragment extends Fragment {
                 public void onResponse(String response) {
                     isModifiedSinceLastSave = false;
                     lastSavedList = getListData().deepClone();
+
+                    // Display SnackBar
+                    CoordinatorLayout coordinatorLayout;
+                    // Decide whether to load CoordinatorLayout from MainActivity or EditListActivity
+                    coordinatorLayout = App.mDualPane ? MainActivity.mCoordinatorLayout : EditListActivity.mCoordinatorLayout;
+                    // Show SnackBar
+                    Snackbar.make(coordinatorLayout, R.string.list_saved, Snackbar.LENGTH_SHORT).show();
                 }
             }, new Response.ErrorListener() {
                 @Override
