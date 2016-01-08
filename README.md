@@ -5,8 +5,8 @@ Woording's Android app.
 
 This app is built with de latest Android-Studio Preview and the latest alpha version of Gradle.
 
-#### Notes
-- First beta is planned in January 2016
+#### Beta
+The first beta is now released. If you want to test, you have to [opt-in](https://play.google.com/apps/testing/com.woording.android) and then you can download it from Google Play.
 
 #### Screenshots
 First screenshots are here
