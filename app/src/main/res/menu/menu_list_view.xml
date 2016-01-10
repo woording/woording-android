@@ -28,4 +28,11 @@
         android:icon="@drawable/ic_delete_white_24dp"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/action_share"
+        android:title="@string/share"
+        android:icon="@drawable/ic_share_white_24dp"
+        app:showAsAction="ifRoom"
+        android:visible="false"/>
+
 </menu>

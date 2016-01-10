@@ -154,6 +154,10 @@ public class ListViewFragment extends Fragment {
         // Inflate the menu; this adds items to the action bar if it is present.
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_list_view, menu);
+
+        if (mList.mSharedWith.equals("1") || mList.mSharedWith.equals("2")) {
+            menu.findItem(R.id.action_share).setVisible(true);
+        }
     }
 
     @Override
@@ -233,6 +237,15 @@ public class ListViewFragment extends Fragment {
                         }
                     });
                 }
+                break;
+            case R.id.action_share:
+                // TODO: 1-10-2016 Notify user when list is shared with friends
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, getString(
+                        R.string.share_text, mList.mName, username, mList.mName.replace(" ", "%20")));
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
                 break;
         }
 
