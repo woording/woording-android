@@ -235,10 +235,30 @@ public class PracticeActivity extends AppCompatActivity
     }
 
     private boolean isInputRight(String input, String correctWord) {
+        final String PERMISSIBLE_CHARACTERS = "\\(|\\{|\\[|\\]|\\}|\\)";
+
         // Check for case sensitivity
         if (!mCaseSensitive || mLastUsedPracticeMethod == 1) {
             input = input.toLowerCase();
             correctWord = correctWord.toLowerCase();
+        }
+
+        // Remove some specific character, but only if the correct word contains them
+        if (correctWord.matches(".*[" + PERMISSIBLE_CHARACTERS + "]")) {
+            input = input.replaceAll(PERMISSIBLE_CHARACTERS, "");
+            correctWord = correctWord.replaceAll(PERMISSIBLE_CHARACTERS, "");
+
+            // Also remove eventual last space
+            if (correctWord.endsWith(" ")) {
+                StringBuilder builder = new StringBuilder(correctWord);
+                builder.deleteCharAt(correctWord.length() - 1);
+                correctWord = builder.toString();
+            }
+            if (input.endsWith(" ")) {
+                StringBuilder builder = new StringBuilder(input);
+                builder.deleteCharAt(input.length() - 1);
+                input = builder.toString();
+            }
         }
 
         // Check if the word is right
