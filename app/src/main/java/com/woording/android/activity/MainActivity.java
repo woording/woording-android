@@ -297,12 +297,10 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         // Check for extras in the Intent
-        if (getIntent().getStringExtra("username") != null) {
+        String gotoUsername = getIntent().getStringExtra("username");
+        if (gotoUsername != null) {
             // Load user
-            gotoUser(getIntent().getStringExtra("username"));
-
-            // TODO: 1-11-2016 Select the right user
-            drawer.setSelection(0);
+            gotoUser(gotoUsername);
         }
 
         if (App.mDualPane && getIntent().getStringExtra("listname") != null) {
