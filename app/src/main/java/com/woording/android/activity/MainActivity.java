@@ -300,6 +300,8 @@ public class MainActivity extends AppCompatActivity {
         if (getIntent().getStringExtra("username") != null) {
             // Load user
             gotoUser(getIntent().getStringExtra("username"));
+
+            // TODO: 1-11-2016 Select the right user
             drawer.setSelection(0);
         }
 
@@ -309,6 +311,13 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment = fragmentManager.findFragmentById(R.id.second_pane);
             if (fragment instanceof ListViewFragment) {
                 ((ListViewFragment) fragment).setList(new List(getIntent().getStringExtra("listname"), "", "", ""));
+            }
+        } else if (App.mDualPane && getIntent().getSerializableExtra("list") != null) {
+            // Load list
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            Fragment fragment = fragmentManager.findFragmentById(R.id.second_pane);
+            if (fragment instanceof ListViewFragment) {
+                ((ListViewFragment) fragment).setList((List) getIntent().getSerializableExtra("list"));
             }
         }
     }

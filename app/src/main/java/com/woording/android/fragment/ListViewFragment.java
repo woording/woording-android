@@ -19,11 +19,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -162,10 +163,25 @@ public class ListViewFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
+                upIntent.putExtra("username", username);
+                if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)) {
+                    // This activity is NOT part of this app's task, so create a new task
+                    // when navigating up, with a synthesized back stack.
+                    TaskStackBuilder.create(getActivity())
+                            // Add all of this activity's parents to the back stack
+                            .addNextIntentWithParentStack(upIntent)
+                            // Navigate up to the closest parent
+                            .startActivities();
+                } else {
+                    // This activity is part of this app's task, so simply
+                    // navigate up to the logical parent activity.
+                    NavUtils.navigateUpTo(getActivity(), upIntent);
+                }
+                return true;
             case R.id.action_practice:
                 // Create custom AlertDialog
                 View view = getActivity().getLayoutInflater().inflate(R.layout.content_practice_options, null);
@@ -197,6 +213,7 @@ public class ListViewFragment extends Fragment {
                         // Create and launch new intent
                         Intent newIntent = new Intent(getActivity(), PracticeActivity.class);
                         newIntent.putExtra("list", mList);
+                        newIntent.putExtra("username", username);
                         newIntent.putExtra("askedLanguage", askedLanguage);
                         newIntent.putExtra("caseSensitive", caseSensitive);
                         startActivity(newIntent);
@@ -351,7 +368,7 @@ public class ListViewFragment extends Fragment {
                         // Display the list
                         setWordsTable();
                     } catch (JSONException ex) {
-                        Log.d("JSONException", "The JSON fails");
+                        ex.printStackTrace();
                     }
                     // Stop displaying loading screen
                     showProgress(false);
@@ -389,7 +406,7 @@ public class ListViewFragment extends Fragment {
                         @Override
                         public void onResponse(String response) {
                             MainActivity.lastDeletedList = mList;
-                            getActivity().finishActivity(ListViewActivity.DELETED_LIST);
+                            ((ListViewActivity) getActivity()).goUp(ListViewActivity.DELETED_LIST, username);
                         }
                     }, new Response.ErrorListener() {
                 @Override

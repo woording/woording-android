@@ -42,6 +42,7 @@ public class PracticeActivity extends AppCompatActivity
     private final String TAG = "PracticeActivity";
 
     private List mList;
+    private String username;
     private int mAskedLanguage; // 1 = language 1 | 2 = language 2 | 0 = both
     private boolean mCaseSensitive = true;
     private ArrayList<String> mUsedWords = new ArrayList<>();
@@ -102,6 +103,7 @@ public class PracticeActivity extends AppCompatActivity
         // Load intent extras
         Intent intent = getIntent();
         mList = (List) intent.getSerializableExtra("list");
+        username = intent.getStringExtra("username");
         mAskedLanguage = intent.getIntExtra("askedLanguage", 1);
         mCaseSensitive = intent.getBooleanExtra("caseSensitive", true);
 
@@ -137,6 +139,7 @@ public class PracticeActivity extends AppCompatActivity
             case android.R.id.home:
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 upIntent.putExtra("list", mList);
+                upIntent.putExtra("username", username);
                 if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
                     // This activity is NOT part of this app's task, so create a new task
                     // when navigating up, with a synthesized back stack.
