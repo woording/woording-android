@@ -239,13 +239,24 @@ public class ListViewFragment extends Fragment {
                 }
                 break;
             case R.id.action_share:
-                // TODO: 1-10-2016 Notify user when list is shared with friends
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, getString(
-                        R.string.share_text, mList.mName, username, mList.mName.replace(" ", "%20")));
-                sendIntent.setType("text/plain");
-                startActivity(sendIntent);
+                if (mList.mSharedWith.equals("1")) {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog);
+                    alertDialogBuilder.setMessage(R.string.share_text_dialog);
+                    alertDialogBuilder.setCancelable(true);
+                    alertDialogBuilder.setPositiveButton(R.string.share, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            shareList();
+                            dialog.dismiss();
+                        }
+                    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    alertDialogBuilder.create().show();
+                } else shareList();
                 break;
         }
 
@@ -259,6 +270,15 @@ public class ListViewFragment extends Fragment {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    private void shareList() {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, getString(
+                R.string.share_text, mList.mName, username, mList.mName.replace(" ", "%20")));
+        sendIntent.setType("text/plain");
+        startActivity(sendIntent);
     }
 
     private void setWordsTable() {
