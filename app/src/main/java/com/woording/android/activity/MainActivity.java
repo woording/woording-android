@@ -309,6 +309,22 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment = fragmentManager.findFragmentById(R.id.second_pane);
             if (fragment instanceof ListViewFragment) {
                 ((ListViewFragment) fragment).setList(new List(getIntent().getStringExtra("listname"), "", "", ""));
+            } else {
+                // Switch to fragment
+                ListViewFragment listViewFragment = ListViewFragment.newInstance(
+                        new List(getIntent().getStringExtra("listname"), "", "", ""), ListsListFragment.currentUsername);
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.second_pane, listViewFragment)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .addToBackStack(null).commit();
+                // Change the FAB
+                MainActivity.fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
+                MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        newList();
+                    }
+                });
             }
         } else if (App.mDualPane && getIntent().getSerializableExtra("list") != null) {
             // Load list
@@ -316,6 +332,22 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment = fragmentManager.findFragmentById(R.id.second_pane);
             if (fragment instanceof ListViewFragment) {
                 ((ListViewFragment) fragment).setList((List) getIntent().getSerializableExtra("list"));
+            } else {
+                // Switch to fragment
+                ListViewFragment listViewFragment = ListViewFragment.newInstance(
+                        (List) getIntent().getSerializableExtra("list"), ListsListFragment.currentUsername);
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.second_pane, listViewFragment)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .addToBackStack(null).commit();
+                // Change the FAB
+                MainActivity.fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
+                MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        newList();
+                    }
+                });
             }
         }
     }
