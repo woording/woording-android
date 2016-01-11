@@ -30,3 +30,15 @@ For updating submodules do:
 ```bash
 git submodule foreach git pull
 ```
+
+#### Libraries & Licences
+Woording-android makes use of the following libraries
+- Android Support Libraries
+	* Licensed under Creative Commons Attribution 2.5
+- MaterialDrawer
+	* [Site](http://mikepenz.github.io/MaterialDrawer/)
+	* Apache 2.0 License
+- Volley
+	* [Site](http://developer.android.com/training/volley/index.html)
+
+Some classes are copied and editted from the Android Open Source Project which has a Apache 2.0 License.
