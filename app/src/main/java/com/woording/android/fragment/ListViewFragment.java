@@ -19,8 +19,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -83,6 +81,8 @@ public class ListViewFragment extends Fragment {
     private boolean caseSensitive = true;
     private boolean cancelled = false;
     private String username = null;
+
+    public AlertDialog dialog = null;
 
     public ListViewFragment() {
         // Required empty public constructor
@@ -166,21 +166,7 @@ public class ListViewFragment extends Fragment {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-                upIntent.putExtra("username", username);
-                if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)) {
-                    // This activity is NOT part of this app's task, so create a new task
-                    // when navigating up, with a synthesized back stack.
-                    TaskStackBuilder.create(getActivity())
-                            // Add all of this activity's parents to the back stack
-                            .addNextIntentWithParentStack(upIntent)
-                            // Navigate up to the closest parent
-                            .startActivities();
-                } else {
-                    // This activity is part of this app's task, so simply
-                    // navigate up to the logical parent activity.
-                    NavUtils.navigateUpTo(getActivity(), upIntent);
-                }
+                ((ListViewActivity) getActivity()).goUp(username);
                 return true;
             case R.id.action_practice:
                 // Create custom AlertDialog
@@ -226,8 +212,8 @@ public class ListViewFragment extends Fragment {
                     }
                 });
                 // Create and show dialog
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
+                dialog = builder.create();
+                dialog.show();
 
                 return !cancelled;
             case R.id.action_delete:
@@ -272,7 +258,8 @@ public class ListViewFragment extends Fragment {
                             dialog.cancel();
                         }
                     });
-                    alertDialogBuilder.create().show();
+                    dialog = alertDialogBuilder.create();
+                    dialog.show();
                 } else shareList();
                 break;
         }
@@ -287,6 +274,10 @@ public class ListViewFragment extends Fragment {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     private void shareList() {
