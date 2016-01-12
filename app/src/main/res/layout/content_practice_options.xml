@@ -43,8 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/both"
-            android:id="@+id/ask_both"
-            android:enabled="false" />
+            android:id="@+id/ask_both" />
 
     </RadioGroup>
 

@@ -52,6 +52,7 @@ public class PracticeActivity extends AppCompatActivity
     private List mList;
     private String username;
     private int mAskedLanguage; // 1 = language 1 | 2 = language 2 | 0 = both
+    private int currentAskedLanguage;
     private boolean mCaseSensitive = true;
     private ArrayList<String> mUsedWords = new ArrayList<>();
     private ArrayList<String[]> mWrongWords = new ArrayList<>();
@@ -119,8 +120,10 @@ public class PracticeActivity extends AppCompatActivity
         if (mAskedLanguage != BOTH) {
             if (mAskedLanguage == LANGUAGE_1) {
                 ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.mLanguage1));
+                currentAskedLanguage = LANGUAGE_1;
             } else if (mAskedLanguage == LANGUAGE_2) {
                 ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.mLanguage2));
+                currentAskedLanguage = LANGUAGE_2;
             }
         }
         nextWord();
@@ -213,6 +216,17 @@ public class PracticeActivity extends AppCompatActivity
             return;
         }
 
+        // Random choose language and display it
+        if (mAskedLanguage == BOTH) {
+            currentAskedLanguage = (int) Math.round(Math.random()) + 1;
+            if (currentAskedLanguage == LANGUAGE_1) {
+                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.mLanguage1));
+            } else if (currentAskedLanguage == LANGUAGE_2) {
+                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.mLanguage2));
+            }
+        }
+        Log.d(TAG, "nextWord: currentAskedLanguage: " + currentAskedLanguage);
+
         int randomIndexInt = (int) Math.floor(Math.random() * mList.mLanguage1Words.size());
         mRandomWord = new String[]{mList.mLanguage1Words.get(randomIndexInt), mList.mLanguage2Words.get(randomIndexInt)};
         // Check if word is already used
@@ -220,27 +234,24 @@ public class PracticeActivity extends AppCompatActivity
         else mUsedWords.add(mRandomWord[0]);
 
         // Display
-        if (mAskedLanguage != BOTH && mAskedLanguage <= 2) {
-            ((TextView) findViewById(R.id.word_to_translate)).setText(mRandomWord[mAskedLanguage - 1]);
-        }
+        ((TextView) findViewById(R.id.word_to_translate)).setText(mRandomWord[currentAskedLanguage - 1]);
     }
 
     private void checkWord() {
         mTotalWords++;
-        if (mAskedLanguage == LANGUAGE_1 || mAskedLanguage == LANGUAGE_2) {
-            if (isInputRight(mTranslation.getText().toString(), mRandomWord[mAskedLanguage == LANGUAGE_1 ? 1 : 0])) {
-                mTranslation.setText("");
-                mRightWord.setVisibility(View.GONE);
-                nextWord();
-            } else {
-                mWrongWords.add(new String[]{mRandomWord[mAskedLanguage == LANGUAGE_1 ? 1 : 0], mTranslation.getText().toString()});
-                mRightWord.setText(mRandomWord[mAskedLanguage == LANGUAGE_1 ? 1 : 0]);
-                mRightWord.setVisibility(View.VISIBLE);
-                Snackbar.make(mTranslation, getString(R.string.error_wrong_translation), Snackbar.LENGTH_LONG).show();
+        int position = currentAskedLanguage == LANGUAGE_1 ? 1 : 0;
+        if (isInputRight(mTranslation.getText().toString(), mRandomWord[position])) {
+            mTranslation.setText("");
+            mRightWord.setVisibility(View.GONE);
+            nextWord();
+        } else {
+            mWrongWords.add(new String[]{mRandomWord[position], mTranslation.getText().toString()});
+            mRightWord.setText(mRandomWord[position]);
+            mRightWord.setVisibility(View.VISIBLE);
+            Snackbar.make(mTranslation, getString(R.string.error_wrong_translation), Snackbar.LENGTH_LONG).show();
 
-                if (mUsedWords.indexOf(mRandomWord[mAskedLanguage == LANGUAGE_1 ? 1 : 0]) >= -1)
-                    mUsedWords.remove(mRandomWord[mAskedLanguage == LANGUAGE_1 ? 1 : 0]);
-            }
+            if (mUsedWords.indexOf(mRandomWord[position]) >= -1)
+                mUsedWords.remove(mRandomWord[position]);
         }
 
         if (mLastUsedPracticeMethod == SPEECH) {
