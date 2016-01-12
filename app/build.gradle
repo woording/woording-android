@@ -9,26 +9,33 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.2'
-
     defaultConfig {
         applicationId "com.woording.android"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
-        versionName "1.0 Beta 1"
+        versionName "1.0 Beta 2"
+        resConfig "en"
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             debuggable false
             jniDebuggable false
             renderscriptDebuggable false
+            zipAlignEnabled true
         }
         debug {
             debuggable true
             applicationIdSuffix '.debug'
             versionNameSuffix ' debug'
+
+            // test proguard
+//            minifyEnabled true
+//            shrinkResources true
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
