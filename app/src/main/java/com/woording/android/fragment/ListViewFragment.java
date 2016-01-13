@@ -156,7 +156,7 @@ public class ListViewFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_list_view, menu);
 
-        if (mList.mSharedWith.equals("1") || mList.mSharedWith.equals("2")) {
+        if (mList.sharedWith.equals("1") || mList.sharedWith.equals("2")) {
             menu.findItem(R.id.action_share).setVisible(true);
         }
     }
@@ -171,8 +171,8 @@ public class ListViewFragment extends Fragment {
             case R.id.action_practice:
                 // Create custom AlertDialog
                 View view = getActivity().getLayoutInflater().inflate(R.layout.content_practice_options, null);
-                ((TextView) view.findViewById(R.id.ask_language_1)).setText(List.getLanguageName(getActivity(), mList.mLanguage1));
-                ((TextView) view.findViewById(R.id.ask_language_2)).setText(List.getLanguageName(getActivity(), mList.mLanguage2));
+                ((TextView) view.findViewById(R.id.ask_language_1)).setText(List.getLanguageName(getActivity(), mList.language1));
+                ((TextView) view.findViewById(R.id.ask_language_2)).setText(List.getLanguageName(getActivity(), mList.language2));
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog).setTitle(getString(R.string.practice_options))
                         .setCancelable(true).setView(view);
                 // Set option buttons
@@ -242,7 +242,7 @@ public class ListViewFragment extends Fragment {
                 }
                 break;
             case R.id.action_share:
-                if (mList.mSharedWith.equals("1")) {
+                if (mList.sharedWith.equals("1")) {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog);
                     alertDialogBuilder.setMessage(R.string.share_text_dialog);
                     alertDialogBuilder.setCancelable(true);
@@ -284,18 +284,18 @@ public class ListViewFragment extends Fragment {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, getString(
-                R.string.share_text, mList.mName, username, mList.mName.replace(" ", "%20")));
+                R.string.share_text, mList.name, username, mList.name.replace(" ", "%20")));
         sendIntent.setType("text/plain");
         startActivity(sendIntent);
     }
 
     private void setWordsTable() {
         // Set title and languages
-        if (!App.mDualPane) ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.mName);
+        if (!App.mDualPane) ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.name);
 
-        ((TextView) getActivity().findViewById(R.id.head_1)).setText(List.getLanguageName(getActivity(), mList.mLanguage1));
-        ((TextView) getActivity().findViewById(R.id.head_2)).setText(List.getLanguageName(getActivity(), mList.mLanguage2));
-        recyclerViewAdapter.setItems(mList.mLanguage1Words, mList.mLanguage2Words);
+        ((TextView) getActivity().findViewById(R.id.head_1)).setText(List.getLanguageName(getActivity(), mList.language1));
+        ((TextView) getActivity().findViewById(R.id.head_2)).setText(List.getLanguageName(getActivity(), mList.language2));
+        recyclerViewAdapter.setItems(mList.language1Words, mList.language2Words);
     }
 
     private void getNewAuthToken(int taskToRun) {
@@ -338,7 +338,7 @@ public class ListViewFragment extends Fragment {
             if (username == null) username = mAuthPreferences.getAccountName();
             // Create request
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                    App.API_LOCATION + "/" + username + "/" + mList.mName.replace(" ", "%20"),
+                    App.API_LOCATION + "/" + username + "/" + mList.name.replace(" ", "%20"),
                     data, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -390,7 +390,7 @@ public class ListViewFragment extends Fragment {
             final JSONObject data = new JSONObject()
                     .put("token", mAuthPreferences.getAuthToken())
                     .put("username", mAuthPreferences.getAccountName())
-                    .put("listname", mList.mName);
+                    .put("listname", mList.name);
             // Create request
             StringRequest request = new StringRequest(Request.Method.POST, App.API_LOCATION + "/deleteList",
                     new Response.Listener<String>() {

@@ -119,10 +119,10 @@ public class PracticeActivity extends AppCompatActivity
         // Set asked language
         if (mAskedLanguage != BOTH) {
             if (mAskedLanguage == LANGUAGE_1) {
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.mLanguage1));
+                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language1));
                 currentAskedLanguage = LANGUAGE_1;
             } else if (mAskedLanguage == LANGUAGE_2) {
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.mLanguage2));
+                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language2));
                 currentAskedLanguage = LANGUAGE_2;
             }
         }
@@ -192,26 +192,26 @@ public class PracticeActivity extends AppCompatActivity
 
         switch (mAskedLanguage) {
             case BOTH:
-                if (!mList.mLanguage1.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.mLanguage1));
-                if (!mList.mLanguage2.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.mLanguage2));
+                if (!mList.language1.equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.language1));
+                if (!mList.language2.equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.language2));
                 break;
 
             case LANGUAGE_1:
-                if (!mList.mLanguage1.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.mLanguage1));
+                if (!mList.language1.equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.language1));
                 break;
             case LANGUAGE_2:
-                if (!mList.mLanguage2.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.mLanguage2));
+                if (!mList.language2.equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.language2));
                 break;
         }
     }
 
     private void nextWord() {
         // Check if list is done
-        if (mUsedWords.size() == mList.mLanguage1Words.size()) {
+        if (mUsedWords.size() == mList.language1Words.size()) {
             showPracticeResults();
             return;
         }
@@ -220,15 +220,15 @@ public class PracticeActivity extends AppCompatActivity
         if (mAskedLanguage == BOTH) {
             currentAskedLanguage = (int) Math.round(Math.random()) + 1;
             if (currentAskedLanguage == LANGUAGE_1) {
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.mLanguage1));
+                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language1));
             } else if (currentAskedLanguage == LANGUAGE_2) {
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.mLanguage2));
+                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language2));
             }
         }
         Log.d(TAG, "nextWord: currentAskedLanguage: " + currentAskedLanguage);
 
-        int randomIndexInt = (int) Math.floor(Math.random() * mList.mLanguage1Words.size());
-        mRandomWord = new String[]{mList.mLanguage1Words.get(randomIndexInt), mList.mLanguage2Words.get(randomIndexInt)};
+        int randomIndexInt = (int) Math.floor(Math.random() * mList.language1Words.size());
+        mRandomWord = new String[]{mList.language1Words.get(randomIndexInt), mList.language2Words.get(randomIndexInt)};
         // Check if word is already used
         if (mUsedWords.indexOf(mRandomWord[0]) > -1) nextWord();
         else mUsedWords.add(mRandomWord[0]);

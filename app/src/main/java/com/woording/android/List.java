@@ -23,28 +23,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class List implements Serializable {
-    public final String mName;
-    public final String mLanguage1;
-    public final String mLanguage2;
-    public final String mSharedWith;
+    public final String name;
+    public final String language1;
+    public final String language2;
+    public final String sharedWith;
 
-    public ArrayList<String> mLanguage1Words = new ArrayList<>();
-    public ArrayList<String> mLanguage2Words = new ArrayList<>();
+    public ArrayList<String> language1Words = new ArrayList<>();
+    public ArrayList<String> language2Words = new ArrayList<>();
 
     private static HashMap<String, String> mLanguageCodes = null;
     private static HashMap<String, String> mLocales = null;
 
     public List(String name, String language1, String language2, String sharedWith) {
-        this.mName = name;
-        this.mLanguage1 = language1;
-        this.mLanguage2 = language2;
-        this.mSharedWith = sharedWith;
+        this.name = name;
+        this.language1 = language1;
+        this.language2 = language2;
+        this.sharedWith = sharedWith;
     }
 
     public void setWords(ArrayList<String> language1, ArrayList<String> language2) {
         if (language1.size() == language2.size()) {
-            this.mLanguage1Words = language1;
-            this.mLanguage2Words = language2;
+            this.language1Words = language1;
+            this.language2Words = language2;
         }
     }
 
@@ -55,12 +55,12 @@ public class List implements Serializable {
         }
 
         List list = (List) o;
-        return this.mName.equals(list.mName)
-                && this.mLanguage1.equals(list.mLanguage1)
-                && this.mLanguage2.equals(list.mLanguage2)
-                && this.mSharedWith.equals(list.mSharedWith)
-                && this.mLanguage1Words.equals(list.mLanguage1Words)
-                && this.mLanguage2Words.equals(list.mLanguage2Words);
+        return this.name.equals(list.name)
+                && this.language1.equals(list.language1)
+                && this.language2.equals(list.language2)
+                && this.sharedWith.equals(list.sharedWith)
+                && this.language1Words.equals(list.language1Words)
+                && this.language2Words.equals(list.language2Words);
     }
 
     public List deepClone() {
@@ -113,21 +113,21 @@ public class List implements Serializable {
     }
 
     public int getTotalWords() {
-        return mLanguage1Words.size();
+        return language1Words.size();
     }
 
     public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("listname", mName);
-        json.put("language_1_tag", mLanguage1);
-        json.put("language_2_tag", mLanguage2);
-        json.put("shared_with", mSharedWith);
+        json.put("listname", name);
+        json.put("language_1_tag", language1);
+        json.put("language_2_tag", language2);
+        json.put("shared_with", sharedWith);
         if (getTotalWords() > 0) {
             JSONArray array = new JSONArray();
-            for (int i = 0; i < mLanguage1Words.size(); i++) {
+            for (int i = 0; i < language1Words.size(); i++) {
                 JSONObject temp = new JSONObject();
-                temp.put("language_1_text", mLanguage1Words.get(i));
-                temp.put("language_2_text", mLanguage2Words.get(i));
+                temp.put("language_1_text", language1Words.get(i));
+                temp.put("language_2_text", language2Words.get(i));
                 array.put(temp);
             }
             json.put("words", array);

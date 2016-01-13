@@ -20,7 +20,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -175,7 +174,7 @@ public class ListsListFragment extends Fragment {
                                 mLists = lists;
                                 mAdapter.updateList(mLists);
                             } catch (JSONException e) {
-                                Log.d("JSONException", "The JSON fails");
+                                e.printStackTrace();
                             }
                             mSwipeRefreshLayout.setRefreshing(false);
                         }
