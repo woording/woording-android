@@ -373,7 +373,7 @@ public class ListViewFragment extends Fragment {
                                             ((ListViewActivity) getActivity()).goUp(ListViewActivity.LIST_NOT_FOUND, username);
                                         } else {
                                             Snackbar.make(
-                                                    MainActivity.mCoordinatorLayout, R.string.error_user_not_found, Snackbar.LENGTH_LONG
+                                                    MainActivity.mCoordinatorLayout, R.string.error_user_not_found, Snackbar.LENGTH_SHORT
                                             ).show();
                                             // Remove from pane
                                             ((MainActivity) getActivity()).removeFragmentsFromSecondPane();
