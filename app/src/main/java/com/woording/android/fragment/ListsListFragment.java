@@ -12,6 +12,7 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -23,6 +24,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -145,6 +147,15 @@ public class ListsListFragment extends Fragment {
         } else actionBar.setTitle(R.string.my_lists);
     }
 
+    private void finishApp() {
+        if (Build.VERSION.SDK_INT >= 16) {
+            getActivity().finishAffinity();
+        } else {
+            getActivity().finish();
+            System.exit(0);
+        }
+    }
+
     public void getLists(final boolean useCached) {
         mSwipeRefreshLayout.setRefreshing(true);
 
@@ -161,18 +172,38 @@ public class ListsListFragment extends Fragment {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-                                // Handle the response
-                                JSONArray jsonArray = response.getJSONArray("lists");
-                                JSONObject listObject;
-                                List[] lists = new List[jsonArray.length()];
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    listObject = jsonArray.getJSONObject(i);
-                                    List tmp = new List(listObject.getString("listname"), listObject.getString("language_1_tag"),
-                                            listObject.getString("language_2_tag"), listObject.getString("shared_with"));
-                                    lists[i] = tmp;
+                                // Check for errors
+                                if (response.has("error")) {
+                                    if (response.getString("error").equals("User not found")) {
+                                        // If from deep link, close the app and send a Toast
+                                        if (getActivity().getIntent().getBooleanExtra("fromDeepLink", false)) {
+                                            // First display toast
+                                            Toast.makeText(getActivity(), R.string.error_user_not_found, Toast.LENGTH_SHORT).show();
+                                            // Then finish the app
+                                            finishApp();
+                                        } else {
+                                            // Show Snackbar
+                                            Snackbar.make(
+                                                    MainActivity.mCoordinatorLayout, R.string.error_user_not_found, Snackbar.LENGTH_SHORT
+                                            ).show();
+                                            // Go to own lists
+                                            ((MainActivity) getActivity()).gotoUser(mAuthPreferences.getAccountName());
+                                        }
+                                    }
+                                } else {
+                                    // Handle the response
+                                    JSONArray jsonArray = response.getJSONArray("lists");
+                                    JSONObject listObject;
+                                    List[] lists = new List[jsonArray.length()];
+                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                        listObject = jsonArray.getJSONObject(i);
+                                        List tmp = new List(listObject.getString("listname"), listObject.getString("language_1_tag"),
+                                                listObject.getString("language_2_tag"), listObject.getString("shared_with"));
+                                        lists[i] = tmp;
+                                    }
+                                    mLists = lists;
+                                    mAdapter.updateList(mLists);
                                 }
-                                mLists = lists;
-                                mAdapter.updateList(mLists);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
