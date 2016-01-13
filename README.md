@@ -20,13 +20,13 @@ Tablet:
 <img alt="Lists and list overview" src="./screenshots/tablet/Lists and list overview.PNG" />
 
 #### Submodules
-To cloning the submodules you have to normal clone this project and then run the following commands:
+To clone the submodules you have to clone this project normally and then run the following commands:
 ```bash
 git submodule init
 git submodule update
 ```
 
-For updating submodules do:
+To update submodules do:
 ```bash
 git submodule foreach git pull
 ```
@@ -41,4 +41,4 @@ Woording-android makes use of the following libraries
 - Volley
 	* [Site](http://developer.android.com/training/volley/index.html)
 
-Some classes are copied and editted from the Android Open Source Project which has a Apache 2.0 License.
+Some classes are copied and edited from the Android Open Source Project which has a Apache 2.0 License.
