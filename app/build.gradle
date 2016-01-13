@@ -16,6 +16,7 @@ android {
         versionCode 1
         versionName "1.0 Beta 2"
         resConfig "en"
+        generatedDensities = ["mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"]
     }
     buildTypes {
         release {
@@ -29,6 +30,7 @@ android {
         }
         debug {
             debuggable true
+            renderscriptDebuggable true
             applicationIdSuffix '.debug'
             versionNameSuffix ' debug'
 
