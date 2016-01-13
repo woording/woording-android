@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode != 0) {
             switch (requestCode) {
                 case ListViewActivity.NO_WORDS_DATA:
-                    Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG)
+                    Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_SHORT)
                             .show();
                     break;
 
@@ -143,6 +143,13 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                             }).show();
+                    break;
+
+                case ListViewActivity.LIST_NOT_FOUND:
+                    Snackbar.make(mCoordinatorLayout, R.string.error_list_not_found, Snackbar.LENGTH_SHORT).show();
+                    break;
+                case ListViewActivity.USER_NOT_FOUND:
+                    Snackbar.make(mCoordinatorLayout, R.string.error_user_not_found, Snackbar.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -444,7 +451,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void removeFragmentsFromSecondPane() {
+    public void removeFragmentsFromSecondPane() {
         if (App.mDualPane) {
             // Remove fragment on second pane
             FragmentManager fragmentManager = getSupportFragmentManager();

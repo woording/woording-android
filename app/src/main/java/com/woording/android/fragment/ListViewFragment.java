@@ -16,7 +16,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -33,6 +35,7 @@ import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -329,6 +332,15 @@ public class ListViewFragment extends Fragment {
         });
     }
 
+    private void finishApp() {
+        if (Build.VERSION.SDK_INT >= 16) {
+            getActivity().finishAffinity();
+        } else {
+            getActivity().finish();
+            System.exit(0);
+        }
+    }
+
     private void getList() {
         showProgress(true);
 
@@ -344,20 +356,68 @@ public class ListViewFragment extends Fragment {
                 public void onResponse(JSONObject response) {
                     // Check for errors
                     try {
-                        List list = new List(response.getString("listname"), response.getString("language_1_tag"),
-                                response.getString("language_2_tag"), response.getString("shared_with"));
-                        JSONArray JSONWords = response.getJSONArray("words");
-                        ArrayList<String> language1Words = new ArrayList<>();
-                        ArrayList<String> language2Words = new ArrayList<>();
-                        for (int i = 0; i < JSONWords.length(); i++) {
-                            JSONObject object = JSONWords.getJSONObject(i);
-                            language1Words.add(object.getString("language_1_text"));
-                            language2Words.add(object.getString("language_2_text"));
+                        // Check for errors
+                        if (response.has("error")) {
+                            String error = response.getString("error");
+                            switch (error) {
+                                case "List not found":
+                                    // First check for deep linking
+                                    if (getActivity().getIntent().getBooleanExtra("fromDeepLink", false)) {
+                                        // First display toast
+                                        Toast.makeText(getActivity(), R.string.error_list_not_found, Toast.LENGTH_SHORT).show();
+                                        // Then finish the app
+                                        finishApp();
+                                    } else {
+                                        if (!App.mDualPane) {
+                                            // Finish and go back to MainActivity
+                                            ((ListViewActivity) getActivity()).goUp(ListViewActivity.LIST_NOT_FOUND, username);
+                                        } else {
+                                            Snackbar.make(
+                                                    MainActivity.mCoordinatorLayout, R.string.error_list_not_found, Snackbar.LENGTH_LONG
+                                            ).show();
+                                            // Remove from pane
+                                            ((MainActivity) getActivity()).removeFragmentsFromSecondPane();
+                                        }
+                                    }
+                                    break;
+                                case "User not found":
+                                    // First check for deep linking
+                                    if (getActivity().getIntent().getBooleanExtra("fromDeepLink", false)) {
+                                        // First display toast
+                                        Toast.makeText(getActivity(), R.string.error_user_not_found, Toast.LENGTH_SHORT).show();
+                                        // Then finish the app
+                                        finishApp();
+                                    } else {
+                                        if (!App.mDualPane) {
+                                            // Finish and go back to MainActivity
+                                            ((ListViewActivity) getActivity()).goUp(ListViewActivity.USER_NOT_FOUND,
+                                                    mAuthPreferences.getAccountName()); // Can't go back to that user, so go to own account
+                                        } else {
+                                            Snackbar.make(
+                                                    MainActivity.mCoordinatorLayout, R.string.error_list_not_found, Snackbar.LENGTH_LONG
+                                            ).show();
+                                            // Remove from pane
+                                            ((MainActivity) getActivity()).removeFragmentsFromSecondPane();
+                                        }
+                                    }
+                                    break;
+                            }
+                        } else {
+                            List list = new List(response.getString("listname"), response.getString("language_1_tag"),
+                                    response.getString("language_2_tag"), response.getString("shared_with"));
+                            JSONArray JSONWords = response.getJSONArray("words");
+                            ArrayList<String> language1Words = new ArrayList<>();
+                            ArrayList<String> language2Words = new ArrayList<>();
+                            for (int i = 0; i < JSONWords.length(); i++) {
+                                JSONObject object = JSONWords.getJSONObject(i);
+                                language1Words.add(object.getString("language_1_text"));
+                                language2Words.add(object.getString("language_2_text"));
+                            }
+                            list.setWords(language1Words, language2Words);
+                            mList = list;
+                            // Display the list
+                            setWordsTable();
                         }
-                        list.setWords(language1Words, language2Words);
-                        mList = list;
-                        // Display the list
-                        setWordsTable();
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }

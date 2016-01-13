@@ -21,6 +21,8 @@ public class ListViewActivity extends AppCompatActivity {
 
     public static final int NO_WORDS_DATA = 1;
     public static final int DELETED_LIST = 2;
+    public static final int LIST_NOT_FOUND = 3;
+    public static final int USER_NOT_FOUND = 4;
 
     private ListViewFragment mListViewFragment;
 

@@ -53,17 +53,20 @@ public class ParseDeepLinkActivity extends AppCompatActivity {
                     Intent intent = new Intent(this, MainActivity.class);
                     intent.putExtra("username", data[0]);
                     intent.putExtra("listname", data[1]);
+                    intent.putExtra("fromDeepLink", true);
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent(this, ListViewActivity.class);
                     intent.putExtra("username", data[0]);
                     intent.putExtra("list", new List(data[1], "", "", ""));
+                    intent.putExtra("fromDeepLink", true);
                     startActivity(intent);
                 }
                 break;
             case 1:
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.putExtra("username", data[0]);
+                intent.putExtra("fromDeepLink", true);
                 startActivity(intent);
                 break;
             default:
