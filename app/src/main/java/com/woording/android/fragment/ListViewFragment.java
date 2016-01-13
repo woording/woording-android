@@ -377,6 +377,8 @@ public class ListViewFragment extends Fragment {
                                             ).show();
                                             // Remove from pane
                                             ((MainActivity) getActivity()).removeFragmentsFromSecondPane();
+                                            // Go to own lists
+                                            ((MainActivity) getActivity()).gotoUser(mAuthPreferences.getAccountName());
                                         }
                                     }
                                     break;

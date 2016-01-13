@@ -443,7 +443,7 @@ public class MainActivity extends AppCompatActivity {
         removeFragmentsFromSecondPane();
     }
 
-    private void gotoUser(String username) {
+    public void gotoUser(String username) {
         if (!mListsListFragment.getCurrentUsername().equals(username)) {
             mListsListFragment.changeUser(username);
 
