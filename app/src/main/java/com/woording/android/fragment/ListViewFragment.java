@@ -146,10 +146,13 @@ public class ListViewFragment extends Fragment {
         }
         if (currentAccount != null) {
             // Ask for an auth token
-            mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null,
-                    getActivity(), new GetAuthTokenCallback(0), null);
-//        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
-//                null, this, null, null, new GetAuthTokenCallback(0), null);
+            if (username == null) {
+                mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null,
+                        getActivity(), new GetAuthTokenCallback(-1), null);
+            } else {
+                mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null,
+                        getActivity(), new GetAuthTokenCallback(0), null);
+            }
         }
     }
 
@@ -272,7 +275,7 @@ public class ListViewFragment extends Fragment {
 
     public void setList(List list) {
         mList = list;
-        if (mList != null) getList();
+        if (mList != null && username != null) getList();
     }
 
     public void setUsername(String username) {

@@ -51,12 +51,13 @@ public class ListViewActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
 
-        // Load List from Intent
-        List mList = (List) getIntent().getSerializableExtra("list");
-        mListViewFragment.setList(mList);
         // Load username
         String username = getIntent().getStringExtra("username");
         mListViewFragment.setUsername(username);
+        // Load List from Intent
+        List mList = (List) getIntent().getSerializableExtra("list");
+        mListViewFragment.setList(mList);
+
     }
 
     @Override
