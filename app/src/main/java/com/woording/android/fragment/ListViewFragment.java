@@ -486,7 +486,6 @@ public class ListViewFragment extends Fragment {
                     return "application/json";
                 }
             };
-            request.setShouldCache(false);
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(getActivity()).addToRequestQueue(request);
         } catch (JSONException e) {

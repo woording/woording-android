@@ -201,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
                         } else if (profile instanceof  IDrawerItem) {
                             // Save selected position
                             int position = headerResult.getProfiles().indexOf(profile);
-                            App.selectedAccount = position;
 
                             Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[position];
                             // Ask for an auth token
@@ -583,7 +582,6 @@ public class MainActivity extends AppCompatActivity {
                     return "application/json";
                 }
             };
-            request.setShouldCache(false);
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {

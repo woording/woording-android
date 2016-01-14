@@ -16,7 +16,6 @@ public class App extends Application {
     public static final String API_LOCATION = "http://api.woording.com";
 
     public static boolean mDualPane;
-    public static int selectedAccount = 0;
 
     @Override
     public void onCreate(){
