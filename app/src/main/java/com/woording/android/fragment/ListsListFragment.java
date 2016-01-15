@@ -87,7 +87,7 @@ public class ListsListFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getLists(false);
+                getLists();
             }
         });
 
@@ -139,7 +139,7 @@ public class ListsListFragment extends Fragment {
 
     public void changeUser(String username) {
         currentUsername = username;
-        getLists(true);
+        getLists();
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (!username.equals(mAuthPreferences.getAccountName())) {
@@ -156,7 +156,7 @@ public class ListsListFragment extends Fragment {
         }
     }
 
-    public void getLists(final boolean useCached) {
+    public void getLists() {
         mSwipeRefreshLayout.setRefreshing(true);
 
         try {
@@ -216,15 +216,13 @@ public class ListsListFragment extends Fragment {
                             NetworkResponse networkResponse = error.networkResponse;
                             if (networkResponse != null && networkResponse.statusCode == 401) {
                                 // HTTP Status Code: 401 Unauthorized
-                                if (useCached) getNewAuthToken(0);
-                                else getNewAuthToken(2);
+                                getNewAuthToken(0);
                             } else {
                                 error.printStackTrace();
                                 mSwipeRefreshLayout.setRefreshing(false);
                             }
                         }
                     });
-            if (!useCached) jsObjRequest.setShouldCache(false);
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(getActivity()).addToRequestQueue(jsObjRequest);
         } catch (JSONException e) {
@@ -305,13 +303,10 @@ public class ListsListFragment extends Fragment {
                     // Run task
                     switch (taskToRun) {
                         case 0:
-                            getLists(true);
+                            getLists();
                             break;
                         case 1:
                             saveList(MainActivity.lastDeletedList);
-                            break;
-                        case 2:
-                            getLists(false);
                             break;
                     }
 

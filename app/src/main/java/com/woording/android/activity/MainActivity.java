@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                                     Log.d(TAG, "onClick: Undo delete");
                                     if (lastDeletedList != null) {
                                         mListsListFragment.saveList(lastDeletedList);
-                                        mListsListFragment.getLists(false);
+                                        mListsListFragment.getLists();
                                     }
                                 }
                             }).show();
@@ -295,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         getSupportActionBar().setTitle(R.string.my_lists);
-        getFriends(true);
+        getFriends();
     }
 
     @Override
@@ -437,7 +437,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeUser(String username) {
         mListsListFragment.changeUser(username);
-        getFriends(false);
+        getFriends();
 
         removeFragmentsFromSecondPane();
     }
@@ -498,7 +498,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This function helps you getting friends from our API server. ;)
      */
-    private void getFriends(boolean shouldUseCache) {
+    private void getFriends() {
         try {
             final JSONObject data = new JSONObject()
                     .put("username", mAuthPreferences.getAccountName())
@@ -540,7 +540,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-            request.setShouldCache(shouldUseCache);
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {
@@ -616,7 +615,7 @@ public class MainActivity extends AppCompatActivity {
                     // Run task
                     switch (taskToRun) {
                         case 1:
-                            getFriends(true);
+                            getFriends();
                             break;
                         case 2:
                             changeUser(accountName);
