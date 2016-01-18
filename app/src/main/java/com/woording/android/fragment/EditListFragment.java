@@ -46,6 +46,7 @@ import com.woording.android.activity.EditListActivity;
 import com.woording.android.activity.LoginActivity;
 import com.woording.android.activity.MainActivity;
 import com.woording.android.adapter.EditTextListAdapter;
+import com.woording.android.components.MyFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,7 +58,7 @@ import java.util.ArrayList;
  * Use the {@link EditListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EditListFragment extends Fragment {
+public class EditListFragment extends MyFragment {
 
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;

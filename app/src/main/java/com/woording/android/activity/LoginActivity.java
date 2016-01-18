@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import com.woording.android.R;
 import com.woording.android.account.AccountUtils;
+import com.woording.android.components.AccountAuthenticatorAppCompatActivity;
 
 /**
  * A login screen that offers login via email/password.

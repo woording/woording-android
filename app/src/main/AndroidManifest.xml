@@ -101,7 +101,7 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.AccountAuthenticatorAppCompatActivity" />
+        <activity android:name=".components.AccountAuthenticatorAppCompatActivity" />
 
         <service
             android:name=".account.AuthenticatorService"

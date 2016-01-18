@@ -447,6 +447,8 @@ public class MainActivity extends AppCompatActivity {
             mListsListFragment.changeUser(username);
 
             removeFragmentsFromSecondPane();
+
+            // TODO: 1-18-2016 Set right selection 
         }
     }
 

@@ -4,7 +4,7 @@
  * Copyright (c) 2016.
  */
 
-package com.woording.android.activity;
+package com.woording.android.components;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;

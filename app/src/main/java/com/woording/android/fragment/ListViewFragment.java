@@ -16,7 +16,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -56,6 +55,7 @@ import com.woording.android.activity.LoginActivity;
 import com.woording.android.activity.MainActivity;
 import com.woording.android.activity.PracticeActivity;
 import com.woording.android.adapter.TableListViewAdapter;
+import com.woording.android.components.MyFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,7 +67,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ListViewFragment extends Fragment {
+public class ListViewFragment extends MyFragment {
 
     private ProgressBar mProgressBar;
     private RecyclerView mRecyclerView;
@@ -333,15 +333,6 @@ public class ListViewFragment extends Fragment {
                 mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
             }
         });
-    }
-
-    private void finishApp() {
-        if (Build.VERSION.SDK_INT >= 16) {
-            getActivity().finishAffinity();
-        } else {
-            getActivity().finish();
-            System.exit(0);
-        }
     }
 
     private void getList() {

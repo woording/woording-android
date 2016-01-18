@@ -12,10 +12,8 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -42,6 +40,7 @@ import com.woording.android.account.AuthPreferences;
 import com.woording.android.activity.LoginActivity;
 import com.woording.android.activity.MainActivity;
 import com.woording.android.adapter.ListsViewAdapter;
+import com.woording.android.components.MyFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,7 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
-public class ListsListFragment extends Fragment {
+public class ListsListFragment extends MyFragment {
 
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
@@ -145,15 +144,6 @@ public class ListsListFragment extends Fragment {
         if (!username.equals(mAuthPreferences.getAccountName())) {
             actionBar.setTitle(getString(R.string.others_lists, username));
         } else actionBar.setTitle(R.string.my_lists);
-    }
-
-    private void finishApp() {
-        if (Build.VERSION.SDK_INT >= 16) {
-            getActivity().finishAffinity();
-        } else {
-            getActivity().finish();
-            System.exit(0);
-        }
     }
 
     public void getLists() {
