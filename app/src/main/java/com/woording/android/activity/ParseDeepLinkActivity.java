@@ -11,7 +11,7 @@ import com.woording.android.List;
 
 public class ParseDeepLinkActivity extends AppCompatActivity {
 
-    public static final String TAG = ParseDeepLinkActivity.class.getSimpleName();
+    private static final String TAG = ParseDeepLinkActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

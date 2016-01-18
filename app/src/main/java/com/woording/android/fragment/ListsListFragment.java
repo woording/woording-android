@@ -138,6 +138,7 @@ public class ListsListFragment extends MyFragment {
 
     public void changeUser(String username) {
         currentUsername = username;
+        mAdapter.clearList();
         getLists();
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -192,7 +193,9 @@ public class ListsListFragment extends MyFragment {
                                         lists[i] = tmp;
                                     }
                                     mLists = lists;
-                                    mAdapter.updateList(mLists);
+                                    if (mAdapter.getItemCount() != 0) {
+                                        mAdapter.updateList(mLists);
+                                    } else mAdapter.setList(mLists);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
