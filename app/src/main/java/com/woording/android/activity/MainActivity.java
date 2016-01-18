@@ -444,11 +444,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void gotoUser(String username) {
         if (!mListsListFragment.getCurrentUsername().equals(username)) {
+            // Change user
             mListsListFragment.changeUser(username);
-
             removeFragmentsFromSecondPane();
 
-            // TODO: 1-18-2016 Set right selection 
+            // Set 'My lists' when own username
+            if (username.equals(mAuthPreferences.getAccountName())) {
+                drawer.setSelectionAtPosition(1);
+            } else {
+                // TODO: 1-18-2016 Set right selection for friends lists
+            }
         }
     }
 
