@@ -98,7 +98,7 @@
 
     <!-- Misc -->
     <string name="share_text_dialog">This list is only visible for your friends. Are you sure you want to share?</string>
-    <string name="share_text">Check out %1$s on Woording. www.woording.com/%2$s/%3$s</string>
+    <string name="share_text">Check out %1$s on Woording. www.woording.com/#!/%2$s/%3$s</string>
     <string name="undo">Undo</string>
     <string name="account_type" translatable="false">com.woording.android</string>
     <!-- Font family used when drawing letters for letter tile avatars. -->
