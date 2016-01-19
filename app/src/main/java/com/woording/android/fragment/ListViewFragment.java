@@ -80,7 +80,7 @@ public class ListViewFragment extends MyFragment {
 
     private TableListViewAdapter recyclerViewAdapter;
 
-    private int askedLanguage = PracticeActivity.LANGUAGE_1;
+    private PracticeActivity.AskedLanguage askedLanguage = PracticeActivity.AskedLanguage.LANGUAGE_1;
     private boolean caseSensitive = true;
     private boolean cancelled = false;
     private String username = null;
@@ -191,13 +191,13 @@ public class ListViewFragment extends MyFragment {
                         // Get user inputs
                         switch (radioGroup.getCheckedRadioButtonId()) {
                             case R.id.ask_language_1:
-                                askedLanguage = PracticeActivity.LANGUAGE_1;
+                                askedLanguage = PracticeActivity.AskedLanguage.LANGUAGE_1;
                                 break;
                             case R.id.ask_language_2:
-                                askedLanguage = PracticeActivity.LANGUAGE_2;
+                                askedLanguage = PracticeActivity.AskedLanguage.LANGUAGE_2;
                                 break;
                             case R.id.ask_both:
-                                askedLanguage = PracticeActivity.BOTH;
+                                askedLanguage = PracticeActivity.AskedLanguage.BOTH;
                                 break;
                         }
                         caseSensitive = checkBox.isChecked();

@@ -42,23 +42,37 @@ public class PracticeActivity extends AppCompatActivity
     private final String TAG = "PracticeActivity";
 
     // Practice method constants
-    private final int KEYBOARD = 0;
-    private final int SPEECH = 1;
+    private enum InputMethod {
+        KEYBOARD,
+        SPEECH
+    }
     // Asked language constants
-    public static final int BOTH = 0;
-    public static final int LANGUAGE_1 = 1;
-    public static final int LANGUAGE_2 = 2;
+    public enum AskedLanguage {
+        BOTH (0),
+        LANGUAGE_1 (1),
+        LANGUAGE_2 (2);
+
+        private final int position;
+
+        AskedLanguage(int position) {
+            this.position = position;
+        }
+
+        public int getPosition() {
+            return position;
+        }
+    }
 
     private List mList;
     private String username;
-    private int mAskedLanguage; // 1 = language 1 | 2 = language 2 | 0 = both
-    private int currentAskedLanguage;
+    private AskedLanguage mAskedLanguage;
+    private AskedLanguage currentAskedLanguage;
     private boolean mCaseSensitive = true;
     private ArrayList<String> mUsedWords = new ArrayList<>();
     private ArrayList<String[]> mWrongWords = new ArrayList<>();
     private String[] mRandomWord = new String[2];
     private int mTotalWords = 0;
-    private int mLastUsedPracticeMethod = KEYBOARD; // 0 = keyboard | 1 = speech
+    private InputMethod mLastUsedPracticeMethod = InputMethod.KEYBOARD;
 
     private TableListViewAdapter recyclerViewAdapter;
 
@@ -86,7 +100,7 @@ public class PracticeActivity extends AppCompatActivity
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == R.id.next_word || actionId == EditorInfo.IME_ACTION_GO) {
-                    mLastUsedPracticeMethod = KEYBOARD;
+                    mLastUsedPracticeMethod = InputMethod.KEYBOARD;
                     checkWord();
                     return true;
                 }
@@ -96,7 +110,7 @@ public class PracticeActivity extends AppCompatActivity
         findViewById(R.id.next_word).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLastUsedPracticeMethod = KEYBOARD;
+                mLastUsedPracticeMethod = InputMethod.KEYBOARD;
                 checkWord();
             }
         });
@@ -113,23 +127,23 @@ public class PracticeActivity extends AppCompatActivity
         Intent intent = getIntent();
         mList = (List) intent.getSerializableExtra("list");
         username = intent.getStringExtra("username");
-        mAskedLanguage = intent.getIntExtra("askedLanguage", LANGUAGE_1);
+        mAskedLanguage = (AskedLanguage) intent.getSerializableExtra("askedLanguage");
         mCaseSensitive = intent.getBooleanExtra("caseSensitive", true);
 
         // Set asked language
-        if (mAskedLanguage != BOTH) {
-            if (mAskedLanguage == LANGUAGE_1) {
+        if (mAskedLanguage != AskedLanguage.BOTH) {
+            if (mAskedLanguage == AskedLanguage.LANGUAGE_1) {
                 ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language1));
-                currentAskedLanguage = LANGUAGE_1;
-            } else if (mAskedLanguage == LANGUAGE_2) {
+                currentAskedLanguage = AskedLanguage.LANGUAGE_1;
+            } else if (mAskedLanguage == AskedLanguage.LANGUAGE_2) {
                 ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language2));
-                currentAskedLanguage = LANGUAGE_2;
+                currentAskedLanguage = AskedLanguage.LANGUAGE_2;
             }
         }
         nextWord();
 
         enableSpeech();
-        if (mLastUsedPracticeMethod == SPEECH) {
+        if (mLastUsedPracticeMethod == InputMethod.SPEECH) {
             mSpeech.startListening(mRecognizerIntent);
         }
     }
@@ -217,11 +231,12 @@ public class PracticeActivity extends AppCompatActivity
         }
 
         // Random choose language and display it
-        if (mAskedLanguage == BOTH) {
-            currentAskedLanguage = (int) Math.round(Math.random()) + 1;
-            if (currentAskedLanguage == LANGUAGE_1) {
+        if (mAskedLanguage == AskedLanguage.BOTH) {
+            AskedLanguage[] options = new AskedLanguage[]{AskedLanguage.LANGUAGE_1, AskedLanguage.LANGUAGE_2};
+            currentAskedLanguage = options[(int) Math.round(Math.random())];
+            if (currentAskedLanguage == AskedLanguage.LANGUAGE_1) {
                 ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language1));
-            } else if (currentAskedLanguage == LANGUAGE_2) {
+            } else if (currentAskedLanguage == AskedLanguage.LANGUAGE_2) {
                 ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language2));
             }
         }
@@ -234,12 +249,12 @@ public class PracticeActivity extends AppCompatActivity
         else mUsedWords.add(mRandomWord[0]);
 
         // Display
-        ((TextView) findViewById(R.id.word_to_translate)).setText(mRandomWord[currentAskedLanguage - 1]);
+        ((TextView) findViewById(R.id.word_to_translate)).setText(mRandomWord[currentAskedLanguage.getPosition() - 1]);
     }
 
     private void checkWord() {
         mTotalWords++;
-        int position = currentAskedLanguage == LANGUAGE_1 ? 1 : 0;
+        int position = currentAskedLanguage == AskedLanguage.LANGUAGE_1 ? 1 : 0;
         if (isInputRight(mTranslation.getText().toString(), mRandomWord[position])) {
             mTranslation.setText("");
             mRightWord.setVisibility(View.GONE);
@@ -254,7 +269,7 @@ public class PracticeActivity extends AppCompatActivity
                 mUsedWords.remove(mRandomWord[position]);
         }
 
-        if (mLastUsedPracticeMethod == SPEECH) {
+        if (mLastUsedPracticeMethod == InputMethod.SPEECH) {
             mSpeech.startListening(mRecognizerIntent);
         }
     }
@@ -263,7 +278,7 @@ public class PracticeActivity extends AppCompatActivity
         final String PERMISSIBLE_CHARACTERS = "\\(|\\{|\\[|\\]|\\}|\\)";
 
         // Check for case sensitivity
-        if (!mCaseSensitive || mLastUsedPracticeMethod == SPEECH) {
+        if (!mCaseSensitive || mLastUsedPracticeMethod == InputMethod.SPEECH) {
             input = input.toLowerCase();
             correctWord = correctWord.toLowerCase();
         }
@@ -372,7 +387,7 @@ public class PracticeActivity extends AppCompatActivity
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 
         mTranslation.setText(matches.get(0));
-        mLastUsedPracticeMethod = SPEECH;
+        mLastUsedPracticeMethod = InputMethod.SPEECH;
         checkWord();
     }
 
