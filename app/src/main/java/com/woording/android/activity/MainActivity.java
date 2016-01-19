@@ -448,11 +448,15 @@ public class MainActivity extends AppCompatActivity {
             mListsListFragment.changeUser(username);
             removeFragmentsFromSecondPane();
 
-            // Set 'My lists' when own username
-            if (username.equals(mAuthPreferences.getAccountName())) {
-                drawer.setSelectionAtPosition(1);
-            } else {
+            /*
+             * Default selection is at 'My Lists' --> Position 1
+             * So only check when this is selected and the username is not your username
+             */
+            if (drawer.getCurrentSelectedPosition() == 1 && !username.equals(mAuthPreferences.getAccountName())) {
                 // TODO: 1-18-2016 Set right selection for friends lists
+
+                // Select nothing
+                drawer.setSelectionAtPosition(-1);
             }
         }
     }
