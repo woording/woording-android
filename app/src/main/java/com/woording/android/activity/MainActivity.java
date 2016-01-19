@@ -50,6 +50,7 @@ import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.BaseDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
@@ -71,6 +72,8 @@ import com.woording.android.util.LetterTileDrawable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -97,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static Context mContext;
     private boolean doubleBackToExitPressedOnce = false;
+
+    private String setSelectionFor = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -453,10 +458,12 @@ public class MainActivity extends AppCompatActivity {
              * So only check when this is selected and the username is not your username
              */
             if (drawer.getCurrentSelectedPosition() == 1 && !username.equals(mAuthPreferences.getAccountName())) {
-                // TODO: 1-18-2016 Set right selection for friends lists
+                int selectPosition = -1;
+                if (drawer.getDrawerItems().size() > 3) selectPosition = getFriendPosition(username);
+                else setSelectionFor = username;
 
-                // Select nothing
-                drawer.setSelectionAtPosition(-1);
+                // Select nothing if friends are not loaded
+                drawer.setSelectionAtPosition(selectPosition, false);
             }
         }
     }
@@ -506,6 +513,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private int getFriendPosition(String username) {
+        ArrayList<IDrawerItem> friends = new ArrayList<>(drawer.getDrawerItems());
+        int friendPosition = -1; // Select nothing by default
+        // remove all non-friend items
+        friends.remove(friends.size() - 1);
+        friends.remove(1);
+        friends.remove(0);
+
+        for (int i = 0; i < friends.size(); i++) {
+            IDrawerItem currentFriend = friends.get(i);
+            if (currentFriend instanceof BaseDrawerItem
+                    && username.equals(((BaseDrawerItem) currentFriend).getName().getText())) {
+                friendPosition = i + 3;
+                break;
+            }
+        }
+
+        return friendPosition;
+    }
+
     /**
      * This function helps you getting friends from our API server. ;)
      */
@@ -519,8 +546,8 @@ public class MainActivity extends AppCompatActivity {
                     data, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    // Remove all friend items
-                    removeFriendsFromDrawer();
+                    // Remove all friend items when needed
+                    if (drawer.getDrawerItems().size() > 3) removeFriendsFromDrawer();
                     // Try to load data
                     try {
                         JSONArray array = response.getJSONArray("friends");
@@ -537,6 +564,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
+                    }
+                    // Check if need to set selection
+                    if (setSelectionFor != null) {
+                        drawer.setSelectionAtPosition(getFriendPosition(setSelectionFor), false);
+                        setSelectionFor = null;
                     }
                 }
             }, new Response.ErrorListener() {
