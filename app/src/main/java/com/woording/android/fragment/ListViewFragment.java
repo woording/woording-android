@@ -166,7 +166,7 @@ public class ListViewFragment extends MyFragment {
             menu.findItem(R.id.action_share).setVisible(true);
         }
         // Remove delete list button when not own list
-        if (!username.equals(mAuthPreferences.getAccountName())) {
+        if (username != null && !username.equals(mAuthPreferences.getAccountName())) {
             menu.findItem(R.id.action_delete).setVisible(false);
         }
     }
