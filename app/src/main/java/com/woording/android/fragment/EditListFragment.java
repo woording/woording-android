@@ -243,7 +243,8 @@ public class EditListFragment extends MyFragment {
 
     public void navigateUp() {
         Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-        upIntent.putExtra("list", mList);
+        upIntent.putExtra("list", mList)
+                .putExtra("username", getActivity().getIntent().getStringExtra("username"));
         if (NavUtils.shouldUpRecreateTask(getActivity(), upIntent)) {
             // This activity is NOT part of this app's task, so create a new task
             // when navigating up, with a synthesized back stack.

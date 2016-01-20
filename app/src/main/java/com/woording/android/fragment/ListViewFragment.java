@@ -17,6 +17,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -231,8 +232,10 @@ public class ListViewFragment extends MyFragment {
                 break;
             case R.id.action_edit:
                 if (!App.mDualPane) {
+                    if (username == null) username = mAuthPreferences.getAccountName();
                     Intent intent = new Intent(getActivity(), EditListActivity.class)
-                            .putExtra("list", mList);
+                            .putExtra("list", mList)
+                            .putExtra("username", username);
                     startActivity(intent);
                 } else {
                     // Load on second pane
@@ -286,6 +289,7 @@ public class ListViewFragment extends MyFragment {
         this.username = username;
     }
 
+    @Nullable
     public String getUsername() {
         return username;
     }
