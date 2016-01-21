@@ -233,8 +233,7 @@ public class EditListFragment extends MyFragment {
                                                  DialogInterface.OnClickListener positiveButtonOnClick) {
         // Build alertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog)
-                .setMessage(R.string.discard_dialog_text)
-                .setCancelable(true);
+                .setMessage(R.string.discard_dialog_text);
         // Add buttons
         builder.setNegativeButton(android.R.string.cancel, negativeButtonOnClick);
         builder.setPositiveButton(R.string.discard, positiveButtonOnClick);

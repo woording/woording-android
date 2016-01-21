@@ -184,8 +184,8 @@ public class ListViewFragment extends MyFragment {
                 View view = getActivity().getLayoutInflater().inflate(R.layout.content_practice_options, null);
                 ((TextView) view.findViewById(R.id.ask_language_1)).setText(List.getLanguageName(getActivity(), mList.language1));
                 ((TextView) view.findViewById(R.id.ask_language_2)).setText(List.getLanguageName(getActivity(), mList.language2));
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog).setTitle(getString(R.string.practice_options))
-                        .setCancelable(true).setView(view);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog)
+                        .setTitle(getString(R.string.practice_options)).setView(view);
                 // Set option buttons
                 final RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radio_group_asked_language);
                 final CheckBox checkBox = (CheckBox) view.findViewById(R.id.case_sensitive_check_box);
