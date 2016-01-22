@@ -86,7 +86,7 @@ public class ListsListFragment extends MyFragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getLists();
+                getLists(true);
             }
         });
 
@@ -148,6 +148,10 @@ public class ListsListFragment extends MyFragment {
     }
 
     public void getLists() {
+        getLists(false);
+    }
+
+    public void getLists(final boolean skipCache) {
         mSwipeRefreshLayout.setRefreshing(true);
 
         try {
@@ -156,7 +160,7 @@ public class ListsListFragment extends MyFragment {
             data.put("token", mAuthPreferences.getAuthToken());
             final String username = currentUsername != null ? currentUsername : mAuthPreferences.getAccountName();
             // Create the request
-            JsonObjectRequest jsObjRequest = new JsonObjectRequest
+            JsonObjectRequest request = new JsonObjectRequest
                     (Request.Method.POST, App.API_LOCATION + "/" + username,
                             data, new Response.Listener<JSONObject>() {
 
@@ -209,15 +213,16 @@ public class ListsListFragment extends MyFragment {
                             NetworkResponse networkResponse = error.networkResponse;
                             if (networkResponse != null && networkResponse.statusCode == 401) {
                                 // HTTP Status Code: 401 Unauthorized
-                                getNewAuthToken(0);
+                                getNewAuthToken(skipCache ? 2 : 0);
                             } else {
                                 error.printStackTrace();
                                 mSwipeRefreshLayout.setRefreshing(false);
                             }
                         }
                     });
+            request.setSkipCache(skipCache);
             // Access the RequestQueue through your singleton class.
-            VolleySingleton.getInstance(getActivity()).addToRequestQueue(jsObjRequest);
+            VolleySingleton.getInstance(getActivity()).addToRequestQueue(request);
         } catch (JSONException e) {
             mSwipeRefreshLayout.setRefreshing(false);
             e.printStackTrace();
@@ -300,6 +305,9 @@ public class ListsListFragment extends MyFragment {
                             break;
                         case 1:
                             saveList(MainActivity.lastDeletedList);
+                            break;
+                        case 2:
+                            getLists(true);
                             break;
                     }
 
