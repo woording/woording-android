@@ -40,5 +40,7 @@ Woording-android makes use of the following libraries
 	* Apache 2.0 License
 - Volley
 	* [Site](http://developer.android.com/training/volley/index.html)
+	* Apache 2.0 License
+	* I use my own version of it which you can find [here](https://github.com/PhiliPdB/VolleyImproved)
 
-Some classes are copied and edited from the Android Open Source Project which has a Apache 2.0 License.
+Some classes are copied and edited from the Android Open Source Project which has an Apache 2.0 License.
