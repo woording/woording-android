@@ -83,6 +83,8 @@ public class PracticeActivity extends AppCompatActivity
     private EditText mTranslation;
     private TextView mRightWord;
     private Menu mMenu;
+    private TextView mRightWordsCounter;
+    private TextView mWrongWordsCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +96,6 @@ public class PracticeActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Setup button actions
-        mRightWord = (TextView) findViewById(R.id.right_word);
         mTranslation = (EditText) findViewById(R.id.translation);
         mTranslation.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -122,6 +123,10 @@ public class PracticeActivity extends AppCompatActivity
         // Setup adapter
         recyclerViewAdapter = new TableListViewAdapter(new ArrayList<String>(), new ArrayList<String>());
         mRecyclerView.setAdapter(recyclerViewAdapter);
+        // Load other UI elements
+        mRightWord = (TextView) findViewById(R.id.right_word);
+        mRightWordsCounter = (TextView) findViewById(R.id.right_word_counter);
+        mWrongWordsCounter = (TextView) findViewById(R.id.wrong_word_counter);
 
         // Load intent extras
         Intent intent = getIntent();
@@ -140,6 +145,7 @@ public class PracticeActivity extends AppCompatActivity
                 currentAskedLanguage = AskedLanguage.LANGUAGE_2;
             }
         }
+        setCounters();
         nextWord();
 
         enableSpeech();
@@ -263,7 +269,7 @@ public class PracticeActivity extends AppCompatActivity
             mWrongWords.add(new String[]{mRandomWord[position], mTranslation.getText().toString()});
             mRightWord.setText(mRandomWord[position]);
             mRightWord.setVisibility(View.VISIBLE);
-            Snackbar.make(mTranslation, getString(R.string.error_wrong_translation), Snackbar.LENGTH_LONG).show();
+            Snackbar.make(mTranslation, getString(R.string.error_wrong_translation), Snackbar.LENGTH_SHORT).show();
 
             if (mUsedWords.indexOf(mRandomWord[position]) >= -1)
                 mUsedWords.remove(mRandomWord[position]);
@@ -272,6 +278,7 @@ public class PracticeActivity extends AppCompatActivity
         if (mLastUsedPracticeMethod == InputMethod.SPEECH) {
             mSpeech.startListening(mRecognizerIntent);
         }
+        setCounters();
     }
 
     private boolean isInputRight(String input, String correctWord) {
@@ -318,6 +325,11 @@ public class PracticeActivity extends AppCompatActivity
 
             return true;
         } else return false;
+    }
+
+    private void setCounters() {
+        mWrongWordsCounter.setText(getString(R.string.current_wrong_words, mWrongWords.size()));
+        mRightWordsCounter.setText(getString(R.string.current_right_words, mTotalWords - mWrongWords.size()));
     }
 
     private void showPracticeResults() {
