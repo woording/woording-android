@@ -50,6 +50,7 @@
     <string name="disable_speech">Disable speech</string>
     <string name="current_right_words">Right: %1$d</string>
     <string name="current_wrong_words">Wrong: %1$d</string>
+    <string name="current_words_left">Words left: %1$d</string>
     <!-- Practice options -->
     <string name="practice_options">Practice options</string>
     <string name="start_practice">Start practice</string>

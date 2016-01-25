@@ -85,6 +85,7 @@ public class PracticeActivity extends AppCompatActivity
     private Menu mMenu;
     private TextView mRightWordsCounter;
     private TextView mWrongWordsCounter;
+    private TextView mWordsLeftCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +126,9 @@ public class PracticeActivity extends AppCompatActivity
         mRecyclerView.setAdapter(recyclerViewAdapter);
         // Load other UI elements
         mRightWord = (TextView) findViewById(R.id.right_word);
-        mRightWordsCounter = (TextView) findViewById(R.id.right_word_counter);
-        mWrongWordsCounter = (TextView) findViewById(R.id.wrong_word_counter);
+        mRightWordsCounter = (TextView) findViewById(R.id.right_words_counter);
+        mWrongWordsCounter = (TextView) findViewById(R.id.wrong_words_counter);
+        mWordsLeftCounter = (TextView) findViewById(R.id.words_left_counter);
 
         // Load intent extras
         Intent intent = getIntent();
@@ -328,6 +330,8 @@ public class PracticeActivity extends AppCompatActivity
     }
 
     private void setCounters() {
+        int totalWords = mList.getTotalWords() * (mAskedLanguage == AskedLanguage.BOTH ? 2 : 1);
+        mWordsLeftCounter.setText(getString(R.string.current_words_left, totalWords - mUsedWords.size()));
         mWrongWordsCounter.setText(getString(R.string.current_wrong_words, mWrongWords.size()));
         mRightWordsCounter.setText(getString(R.string.current_right_words, mTotalWords - mWrongWords.size()));
     }

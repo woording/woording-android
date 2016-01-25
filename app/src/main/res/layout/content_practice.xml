@@ -66,20 +66,26 @@
         android:id="@+id/next_word"
         android:text="@string/next_word"/>
 
+    <TextView
+        android:id="@+id/words_left_counter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="@string/current_words_left"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/right_word_counter"
+            android:id="@+id/right_words_counter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             tools:text="@string/current_right_words"/>
 
         <TextView
-            android:id="@+id/wrong_word_counter"
+            android:id="@+id/wrong_words_counter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
