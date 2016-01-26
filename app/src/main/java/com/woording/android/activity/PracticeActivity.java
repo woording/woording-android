@@ -65,13 +65,16 @@ public class PracticeActivity extends AppCompatActivity
 
     private List mList;
     private String username;
+    // Practice options
     private AskedLanguage mAskedLanguage;
     private AskedLanguage currentAskedLanguage;
     private boolean mCaseSensitive = true;
+
     private ArrayList<String> mUsedWords = new ArrayList<>();
     private ArrayList<String[]> mWrongWords = new ArrayList<>();
     private String[] mRandomWord = new String[2];
     private int mTotalWords = 0;
+
     private InputMethod mLastUsedPracticeMethod = InputMethod.KEYBOARD;
 
     private TableListViewAdapter recyclerViewAdapter;
@@ -117,13 +120,15 @@ public class PracticeActivity extends AppCompatActivity
             }
         });
 
+        /** Setup the {@link RecyclerView} */
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.wrong_words_list);
-        // Setup LinearLayoutManager
+        /** Setup the {@link LinearLayoutManager} */
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(linearLayoutManager);
-        // Setup adapter
+        /** Setup the {@link TableListViewAdapter} */
         recyclerViewAdapter = new TableListViewAdapter(new ArrayList<String>(), new ArrayList<String>());
         mRecyclerView.setAdapter(recyclerViewAdapter);
+
         // Load other UI elements
         mRightWord = (TextView) findViewById(R.id.right_word);
         mRightWordsCounter = (TextView) findViewById(R.id.right_words_counter);
@@ -233,7 +238,7 @@ public class PracticeActivity extends AppCompatActivity
 
     private void nextWord() {
         // Check if list is done
-        if (mUsedWords.size() == mList.language1Words.size()) {
+        if (mUsedWords.size() == mList.getTotalWords() * (mAskedLanguage == AskedLanguage.BOTH ? 2 : 1)) {
             showPracticeResults();
             return;
         }
@@ -253,11 +258,13 @@ public class PracticeActivity extends AppCompatActivity
         int randomIndexInt = (int) Math.floor(Math.random() * mList.language1Words.size());
         mRandomWord = new String[]{mList.language1Words.get(randomIndexInt), mList.language2Words.get(randomIndexInt)};
         // Check if word is already used
-        if (mUsedWords.indexOf(mRandomWord[0]) > -1) nextWord();
-        else mUsedWords.add(mRandomWord[0]);
+        if (mUsedWords.indexOf(mRandomWord[currentAskedLanguage.getPosition() - 1]) > -1) nextWord();
+        else {
+            mUsedWords.add(mRandomWord[currentAskedLanguage.getPosition() - 1]);
 
-        // Display
-        ((TextView) findViewById(R.id.word_to_translate)).setText(mRandomWord[currentAskedLanguage.getPosition() - 1]);
+            // Display
+            ((TextView) findViewById(R.id.word_to_translate)).setText(mRandomWord[currentAskedLanguage.getPosition() - 1]);
+        }
     }
 
     private void checkWord() {
@@ -266,6 +273,7 @@ public class PracticeActivity extends AppCompatActivity
         if (isInputRight(mTranslation.getText().toString(), mRandomWord[position])) {
             mTranslation.setText("");
             mRightWord.setVisibility(View.GONE);
+            setCounters();
             nextWord();
         } else {
             mWrongWords.add(new String[]{mRandomWord[position], mTranslation.getText().toString()});
@@ -275,12 +283,13 @@ public class PracticeActivity extends AppCompatActivity
 
             if (mUsedWords.indexOf(mRandomWord[position]) >= -1)
                 mUsedWords.remove(mRandomWord[position]);
+
+            setCounters();
         }
 
         if (mLastUsedPracticeMethod == InputMethod.SPEECH) {
             mSpeech.startListening(mRecognizerIntent);
         }
-        setCounters();
     }
 
     private boolean isInputRight(String input, String correctWord) {
