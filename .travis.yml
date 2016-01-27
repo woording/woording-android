@@ -8,6 +8,10 @@ sudo: false
 jdk:
   - openjdk7
 
+env:
+  global:
+    - ADB_INSTALL_TIMEOUT=5
+
 android:
   components:
     - tools
