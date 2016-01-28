@@ -68,6 +68,7 @@
     <string name="discard_dialog_text">Discard made changes?</string>
     <string name="discard">Discard</string>
     <string name="list_saved">List saved</string>
+    <string name="error_invalid_chars">Title contains invalid characters</string>
 
     <!-- Friends -->
     <string name="friends">Friends</string>

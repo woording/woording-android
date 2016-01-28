@@ -13,15 +13,19 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -139,6 +143,34 @@ public class EditListFragment extends MyFragment {
         mRecyclerView.setAdapter(mEditTextListAdapter);
 
         mListName = (EditText) rootView.findViewById(R.id.list_title);
+        final TextInputLayout textInputLayout = (TextInputLayout) rootView.findViewById(R.id.title_text_input_layout);
+        // Setup characters filter
+        mListName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().matches("^[0-9a-zA-Z\\-\\_\\s]*$")) {
+                    textInputLayout.setErrorEnabled(true);
+                    textInputLayout.setError(getString(R.string.error_invalid_chars));
+                    // Set the red line
+                    mListName.getBackground().setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.SRC_ATOP);
+                } else if (textInputLayout.getError() != null) {
+                    textInputLayout.setErrorEnabled(false);
+                    textInputLayout.setError(null);
+                    // Remove red line
+                    mListName.getBackground().clearColorFilter();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Do nothing
+            }
+        });
 
         return rootView;
     }
@@ -163,8 +195,6 @@ public class EditListFragment extends MyFragment {
             // Ask for an auth token
             mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null,
                     getActivity(), new GetAuthTokenCallback(0), null);
-//        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
-//                null, this, null, null, new GetAuthTokenCallback(0), null);
         }
     }
 
