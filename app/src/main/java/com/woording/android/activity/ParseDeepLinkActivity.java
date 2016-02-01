@@ -33,6 +33,11 @@ public class ParseDeepLinkActivity extends AppCompatActivity {
         String path;
         if (deeplink.getFragment() != null) path = deeplink.getFragment();
         else path = deeplink.getPath();
+        // If no link, go to MainActivity
+        if (path.length() == 0) {
+            startActivity(new Intent(this, MainActivity.class));
+            return;
+        }
         // Delete first slash and (if available) last slash
         StringBuilder builder = new StringBuilder(path);
         // Remove beginning slashes
