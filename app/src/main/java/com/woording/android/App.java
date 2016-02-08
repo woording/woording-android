@@ -13,7 +13,7 @@ public class App extends Application {
 
     private static Context context;
 
-    public static final String API_LOCATION = "http://api.woording.com";
+    public static final String API_LOCATION = "https://api.woording.com";
 
     public static boolean mDualPane;
 
