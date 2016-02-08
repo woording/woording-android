@@ -24,13 +24,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.woording.android.App;
 import com.woording.android.List;
 import com.woording.android.R;
@@ -235,12 +233,11 @@ public class ListsListFragment extends MyFragment {
                     .put("token", mAuthPreferences.getAuthToken())
                     .put("username", mAuthPreferences.getAccountName())
                     .put("list_data", list.toJSON());
-
             // Create Volley request
-            StringRequest request = new StringRequest(Request.Method.POST, App.API_LOCATION + "/savelist",
-                    new Response.Listener<String>() {
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/savelist",
+                    data, new Response.Listener<JSONObject>() {
                         @Override
-                        public void onResponse(String response) {
+                        public void onResponse(JSONObject response) {
                             Snackbar.make(MainActivity.mCoordinatorLayout, R.string.restored, Snackbar.LENGTH_LONG).show();
                         }
                     }, new Response.ErrorListener() {
@@ -254,19 +251,7 @@ public class ListsListFragment extends MyFragment {
                         error.printStackTrace();
                     }
                 }
-            }) {
-                // This needs to be done to send data with a StringRequest
-                // Get the data body
-                @Override
-                public byte[] getBody() throws AuthFailureError {
-                    return data.toString().getBytes();
-                }
-                // Get the content type
-                @Override
-                public String getBodyContentType() {
-                    return "application/json";
-                }
-            };
+            });
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(getActivity()).addToRequestQueue(request);
         } catch (JSONException e) {

@@ -37,13 +37,11 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.woording.android.App;
 import com.woording.android.List;
 import com.woording.android.R;
@@ -454,10 +452,10 @@ public class ListViewFragment extends MyFragment {
                     .put("username", mAuthPreferences.getAccountName())
                     .put("listname", mList.name);
             // Create request
-            StringRequest request = new StringRequest(Request.Method.POST, App.API_LOCATION + "/deleteList",
-                    new Response.Listener<String>() {
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/deleteList",
+                    data, new Response.Listener<JSONObject>() {
                         @Override
-                        public void onResponse(String response) {
+                        public void onResponse(JSONObject response) {
                             MainActivity.lastDeletedList = mList;
                             ((ListViewActivity) getActivity()).goUp(ListViewActivity.DELETED_LIST, username);
                         }
@@ -472,19 +470,7 @@ public class ListViewFragment extends MyFragment {
                         error.printStackTrace();
                     }
                 }
-            }) {
-                // This needs to be done to send data with a StringRequest
-                // Get the data body
-                @Override
-                public byte[] getBody() throws AuthFailureError {
-                    return data.toString().getBytes();
-                }
-                // Get the content type
-                @Override
-                public String getBodyContentType() {
-                    return "application/json";
-                }
-            };
+            });
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(getActivity()).addToRequestQueue(request);
         } catch (JSONException e) {
