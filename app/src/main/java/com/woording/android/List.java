@@ -23,13 +23,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class List implements Serializable {
-    public final String name;
-    public final String language1;
-    public final String language2;
-    public final String sharedWith;
+    private final String name;
+    private final String language1;
+    private final String language2;
+    private final String sharedWith;
 
-    public ArrayList<String> language1Words = new ArrayList<>();
-    public ArrayList<String> language2Words = new ArrayList<>();
+    private ArrayList<String> language1Words = new ArrayList<>();
+    private ArrayList<String> language2Words = new ArrayList<>();
 
     private static HashMap<String, String> mLanguageCodes = null;
     private static HashMap<String, String> mLocales = null;
@@ -43,8 +43,8 @@ public class List implements Serializable {
 
     public void setWords(ArrayList<String> language1, ArrayList<String> language2) {
         if (language1.size() == language2.size()) {
-            this.language1Words = language1;
-            this.language2Words = language2;
+            setLanguage1Words(language1);
+            setLanguage2Words(language2);
         }
     }
 
@@ -110,6 +110,38 @@ public class List implements Serializable {
             mLocales.put("ita", "it");
         }
         return mLocales.get(languageCode);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLanguage1() {
+        return language1;
+    }
+
+    public String getLanguage2() {
+        return language2;
+    }
+
+    public String getSharedWith() {
+        return sharedWith;
+    }
+
+    public ArrayList<String> getLanguage1Words() {
+        return language1Words;
+    }
+
+    public void setLanguage1Words(ArrayList<String> language1Words) {
+        this.language1Words = language1Words;
+    }
+
+    public ArrayList<String> getLanguage2Words() {
+        return language2Words;
+    }
+
+    public void setLanguage2Words(ArrayList<String> language2Words) {
+        this.language2Words = language2Words;
     }
 
     public int getTotalWords() {

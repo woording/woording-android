@@ -67,13 +67,14 @@ public class PracticeActivity extends AppCompatActivity
     private String username;
     // Practice options
     private AskedLanguage mAskedLanguage;
-    private AskedLanguage currentAskedLanguage;
+//    private AskedLanguage currentAskedLanguage;
     private boolean mCaseSensitive = true;
 
-    private ArrayList<String> mUsedWords = new ArrayList<>();
+//    private ArrayList<String> mUsedWords = new ArrayList<>();
     private ArrayList<String[]> mWrongWords = new ArrayList<>();
-    private String[] mRandomWord = new String[2];
+    private String mRandomWord[] = new String[2];
     private int mTotalWords = 0;
+    private ArrayList<String[]> mWordsToGo = new ArrayList<>();
 
     private InputMethod mLastUsedPracticeMethod = InputMethod.KEYBOARD;
 
@@ -142,18 +143,7 @@ public class PracticeActivity extends AppCompatActivity
         mAskedLanguage = (AskedLanguage) intent.getSerializableExtra("askedLanguage");
         mCaseSensitive = intent.getBooleanExtra("caseSensitive", true);
 
-        // Set asked language
-        if (mAskedLanguage != AskedLanguage.BOTH) {
-            if (mAskedLanguage == AskedLanguage.LANGUAGE_1) {
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language1));
-                currentAskedLanguage = AskedLanguage.LANGUAGE_1;
-            } else if (mAskedLanguage == AskedLanguage.LANGUAGE_2) {
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language2));
-                currentAskedLanguage = AskedLanguage.LANGUAGE_2;
-            }
-        }
-        setCounters();
-        nextWord();
+        setupPractice();
 
         enableSpeech();
         if (mLastUsedPracticeMethod == InputMethod.SPEECH) {
@@ -219,70 +209,124 @@ public class PracticeActivity extends AppCompatActivity
 
         switch (mAskedLanguage) {
             case BOTH:
-                if (!mList.language1.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.language1));
-                if (!mList.language2.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.language2));
+                if (!mList.getLanguage1().equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.getLanguage1()));
+                if (!mList.getLanguage2().equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.getLanguage2()));
                 break;
 
             case LANGUAGE_1:
-                if (!mList.language1.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.language1));
+                if (!mList.getLanguage1().equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.getLanguage1()));
                 break;
             case LANGUAGE_2:
-                if (!mList.language2.equals("lat"))
-                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.language2));
+                if (!mList.getLanguage2().equals("lat"))
+                    mRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, List.getLocale(mList.getLanguage2()));
                 break;
         }
+    }
+
+    private void setupPractice() {
+        switch (mAskedLanguage) {
+            case BOTH:
+                // Add words to wordsToGo
+                for (int i = 0; i < mList.getTotalWords(); i++) {
+                    mWordsToGo.add(
+                            new String[] {
+                                    mList.getLanguage1Words().get(i),
+                                    mList.getLanguage2Words().get(i)
+                            }
+                    );
+                    mWordsToGo.add(
+                            new String[] {
+                                    mList.getLanguage2Words().get(i),
+                                    mList.getLanguage1Words().get(i)
+                            }
+                    );
+                }
+                break;
+            case LANGUAGE_1:
+                // Display language
+                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage1()));
+                // Add words to wordsToGo
+                for (int i = 0; i < mList.getTotalWords(); i++) {
+                    mWordsToGo.add(
+                            new String[] {
+                                    mList.getLanguage1Words().get(i),
+                                    mList.getLanguage2Words().get(i)
+                            }
+                    );
+                }
+                break;
+            case LANGUAGE_2:
+                // Display language
+                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage2()));
+                // Add words to wordsToGo
+                for (int i = 0; i < mList.getTotalWords(); i++) {
+                    mWordsToGo.add(
+                            new String[] {
+                                    mList.getLanguage2Words().get(i),
+                                    mList.getLanguage1Words().get(i)
+                            }
+                    );
+                }
+                break;
+        }
+        setCounters();
+        nextWord();
     }
 
     private void nextWord() {
         // Check if list is done
-        if (mUsedWords.size() == mList.getTotalWords() * (mAskedLanguage == AskedLanguage.BOTH ? 2 : 1)) {
+        if (mWordsToGo.size() == 0) {
             showPracticeResults();
             return;
         }
 
-        // Random choose language and display it
+//        // Random choose language and display it
+//        if (mAskedLanguage == AskedLanguage.BOTH) {
+//            AskedLanguage[] options = new AskedLanguage[]{AskedLanguage.LANGUAGE_1, AskedLanguage.LANGUAGE_2};
+//            currentAskedLanguage = options[(int) Math.round(Math.random())];
+//            if (currentAskedLanguage == AskedLanguage.LANGUAGE_1) {
+//                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage1()));
+//            } else if (currentAskedLanguage == AskedLanguage.LANGUAGE_2) {
+//                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage2()));
+//            }
+//        }
+//        Log.d(TAG, "nextWord: currentAskedLanguage: " + currentAskedLanguage);
+
+        int randomIndexInt = (int) Math.floor(Math.random() * mWordsToGo.size());
+        mRandomWord = mWordsToGo.get(randomIndexInt);
+
         if (mAskedLanguage == AskedLanguage.BOTH) {
-            AskedLanguage[] options = new AskedLanguage[]{AskedLanguage.LANGUAGE_1, AskedLanguage.LANGUAGE_2};
-            currentAskedLanguage = options[(int) Math.round(Math.random())];
-            if (currentAskedLanguage == AskedLanguage.LANGUAGE_1) {
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language1));
-            } else if (currentAskedLanguage == AskedLanguage.LANGUAGE_2) {
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.language2));
-            }
+            // Display the right current asked language
+            if (mList.getLanguage1Words().contains(mRandomWord[0])) {
+                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage1()));
+            } else ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage2()));
         }
-        Log.d(TAG, "nextWord: currentAskedLanguage: " + currentAskedLanguage);
 
-        int randomIndexInt = (int) Math.floor(Math.random() * mList.language1Words.size());
-        mRandomWord = new String[]{mList.language1Words.get(randomIndexInt), mList.language2Words.get(randomIndexInt)};
-        // Check if word is already used
-        if (mUsedWords.indexOf(mRandomWord[currentAskedLanguage.getPosition() - 1]) > -1) nextWord();
-        else {
-            mUsedWords.add(mRandomWord[currentAskedLanguage.getPosition() - 1]);
+        // Remove from wordsToGo
+        mWordsToGo.remove(randomIndexInt);
 
-            // Display
-            ((TextView) findViewById(R.id.word_to_translate)).setText(mRandomWord[currentAskedLanguage.getPosition() - 1]);
-        }
+        // Display
+        ((TextView) findViewById(R.id.word_to_translate)).setText(mRandomWord[0]);
     }
 
     private void checkWord() {
         mTotalWords++;
-        int position = currentAskedLanguage == AskedLanguage.LANGUAGE_1 ? 1 : 0;
-        if (isInputRight(mTranslation.getText().toString(), mRandomWord[position])) {
+        if (isInputRight(mTranslation.getText().toString(), mRandomWord[1])) {
             mTranslation.setText("");
             mRightWord.setVisibility(View.GONE);
             setCounters();
             nextWord();
         } else {
-            mWrongWords.add(new String[]{mRandomWord[position], mTranslation.getText().toString()});
-            mRightWord.setText(mRandomWord[position]);
+            mWrongWords.add(new String[]{mRandomWord[1], mTranslation.getText().toString()});
+            mRightWord.setText(mRandomWord[1]);
             mRightWord.setVisibility(View.VISIBLE);
             Snackbar.make(mTranslation, getString(R.string.error_wrong_translation), Snackbar.LENGTH_SHORT).show();
 
-            if (mUsedWords.indexOf(mRandomWord[position]) >= -1)
-                mUsedWords.remove(mRandomWord[position]);
+            // Add back to wordsToGo
+            mWordsToGo.add(mRandomWord);
 
             setCounters();
         }
@@ -339,8 +383,7 @@ public class PracticeActivity extends AppCompatActivity
     }
 
     private void setCounters() {
-        int totalWords = mList.getTotalWords() * (mAskedLanguage == AskedLanguage.BOTH ? 2 : 1);
-        mWordsLeftCounter.setText(getString(R.string.current_words_left, totalWords - mUsedWords.size()));
+        mWordsLeftCounter.setText(getString(R.string.current_words_left, mWordsToGo.size()));
         mWrongWordsCounter.setText(getString(R.string.current_wrong_words, mWrongWords.size()));
         mRightWordsCounter.setText(getString(R.string.current_right_words, mTotalWords - mWrongWords.size()));
     }

@@ -293,15 +293,15 @@ public class EditListFragment extends MyFragment {
         lastSavedList = list.deepClone();
         isNewList = false;
         // Set list name
-        mListName.setText(list.name);
+        mListName.setText(list.getName());
         // Set shared with
-        mSharedWith.setSelection(Integer.parseInt(list.sharedWith));
+        mSharedWith.setSelection(Integer.parseInt(list.getSharedWith()));
         // Set languages
         String[] languageCodes = getResources().getStringArray(R.array.language_codes);
-        mLanguage1Spinner.setSelection(getElementThatContains(languageCodes, list.language1));
-        mLanguage2Spinner.setSelection(getElementThatContains(languageCodes, list.language2));
+        mLanguage1Spinner.setSelection(getElementThatContains(languageCodes, list.getLanguage1()));
+        mLanguage2Spinner.setSelection(getElementThatContains(languageCodes, list.getLanguage2()));
         // Set words
-        mEditTextListAdapter.setWords(list.language1Words, list.language2Words);
+        mEditTextListAdapter.setWords(list.getLanguage1Words(), list.getLanguage2Words());
     }
 
     private void getNewAuthToken() {

@@ -75,10 +75,10 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                 }
             }
         });
-        holder.mTitle.setText(mLists.get(position).name);
+        holder.mTitle.setText(mLists.get(position).getName());
         holder.mSubTitle.setText(App.getAppContext().getString(R.string.list_item_subtitle,
-                List.getLanguageName(MainActivity.mContext, mLists.get(position).language1),
-                List.getLanguageName(MainActivity.mContext, mLists.get(position).language2)));
+                List.getLanguageName(MainActivity.mContext, mLists.get(position).getLanguage1()),
+                List.getLanguageName(MainActivity.mContext, mLists.get(position).getLanguage2())));
     }
 
     public void updateList(List[] lists) {

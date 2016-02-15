@@ -161,7 +161,7 @@ public class ListViewFragment extends MyFragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_list_view, menu);
 
-        if (mList.sharedWith.equals("1") || mList.sharedWith.equals("2")) {
+        if (mList.getSharedWith().equals("1") || mList.getSharedWith().equals("2")) {
             menu.findItem(R.id.action_share).setVisible(true);
         }
         // Remove delete list button when not own list
@@ -180,8 +180,8 @@ public class ListViewFragment extends MyFragment {
             case R.id.action_practice:
                 // Create custom AlertDialog
                 View view = getActivity().getLayoutInflater().inflate(R.layout.content_practice_options, null);
-                ((TextView) view.findViewById(R.id.ask_language_1)).setText(List.getLanguageName(getActivity(), mList.language1));
-                ((TextView) view.findViewById(R.id.ask_language_2)).setText(List.getLanguageName(getActivity(), mList.language2));
+                ((TextView) view.findViewById(R.id.ask_language_1)).setText(List.getLanguageName(getActivity(), mList.getLanguage1()));
+                ((TextView) view.findViewById(R.id.ask_language_2)).setText(List.getLanguageName(getActivity(), mList.getLanguage2()));
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog)
                         .setTitle(getString(R.string.practice_options)).setView(view);
                 // Set option buttons
@@ -253,7 +253,7 @@ public class ListViewFragment extends MyFragment {
                 }
                 break;
             case R.id.action_share:
-                if (mList.sharedWith.equals("1")) {
+                if (mList.getSharedWith().equals("1")) {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog);
                     alertDialogBuilder.setMessage(R.string.share_text_dialog);
                     alertDialogBuilder.setCancelable(true);
@@ -296,18 +296,18 @@ public class ListViewFragment extends MyFragment {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, getString(
-                R.string.share_text, mList.name, username, mList.name.replace(" ", "%20")));
+                R.string.share_text, mList.getName(), username, mList.getName().replace(" ", "%20")));
         sendIntent.setType("text/plain");
         startActivity(sendIntent);
     }
 
     private void setWordsTable() {
         // Set title and languages
-        if (!App.mDualPane) ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.name);
+        if (!App.mDualPane) ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.getName());
 
-        ((TextView) getActivity().findViewById(R.id.head_1)).setText(List.getLanguageName(getActivity(), mList.language1));
-        ((TextView) getActivity().findViewById(R.id.head_2)).setText(List.getLanguageName(getActivity(), mList.language2));
-        recyclerViewAdapter.setItems(mList.language1Words, mList.language2Words);
+        ((TextView) getActivity().findViewById(R.id.head_1)).setText(List.getLanguageName(getActivity(), mList.getLanguage1()));
+        ((TextView) getActivity().findViewById(R.id.head_2)).setText(List.getLanguageName(getActivity(), mList.getLanguage2()));
+        recyclerViewAdapter.setItems(mList.getLanguage1Words(), mList.getLanguage2Words());
     }
 
     private void getNewAuthToken(int taskToRun) {
@@ -350,7 +350,7 @@ public class ListViewFragment extends MyFragment {
             if (username == null) username = mAuthPreferences.getAccountName();
             // Create request
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                    App.API_LOCATION + "/" + username + "/" + mList.name.replace(" ", "%20"),
+                    App.API_LOCATION + "/" + username + "/" + mList.getName().replace(" ", "%20"),
                     data, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -450,7 +450,7 @@ public class ListViewFragment extends MyFragment {
             final JSONObject data = new JSONObject()
                     .put("token", mAuthPreferences.getAuthToken())
                     .put("username", mAuthPreferences.getAccountName())
-                    .put("listname", mList.name);
+                    .put("listname", mList.getName());
             // Create request
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/deleteList",
                     data, new Response.Listener<JSONObject>() {
