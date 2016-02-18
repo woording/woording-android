@@ -198,19 +198,27 @@ public class MainActivity extends AppCompatActivity {
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
                     @Override
                     public boolean onProfileChanged(View view, IProfile profile, boolean current) {
-                        if (profile instanceof IDrawerItem && profile.getIdentifier() == PROFILE_SETTING) {
+                        if (profile instanceof ProfileSettingDrawerItem && profile.getIdentifier() == PROFILE_SETTING) {
                             Intent addAccountIntent = new Intent(mContext, LoginActivity.class);
                             addAccountIntent.putExtra(LoginActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
                             startActivity(addAccountIntent);
                             return true;
-                        } else if (profile instanceof  IDrawerItem) {
+                        } else if (profile instanceof  ProfileDrawerItem) {
                             // Save selected position
-                            int position = headerResult.getProfiles().indexOf(profile);
+                            int position = -1;
+                            for (int i = 0; i < headerResult.getProfiles().size(); i++) {
+                                if (headerResult.getProfiles().get(i) == profile) {
+                                    position = i;
+                                    break;
+                                }
+                            }
 
-                            Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[position];
-                            // Ask for an auth token
-                            mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE,
-                                    null, (Activity) mContext, new GetAuthTokenCallback(2), null);
+                            if (position > -1) {
+                                Account account = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[position];
+                                // Ask for an auth token
+                                mAccountManager.getAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE,
+                                        null, (Activity) mContext, new GetAuthTokenCallback(2), null);
+                            }
                         }
 
                         return false;
@@ -300,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         getSupportActionBar().setTitle(R.string.my_lists);
-        getFriends();
+        getFriends(false);
     }
 
     @Override
@@ -442,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeUser(String username) {
         mListsListFragment.changeUser(username);
-        getFriends();
+        getFriends(true);
 
         removeFragmentsFromSecondPane();
     }
@@ -499,12 +507,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getNewAuthToken() {
+    private void getNewAuthToken(int taskToRun) {
         // Invalidate the old token
         mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
-                AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(1), null);
+                AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(taskToRun), null);
     }
 
     private void removeFriendsFromDrawer() {
@@ -536,7 +544,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This function helps you getting friends from our API server. ;)
      */
-    private void getFriends() {
+    private void getFriends(final boolean skipCache) {
         try {
             final JSONObject data = new JSONObject()
                     .put("username", mAuthPreferences.getAccountName())
@@ -577,12 +585,13 @@ public class MainActivity extends AppCompatActivity {
                     NetworkResponse networkResponse = error.networkResponse;
                     if (networkResponse != null && networkResponse.statusCode == 401) {
                         // HTTP Status Code: 401 Unauthorized
-                        getNewAuthToken();
+                        getNewAuthToken(skipCache ? 3 : 1);
                     } else {
                         error.printStackTrace();
                     }
                 }
             });
+            request.setSkipCache(skipCache);
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(this).addToRequestQueue(request);
         } catch (JSONException e) {
@@ -658,10 +667,13 @@ public class MainActivity extends AppCompatActivity {
                     // Run task
                     switch (taskToRun) {
                         case 1:
-                            getFriends();
+                            getFriends(false);
                             break;
                         case 2:
                             changeUser(accountName);
+                            break;
+                        case 3:
+                            getFriends(true);
                             break;
                     }
 
