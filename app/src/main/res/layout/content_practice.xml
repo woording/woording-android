@@ -64,7 +64,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/next_word"
-        android:text="@string/next_word"/>
+        android:text="@string/next_word"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        style="@style/Widget.AppCompat.Button"/>
 
     <TextView
         android:id="@+id/words_left_counter"

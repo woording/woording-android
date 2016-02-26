@@ -16,7 +16,7 @@ android {
         versionCode 2
         versionName "1.0 Beta 2"
         resConfig "en"
-        vectorDrawables.generatedDensities = ["mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"]
+        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -49,6 +49,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.android.support:design:23.2.0'
     compile 'com.android.support:cardview-v7:23.2.0'
+    compile 'com.android.support:support-vector-drawable:23.2.0'
     compile 'com.mikepenz:materialdrawer:5.0.3'
     compile 'com.mikepenz:google-material-typeface:2.2.0.1.original@aar'
 

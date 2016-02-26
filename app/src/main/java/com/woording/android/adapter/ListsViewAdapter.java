@@ -8,7 +8,6 @@ package com.woording.android.adapter;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -65,7 +64,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .addToBackStack(null).commit();
                     // Change the FAB
-                    MainActivity.fab.setImageDrawable(ContextCompat.getDrawable(MainActivity.mContext, R.drawable.ic_add_white_24dp));
+                    MainActivity.fab.setImageResource(R.drawable.ic_add_white_24dp);
                     MainActivity.fab.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

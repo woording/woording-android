@@ -497,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .addToBackStack(null).commit();
             // Change the FAB
-            fab.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_save_white_24dp));
+            fab.setImageResource(R.drawable.ic_save_white_24dp);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
