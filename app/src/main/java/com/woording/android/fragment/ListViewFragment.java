@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -293,12 +294,14 @@ public class ListViewFragment extends MyFragment {
     }
 
     private void shareList() {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, getString(
-                R.string.share_text, mList.getName(), username, mList.getName().replace(" ", "%20")));
-        sendIntent.setType("text/plain");
-        startActivity(sendIntent);
+        Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())
+                .setType("text/plain")
+                .setText(getString(
+                        R.string.share_text, mList.getName(), username, mList.getName().replace(" ", "%20")))
+                .getIntent();
+        if (shareIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(shareIntent);
+        }
     }
 
     private void setWordsTable() {

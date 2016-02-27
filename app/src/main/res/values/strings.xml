@@ -13,7 +13,7 @@
     <string name="title_activity_edit_list">Edit List</string>
 
     <string name="error_no_connection">No connection</string>
-    <string name="press_BACK_again_to_exit">Please click BACK again to exit</string>
+    <string name="press_BACK_again_to_exit">Please press BACK again to exit</string>
 
     <!-- Strings related to login -->
     <string name="add_account">Add account</string>
