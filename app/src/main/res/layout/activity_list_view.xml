@@ -11,7 +11,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".activity.ListViewActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -35,6 +34,5 @@
         android:name="com.woording.android.fragment.ListViewFragment"
         tools:layout="@layout/fragment_list_view"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
 
 </android.support.design.widget.CoordinatorLayout>
