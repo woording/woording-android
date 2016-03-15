@@ -109,8 +109,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Setup toolbar
-        Toolbar mToolbar;
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
         mListsListFragment = (ListsListFragment) getSupportFragmentManager().findFragmentById(R.id.lists_view_fragment);
@@ -177,8 +176,6 @@ public class MainActivity extends AppCompatActivity {
         if (currentAccount != null) {
             // Ask for an auth token
             mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null, this, new GetAuthTokenCallback(0), null);
-//        mAccountManager.getAuthTokenByFeatures(AccountUtils.ACCOUNT_TYPE, AccountUtils.AUTH_TOKEN_TYPE,
-//                null, this, null, null, new GetAuthTokenCallback(0), null);
         } else {
             // Add new account
             Intent addAccountIntent = new Intent(this, LoginActivity.class);
