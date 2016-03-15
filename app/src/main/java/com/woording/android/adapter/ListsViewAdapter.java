@@ -23,6 +23,7 @@ import com.woording.android.activity.ListViewActivity;
 import com.woording.android.activity.MainActivity;
 import com.woording.android.fragment.ListViewFragment;
 import com.woording.android.fragment.ListsListFragment;
+import com.woording.android.util.ConvertLanguage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,8 +77,9 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         });
         holder.mTitle.setText(mLists.get(position).getName());
         holder.mSubTitle.setText(App.getAppContext().getString(R.string.list_item_subtitle,
-                List.getLanguageName(MainActivity.mContext, mLists.get(position).getLanguage1()),
-                List.getLanguageName(MainActivity.mContext, mLists.get(position).getLanguage2())));
+                ConvertLanguage.toLang(mLists.get(position).getLanguage1()),
+                ConvertLanguage.toLang(mLists.get(position).getLanguage2()))
+        );
     }
 
     public void updateList(List[] lists) {
