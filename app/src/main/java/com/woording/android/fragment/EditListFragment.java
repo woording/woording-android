@@ -48,12 +48,15 @@ import com.woording.android.activity.EditListActivity;
 import com.woording.android.activity.LoginActivity;
 import com.woording.android.activity.MainActivity;
 import com.woording.android.adapter.EditTextListAdapter;
+import com.woording.android.adapter.LanguageAdapter;
 import com.woording.android.components.MyFragment;
+import com.woording.android.util.ConvertLanguage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -116,9 +119,9 @@ public class EditListFragment extends MyFragment {
         // Setup the Spinners
         mLanguage1Spinner = (Spinner) rootView.findViewById(R.id.spinner_language_1);
         mLanguage2Spinner = (Spinner) rootView.findViewById(R.id.spinner_language_2);
+
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.languages, android.R.layout.simple_spinner_item);
+        LanguageAdapter  adapter = new LanguageAdapter(getActivity(), android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
@@ -292,7 +295,11 @@ public class EditListFragment extends MyFragment {
         // Set shared with
         mSharedWith.setSelection(Integer.parseInt(list.getSharedWith()));
         // Set languages
-        String[] languageCodes = getResources().getStringArray(R.array.language_codes);
+        ArrayList<Locale> locales = ((LanguageAdapter) mLanguage1Spinner.getAdapter()).getLocales();
+        String[] languageCodes = new String[locales.size()];
+        for (int i = 0; i < locales.size(); i++) {
+            languageCodes[i] = ConvertLanguage.getISO3(locales.get(i));
+        }
         mLanguage1Spinner.setSelection(getElementThatContains(languageCodes, list.getLanguage1()));
         mLanguage2Spinner.setSelection(getElementThatContains(languageCodes, list.getLanguage2()));
         // Set words
@@ -308,11 +315,11 @@ public class EditListFragment extends MyFragment {
     }
 
     private String getLanguage1() {
-        return getResources().getStringArray(R.array.language_codes)[mLanguage1Spinner.getSelectedItemPosition()];
+        return mLanguage1Spinner.getSelectedItem().toString();
     }
 
     private String getLanguage2() {
-        return getResources().getStringArray(R.array.language_codes)[mLanguage2Spinner.getSelectedItemPosition()];
+        return mLanguage2Spinner.getSelectedItem().toString();
     }
 
     private List getListData() {
@@ -326,7 +333,7 @@ public class EditListFragment extends MyFragment {
 
     public void areChangesMade() {
         mList = getListData().deepClone();
-        if (lastSavedList == null) lastSavedList = new List("", "eng", "eng", "0");
+        if (lastSavedList == null) lastSavedList = new List("", "", "", "0");
         isModifiedSinceLastSave = !mList.equals(lastSavedList);
     }
 

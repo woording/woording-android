@@ -29,6 +29,7 @@
             android:inputType="text|textAutoCorrect|textAutoComplete"
             android:singleLine="true"
             android:imeOptions="actionNext"
+            android:maxLength="20"
             android:maxLines="1"/>
 
     </android.support.design.widget.TextInputLayout>

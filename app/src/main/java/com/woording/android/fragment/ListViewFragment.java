@@ -56,6 +56,7 @@ import com.woording.android.activity.MainActivity;
 import com.woording.android.activity.PracticeActivity;
 import com.woording.android.adapter.TableListViewAdapter;
 import com.woording.android.components.MyFragment;
+import com.woording.android.util.ConvertLanguage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -181,8 +182,8 @@ public class ListViewFragment extends MyFragment {
             case R.id.action_practice:
                 // Create custom AlertDialog
                 View view = getActivity().getLayoutInflater().inflate(R.layout.content_practice_options, null);
-                ((TextView) view.findViewById(R.id.ask_language_1)).setText(List.getLanguageName(getActivity(), mList.getLanguage1()));
-                ((TextView) view.findViewById(R.id.ask_language_2)).setText(List.getLanguageName(getActivity(), mList.getLanguage2()));
+                ((TextView) view.findViewById(R.id.ask_language_1)).setText(ConvertLanguage.toLang(mList.getLanguage1()));
+                ((TextView) view.findViewById(R.id.ask_language_2)).setText(ConvertLanguage.toLang(mList.getLanguage2()));
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog)
                         .setTitle(getString(R.string.practice_options)).setView(view);
                 // Set option buttons
