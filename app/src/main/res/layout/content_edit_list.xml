@@ -26,8 +26,10 @@
             android:layout_height="wrap_content"
             android:id="@+id/list_title"
             android:hint="@string/list_title"
-            android:inputType="text"
-            android:singleLine="true" />
+            android:inputType="text|textAutoCorrect|textAutoComplete"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
+            android:maxLines="1"/>
 
     </android.support.design.widget.TextInputLayout>
 

@@ -13,7 +13,6 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -152,16 +151,12 @@ public class EditListFragment extends MyFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().matches("^[0-9a-zA-Z\\-\\_\\s]*$")) {
+                if (!s.toString().matches("^[0-9a-zA-Z\\-_\\s]*$")) {
                     textInputLayout.setErrorEnabled(true);
                     textInputLayout.setError(getString(R.string.error_invalid_chars));
-                    // Set the red line
-                    mListName.getBackground().setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.SRC_ATOP);
                 } else if (textInputLayout.getError() != null) {
                     textInputLayout.setErrorEnabled(false);
                     textInputLayout.setError(null);
-                    // Remove red line
-                    mListName.getBackground().clearColorFilter();
                 }
             }
 
@@ -321,6 +316,8 @@ public class EditListFragment extends MyFragment {
     }
 
     private List getListData() {
+        // TODO: 3-15-2016 Check if list name already exists 
+        
         List list = new List(mListName.getText().toString(),
                 getLanguage1(), getLanguage2(), mSharedWith.getSelectedItemPosition() + "");
         list.setWords(mEditTextListAdapter.mLanguage1Words, mEditTextListAdapter.mLanguage2Words);
