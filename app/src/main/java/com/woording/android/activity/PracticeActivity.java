@@ -32,6 +32,7 @@ import android.widget.TextView;
 import com.woording.android.List;
 import com.woording.android.R;
 import com.woording.android.adapter.TableListViewAdapter;
+import com.woording.android.util.ConvertLanguage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,19 +49,9 @@ public class PracticeActivity extends AppCompatActivity
     }
     // Asked language constants
     public enum AskedLanguage {
-        BOTH (0),
-        LANGUAGE_1 (1),
-        LANGUAGE_2 (2);
-
-        private final int position;
-
-        AskedLanguage(int position) {
-            this.position = position;
-        }
-
-        public int getPosition() {
-            return position;
-        }
+        BOTH,
+        LANGUAGE_1,
+        LANGUAGE_2
     }
 
     private List mList;
@@ -301,8 +292,8 @@ public class PracticeActivity extends AppCompatActivity
         if (mAskedLanguage == AskedLanguage.BOTH) {
             // Display the right current asked language
             if (mList.getLanguage1Words().contains(mRandomWord[0])) {
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage1()));
-            } else ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage2()));
+                ((TextView) findViewById(R.id.language)).setText(ConvertLanguage.toLang(mList.getLanguage1()));
+            } else ((TextView) findViewById(R.id.language)).setText(ConvertLanguage.toLang(mList.getLanguage2()));
         }
 
         // Remove from wordsToGo
