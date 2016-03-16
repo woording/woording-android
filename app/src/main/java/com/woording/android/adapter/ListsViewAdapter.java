@@ -45,7 +45,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
@@ -54,12 +54,12 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                 if (!App.mDualPane) {
                     // Start intent
                     Intent intent = new Intent(MainActivity.mContext, ListViewActivity.class);
-                    intent.putExtra("list", mLists.get(position));
+                    intent.putExtra("list", mLists.get(holder.getAdapterPosition()));
                     intent.putExtra("username", ListsListFragment.currentUsername);
                     MainActivity.mContext.startActivity(intent);
                 } else {
                     // Display fragment in same activity (Tablet)
-                    ListViewFragment fragment = ListViewFragment.newInstance(mLists.get(position), ListsListFragment.currentUsername);
+                    ListViewFragment fragment = ListViewFragment.newInstance(mLists.get(holder.getAdapterPosition()), ListsListFragment.currentUsername);
                     FragmentTransaction ft = ((AppCompatActivity) MainActivity.mContext).getSupportFragmentManager().beginTransaction();
                     ft.replace(R.id.second_pane, fragment)
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -75,10 +75,10 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                 }
             }
         });
-        holder.mTitle.setText(mLists.get(position).getName());
+        holder.mTitle.setText(mLists.get(holder.getAdapterPosition()).getName());
         holder.mSubTitle.setText(App.getAppContext().getString(R.string.list_item_subtitle,
-                ConvertLanguage.toLang(mLists.get(position).getLanguage1()),
-                ConvertLanguage.toLang(mLists.get(position).getLanguage2()))
+                ConvertLanguage.toLang(mLists.get(holder.getAdapterPosition()).getLanguage1()),
+                ConvertLanguage.toLang(mLists.get(holder.getAdapterPosition()).getLanguage2()))
         );
     }
 
