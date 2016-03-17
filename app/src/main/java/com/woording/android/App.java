@@ -31,7 +31,6 @@ public class App extends Application {
                     new StrictMode.VmPolicy.Builder()
                         .detectAll()
                         .penaltyLog()
-                        .penaltyDeath()
                         .build()
             );
             StrictMode.setThreadPolicy(
