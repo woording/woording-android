@@ -8,6 +8,7 @@ package com.woording.android;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.StrictMode;
 
 public class App extends Application {
 
@@ -23,6 +24,23 @@ public class App extends Application {
         App.context = getApplicationContext();
 
         mDualPane = getResources().getBoolean(R.bool.is_dual_pane);
+
+        if (BuildConfig.DEBUG) {
+            // Enable StrictMode
+            StrictMode.setVmPolicy(
+                    new StrictMode.VmPolicy.Builder()
+                        .detectAll()
+                        .penaltyLog()
+                        .penaltyDeath()
+                        .build()
+            );
+            StrictMode.setThreadPolicy(
+                    new StrictMode.ThreadPolicy.Builder()
+                        .detectAll()
+                        .penaltyLog()
+                        .build()
+            );
+        }
     }
 
     public static Context getAppContext() {
