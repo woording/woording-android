@@ -29,15 +29,15 @@ public class App extends Application {
             // Enable StrictMode
             StrictMode.setVmPolicy(
                     new StrictMode.VmPolicy.Builder()
-                        .detectAll()
-                        .penaltyLog()
-                        .build()
+                            .detectAll()
+                            .penaltyLog()
+                            .build()
             );
             StrictMode.setThreadPolicy(
                     new StrictMode.ThreadPolicy.Builder()
-                        .detectAll()
-                        .penaltyLog()
-                        .build()
+                            .detectAll()
+                            .penaltyLog()
+                            .build()
             );
         }
     }
