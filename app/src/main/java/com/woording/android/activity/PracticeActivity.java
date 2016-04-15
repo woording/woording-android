@@ -6,12 +6,16 @@
 
 package com.woording.android.activity;
 
+import android.Manifest.permission;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
@@ -28,6 +32,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.woording.android.List;
 import com.woording.android.R;
@@ -41,6 +46,7 @@ public class PracticeActivity extends AppCompatActivity
     implements RecognitionListener {
 
     private final String TAG = "PracticeActivity";
+    public static final int RECORD_AUDIO = 1;
 
     // Practice method constants
     private enum InputMethod {
@@ -75,6 +81,7 @@ public class PracticeActivity extends AppCompatActivity
     private Intent mRecognizerIntent;
 
     // UI elements
+    private RecyclerView mRecyclerView;
     private EditText mTranslation;
     private TextView mRightWord;
     private Menu mMenu;
@@ -113,7 +120,7 @@ public class PracticeActivity extends AppCompatActivity
         });
 
         /** Setup the {@link RecyclerView} */
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.wrong_words_list);
+        mRecyclerView = (RecyclerView) findViewById(R.id.wrong_words_list);
         /** Setup the {@link LinearLayoutManager} */
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(linearLayoutManager);
@@ -180,7 +187,7 @@ public class PracticeActivity extends AppCompatActivity
                 enable.setVisible(false);
                 disable.setVisible(true);
 
-                mSpeech.startListening(mRecognizerIntent);
+                startSpeech();
                 return true;
             case R.id.disable_speech:
                 enable.setVisible(true);
@@ -190,6 +197,46 @@ public class PracticeActivity extends AppCompatActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == RECORD_AUDIO) {
+            // Received permission result
+            // Check if granted
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mSpeech.startListening(mRecognizerIntent);
+            } else {
+                // Permission not granted
+                mMenu.findItem(R.id.enable_speech).setVisible(true);
+                mMenu.findItem(R.id.disable_speech).setVisible(false);
+
+                Snackbar.make(mRecyclerView, R.string.speech_permission_not_granted, Snackbar.LENGTH_SHORT).show();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    private void startSpeech() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Runtime Permissions
+            if (checkSelfPermission(permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                // Permission is already available, start listening
+                mSpeech.startListening(mRecognizerIntent);
+            } else {
+                // Microphone permission has not been granted
+                if (shouldShowRequestPermissionRationale(permission.RECORD_AUDIO)) {
+                    Toast.makeText(this, R.string.speech_permission_info, Toast.LENGTH_SHORT).show();
+                }
+
+                // Request permission
+                requestPermissions(new String[]{permission.RECORD_AUDIO}, RECORD_AUDIO);
+            }
+        } else {
+            // Permission already granted at install
+            mSpeech.startListening(mRecognizerIntent);
+        }
     }
 
     private void enableSpeech() {
@@ -273,18 +320,6 @@ public class PracticeActivity extends AppCompatActivity
             showPracticeResults();
             return;
         }
-
-//        // Random choose language and display it
-//        if (mAskedLanguage == AskedLanguage.BOTH) {
-//            AskedLanguage[] options = new AskedLanguage[]{AskedLanguage.LANGUAGE_1, AskedLanguage.LANGUAGE_2};
-//            currentAskedLanguage = options[(int) Math.round(Math.random())];
-//            if (currentAskedLanguage == AskedLanguage.LANGUAGE_1) {
-//                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage1()));
-//            } else if (currentAskedLanguage == AskedLanguage.LANGUAGE_2) {
-//                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage2()));
-//            }
-//        }
-//        Log.d(TAG, "nextWord: currentAskedLanguage: " + currentAskedLanguage);
 
         int randomIndexInt = (int) Math.floor(Math.random() * mWordsToGo.size());
         mRandomWord = mWordsToGo.get(randomIndexInt);

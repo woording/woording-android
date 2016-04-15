@@ -101,6 +101,8 @@
     <string name="error_list_not_found">List not found</string>
 
     <!-- Misc -->
+    <string name="speech_permission_info">Record audio permission is needed to record your voice.</string>
+    <string name="speech_permission_not_granted">Can\'t listen to you, because you didn\'t grant the permission</string>
     <string name="share_text_dialog">This list is only visible for your friends. Are you sure you want to share?</string>
     <string name="share_text">Check out %1$s on Woording. www.woording.com/#!/%2$s/%3$s</string>
     <string name="undo">Undo</string>
