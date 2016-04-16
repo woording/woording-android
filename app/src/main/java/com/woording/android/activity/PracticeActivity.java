@@ -39,6 +39,7 @@ import com.woording.android.R;
 import com.woording.android.adapter.TableListViewAdapter;
 import com.woording.android.util.ConvertLanguage;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -66,6 +67,7 @@ public class PracticeActivity extends AppCompatActivity
     private AskedLanguage mAskedLanguage;
 //    private AskedLanguage currentAskedLanguage;
     private boolean mCaseSensitive = true;
+    private boolean mIgnoreAccents = false;
 
 //    private ArrayList<String> mUsedWords = new ArrayList<>();
     private ArrayList<String[]> mWrongWords = new ArrayList<>();
@@ -140,6 +142,7 @@ public class PracticeActivity extends AppCompatActivity
         username = intent.getStringExtra("username");
         mAskedLanguage = (AskedLanguage) intent.getSerializableExtra("askedLanguage");
         mCaseSensitive = intent.getBooleanExtra("caseSensitive", true);
+        mIgnoreAccents = intent.getBooleanExtra("ignoreAccents", false);
 
         setupPractice();
 
@@ -365,6 +368,12 @@ public class PracticeActivity extends AppCompatActivity
     private boolean isInputRight(String input, String correctWord) {
         final String PERMISSIBLE_CHARACTERS = "\\(|\\{|\\[|\\]|\\}|\\)|\\s";
 
+        // Remove accents if needed
+        if (mIgnoreAccents) {
+            input = unAccent(input);
+            correctWord = unAccent(correctWord);
+        }
+
         // Check for case sensitivity
         if (!mCaseSensitive || mLastUsedPracticeMethod == InputMethod.SPEECH) {
             input = input.toLowerCase();
@@ -392,6 +401,15 @@ public class PracticeActivity extends AppCompatActivity
 
             return true;
         } else return false;
+    }
+
+    /**
+     * Function to remove accents from {@link String}
+     * @param s string you want to normalize
+     * @return {@link String} without accents
+     */
+    private String unAccent(String s) {
+        return Normalizer.normalize(s, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
     }
 
     private void setCounters() {

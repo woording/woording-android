@@ -57,6 +57,7 @@
     <string name="asked_language">Asked language</string>
     <string name="both">Both</string>
     <string name="case_sensitive">Case sensitive</string>
+    <string name="ignore_accents">Ignore accents</string>
 
     <string name="error_wrong_translation">Wrong translation</string>
 

@@ -81,8 +81,6 @@ public class ListViewFragment extends MyFragment {
 
     private TableListViewAdapter recyclerViewAdapter;
 
-    private PracticeActivity.AskedLanguage askedLanguage = PracticeActivity.AskedLanguage.LANGUAGE_1;
-    private boolean caseSensitive = true;
     private boolean cancelled = false;
     private String username = null;
 
@@ -188,11 +186,13 @@ public class ListViewFragment extends MyFragment {
                         .setTitle(getString(R.string.practice_options)).setView(view);
                 // Set option buttons
                 final RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radio_group_asked_language);
-                final CheckBox checkBox = (CheckBox) view.findViewById(R.id.case_sensitive_check_box);
+                final CheckBox checkBox1 = (CheckBox) view.findViewById(R.id.case_sensitive_check_box);
+                final CheckBox checkBox2 = (CheckBox) view.findViewById(R.id.ignore_accents_check_box);
                 // Setup start and cancel buttons
                 builder.setPositiveButton(R.string.start_practice, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        PracticeActivity.AskedLanguage askedLanguage = PracticeActivity.AskedLanguage.LANGUAGE_1;
                         // Get user inputs
                         switch (radioGroup.getCheckedRadioButtonId()) {
                             case R.id.ask_language_1:
@@ -205,7 +205,8 @@ public class ListViewFragment extends MyFragment {
                                 askedLanguage = PracticeActivity.AskedLanguage.BOTH;
                                 break;
                         }
-                        caseSensitive = checkBox.isChecked();
+                        boolean caseSensitive = checkBox1.isChecked();
+                        boolean ignoreAccents = checkBox2.isChecked();
 
                         // Create and launch new intent
                         Intent newIntent = new Intent(getActivity(), PracticeActivity.class);
@@ -213,6 +214,7 @@ public class ListViewFragment extends MyFragment {
                         newIntent.putExtra("username", username);
                         newIntent.putExtra("askedLanguage", askedLanguage);
                         newIntent.putExtra("caseSensitive", caseSensitive);
+                        newIntent.putExtra("ignoreAccents", ignoreAccents);
                         startActivity(newIntent);
                     }
                 }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
