@@ -16,7 +16,7 @@ android {
         versionCode 3
         versionName "1.0 Beta 3"
         resConfig "en"
-        vectorDrawables.useSupportLibrary = true
+//        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
