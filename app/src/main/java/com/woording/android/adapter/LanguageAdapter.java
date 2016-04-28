@@ -20,10 +20,10 @@ import java.util.Locale;
 public class LanguageAdapter extends ArrayAdapter<String> {
 
     private final LayoutInflater mInflater;
-    private int mResource;
+    private final int mResource;
     private int mDropDownResource;
 
-    private ArrayList<Locale> mLocales = new ArrayList<>(Arrays.asList(Locale.getAvailableLocales()));
+    private final ArrayList<Locale> mLocales = new ArrayList<>(Arrays.asList(Locale.getAvailableLocales()));
 
     public LanguageAdapter(Context context, @LayoutRes int resource) {
         super(context, resource, 0, new ArrayList<String>());

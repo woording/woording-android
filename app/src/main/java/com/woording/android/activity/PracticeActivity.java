@@ -70,10 +70,10 @@ public class PracticeActivity extends AppCompatActivity
     private boolean mIgnoreAccents = false;
 
 //    private ArrayList<String> mUsedWords = new ArrayList<>();
-    private ArrayList<String[]> mWrongWords = new ArrayList<>();
+    private final ArrayList<String[]> mWrongWords = new ArrayList<>();
     private String mRandomWord[] = new String[2];
     private int mTotalWords = 0;
-    private ArrayList<String[]> mWordsToGo = new ArrayList<>();
+    private final ArrayList<String[]> mWordsToGo = new ArrayList<>();
 
     private InputMethod mLastUsedPracticeMethod = InputMethod.KEYBOARD;
 

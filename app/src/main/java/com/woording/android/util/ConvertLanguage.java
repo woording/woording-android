@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class ConvertLanguage {
 
-    private static ArrayList<Locale> locales = new ArrayList<>(Arrays.asList(Locale.getAvailableLocales()));
+    private final static ArrayList<Locale> locales = new ArrayList<>(Arrays.asList(Locale.getAvailableLocales()));
 //    private static Map<String, String> languageMap = null;
     private static Map<String, String> isoMap = null;
 
