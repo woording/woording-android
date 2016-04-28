@@ -146,7 +146,7 @@ public class ClearableEditText extends EditText
         this.setCustomSelectionActionModeCallback(new ActionModeCallbackInterceptor());
     }
 
-    protected void setClearIconVisible(boolean visible) {
+    private void setClearIconVisible(boolean visible) {
         boolean wasVisible = (getCompoundDrawables()[2] != null);
         if (visible != wasVisible) {
             Drawable x = visible ? xD : null;

@@ -35,7 +35,7 @@ public class AccountAuthenticatorAppCompatActivity extends AppCompatActivity {
      * the request will be canceled.
      * @param result this is returned as the result of the AbstractAccountAuthenticator request
      */
-    public final void setAccountAuthenticatorResult(Bundle result) {
+    protected final void setAccountAuthenticatorResult(Bundle result) {
         mResultBundle = result;
     }
 
