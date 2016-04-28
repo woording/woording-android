@@ -15,6 +15,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -297,13 +298,24 @@ public class ListViewFragment extends MyFragment {
     }
 
     private void shareList() {
-        Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())
-                .setType("text/plain")
-                .setText(getString(
-                        R.string.share_text, mList.getName(), username, mList.getName().replace(" ", "%20")))
-                .getIntent();
-        if (shareIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            startActivity(shareIntent);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())
+                    .setType("text/plain")
+                    .setText(getString(
+                            R.string.share_text, mList.getName(), username, mList.getName().replace(" ", "%20")))
+                    .getIntent();
+            if (shareIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(shareIntent);
+            }
+        } else {
+            // Use Android M+ Share dialog which has direct share.
+            Intent shareIntent = new Intent(Intent.ACTION_SEND)
+                    .setType("text/plain")
+                    .putExtra(
+                            Intent.EXTRA_TEXT,
+                            getString(R.string.share_text, mList.getName(), username, mList.getName().replace(" ", "%20"))
+                    );
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.share_title, mList.getName())));
         }
     }
 
