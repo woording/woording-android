@@ -43,7 +43,8 @@ public class EditListActivity extends AppCompatActivity {
         // Setup the Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        else throw new RuntimeException("getSupportActionBar() should not be null");
 
         mEditListFragment = (EditListFragment) getSupportFragmentManager().findFragmentById(R.id.edit_list_fragment);
         // Load in list
@@ -53,6 +54,7 @@ public class EditListActivity extends AppCompatActivity {
 
         // Setup FAB
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        if (fab == null) throw new RuntimeException("fab should not be null");
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

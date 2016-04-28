@@ -90,6 +90,7 @@ public class PracticeActivity extends AppCompatActivity
     private TextView mRightWordsCounter;
     private TextView mWrongWordsCounter;
     private TextView mWordsLeftCounter;
+    private TextView mLanguage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +99,8 @@ public class PracticeActivity extends AppCompatActivity
         // Setup Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        else throw new RuntimeException("getSupportActionBar() should not be null");
 
         // Setup button actions
         mTranslation = (EditText) findViewById(R.id.translation);
@@ -113,13 +115,16 @@ public class PracticeActivity extends AppCompatActivity
                 return false;
             }
         });
-        findViewById(R.id.next_word).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mLastUsedPracticeMethod = InputMethod.KEYBOARD;
-                checkWord();
-            }
-        });
+        View next = findViewById(R.id.next_word);
+        if (next != null) {
+            next.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mLastUsedPracticeMethod = InputMethod.KEYBOARD;
+                    checkWord();
+                }
+            });
+        } else throw new RuntimeException("next should not be null");
 
         /** Setup the {@link RecyclerView} */
         mRecyclerView = (RecyclerView) findViewById(R.id.wrong_words_list);
@@ -135,6 +140,7 @@ public class PracticeActivity extends AppCompatActivity
         mRightWordsCounter = (TextView) findViewById(R.id.right_words_counter);
         mWrongWordsCounter = (TextView) findViewById(R.id.wrong_words_counter);
         mWordsLeftCounter = (TextView) findViewById(R.id.words_left_counter);
+        mLanguage = (TextView) findViewById(R.id.language);
 
         // Load intent extras
         Intent intent = getIntent();
@@ -268,6 +274,7 @@ public class PracticeActivity extends AppCompatActivity
     }
 
     private void setupPractice() {
+
         switch (mAskedLanguage) {
             case BOTH:
                 // Add words to wordsToGo
@@ -288,7 +295,8 @@ public class PracticeActivity extends AppCompatActivity
                 break;
             case LANGUAGE_1:
                 // Display language
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage1()));
+                if(mLanguage != null) mLanguage.setText(List.getLanguageName(this, mList.getLanguage1()));
+                else throw new RuntimeException("mLanguage should not be null");
                 // Add words to wordsToGo
                 for (int i = 0; i < mList.getTotalWords(); i++) {
                     mWordsToGo.add(
@@ -301,7 +309,8 @@ public class PracticeActivity extends AppCompatActivity
                 break;
             case LANGUAGE_2:
                 // Display language
-                ((TextView) findViewById(R.id.language)).setText(List.getLanguageName(this, mList.getLanguage2()));
+                if(mLanguage != null) mLanguage.setText(List.getLanguageName(this, mList.getLanguage2()));
+                else throw new RuntimeException("mLanguage should not be null");
                 // Add words to wordsToGo
                 for (int i = 0; i < mList.getTotalWords(); i++) {
                     mWordsToGo.add(
@@ -327,18 +336,20 @@ public class PracticeActivity extends AppCompatActivity
         int randomIndexInt = (int) Math.floor(Math.random() * mWordsToGo.size());
         mRandomWord = mWordsToGo.get(randomIndexInt);
 
-        if (mAskedLanguage == AskedLanguage.BOTH) {
+        if (mAskedLanguage == AskedLanguage.BOTH && mLanguage != null) {
             // Display the right current asked language
             if (mList.getLanguage1Words().contains(mRandomWord[0])) {
-                ((TextView) findViewById(R.id.language)).setText(ConvertLanguage.toLang(mList.getLanguage1()));
-            } else ((TextView) findViewById(R.id.language)).setText(ConvertLanguage.toLang(mList.getLanguage2()));
-        }
+                mLanguage.setText(ConvertLanguage.toLang(mList.getLanguage1()));
+            } else mLanguage.setText(ConvertLanguage.toLang(mList.getLanguage2()));
+        } else if (mLanguage == null) throw new RuntimeException("mLanguage should not be null");
 
         // Remove from wordsToGo
         mWordsToGo.remove(randomIndexInt);
 
         // Display
-        ((TextView) findViewById(R.id.word_to_translate)).setText(mRandomWord[0]);
+        TextView wordDisplay = (TextView) findViewById(R.id.word_to_translate);
+        if (wordDisplay != null) wordDisplay.setText(mRandomWord[0]);
+        else throw new RuntimeException("WordDisplay should not be null");
     }
 
     private void checkWord() {
@@ -429,15 +440,24 @@ public class PracticeActivity extends AppCompatActivity
         mMenu.findItem(R.id.enable_speech).setVisible(false);
         mMenu.findItem(R.id.disable_speech).setVisible(false);
 
-        findViewById(R.id.practice_layout).setVisibility(View.GONE);
-        findViewById(R.id.practice_results_layout).setVisibility(View.VISIBLE);
+        View practiceLayout = findViewById(R.id.practice_layout);
+        View resultsLayout = findViewById(R.id.practice_results_layout);
+        if (practiceLayout != null && resultsLayout != null) {
+            practiceLayout.setVisibility(View.GONE);
+            resultsLayout.setVisibility(View.VISIBLE);
+        } else throw new RuntimeException("PracticeLayout or resultsLayout should not be null");
+
         // Set right percentages
         int rightPercentage = (int) Math.round(100 - ((double) mWrongWords.size() / (double) mTotalWords * 100));
-        ((TextView) findViewById(R.id.right_text)).setText(getString(R.string.right_text, rightPercentage));
+        TextView rightText = (TextView) findViewById(R.id.right_text); 
+        if (rightText != null) rightText.setText(getString(R.string.right_text, rightPercentage));
+        else throw new RuntimeException("rightText should not be null");
 
         // Display the wrong words
         if (mWrongWords.size() > 0) {
-            findViewById(R.id.wrong_words_layout).setVisibility(View.VISIBLE);
+            View wrongWordsLayout = findViewById(R.id.wrong_words_layout);
+            if (wrongWordsLayout != null) wrongWordsLayout.setVisibility(View.VISIBLE);
+            else throw new RuntimeException("wrongWordsLayout should not be null");
 
             recyclerViewAdapter.addItems(mWrongWords);
         }
@@ -484,9 +504,11 @@ public class PracticeActivity extends AppCompatActivity
         ArrayList<String> matches = results
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 
-        mTranslation.setText(matches.get(0));
-        mLastUsedPracticeMethod = InputMethod.SPEECH;
-        checkWord();
+        if (matches != null && matches.size() > 0) {
+            mTranslation.setText(matches.get(0));
+            mLastUsedPracticeMethod = InputMethod.SPEECH;
+            checkWord();
+        }
     }
 
     @Override

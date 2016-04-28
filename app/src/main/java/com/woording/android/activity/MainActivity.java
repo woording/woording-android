@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup toolbar
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (mToolbar == null) throw new RuntimeException("mToolbar should not be null");
         setSupportActionBar(mToolbar);
 
         mListsListFragment = (ListsListFragment) getSupportFragmentManager().findFragmentById(R.id.lists_view_fragment);
@@ -304,7 +305,8 @@ public class MainActivity extends AppCompatActivity {
                 .withSavedInstance(savedInstanceState)
                 .build();
 
-        getSupportActionBar().setTitle(R.string.my_lists);
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle(R.string.my_lists);
+        else throw new RuntimeException("getSupportActionBar() should not be null");
         getFriends(false);
     }
 

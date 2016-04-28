@@ -11,7 +11,6 @@ import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -52,7 +51,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
     private View mProgressView;
     private View mLoginFormView;
 
-    private final Context mContext = this;
+//    private final Context mContext = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +60,8 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        else throw new RuntimeException("getSupportActionBar() should not be null");
 
         mAccountManager = AccountManager.get(this);
 
@@ -81,6 +81,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         });
 
         Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
+        if (mSignInButton == null) throw new RuntimeException("mSignButton should not be null");
         mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {

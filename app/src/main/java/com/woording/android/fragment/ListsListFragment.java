@@ -140,9 +140,11 @@ public class ListsListFragment extends MyFragment {
         getLists();
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (!username.equals(mAuthPreferences.getAccountName())) {
-            actionBar.setTitle(getString(R.string.others_lists, username));
-        } else actionBar.setTitle(R.string.my_lists);
+        if (actionBar != null) {
+            if (!username.equals(mAuthPreferences.getAccountName())) {
+                actionBar.setTitle(getString(R.string.others_lists, username));
+            } else actionBar.setTitle(R.string.my_lists);
+        } else throw new RuntimeException("actionBar should not be null");
     }
 
     public void getLists() {

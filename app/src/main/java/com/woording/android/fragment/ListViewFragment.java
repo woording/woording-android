@@ -23,6 +23,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -321,7 +322,11 @@ public class ListViewFragment extends MyFragment {
 
     private void setWordsTable() {
         // Set title and languages
-        if (!App.mDualPane) ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mList.getName());
+        if (!App.mDualPane) {
+            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+            if (actionBar != null) actionBar.setTitle(mList.getName());
+            else throw new RuntimeException("getSupportActionBar() should not be null");
+        }
 
         ((TextView) getActivity().findViewById(R.id.head_1)).setText(List.getLanguageName(getActivity(), mList.getLanguage1()));
         ((TextView) getActivity().findViewById(R.id.head_2)).setText(List.getLanguageName(getActivity(), mList.getLanguage2()));
