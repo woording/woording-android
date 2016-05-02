@@ -100,6 +100,8 @@
     <!-- Error handling -->
     <string name="error_user_not_found">User not found</string>
     <string name="error_list_not_found">List not found</string>
+    <string name="error_list_name_exist">List name does already exists</string>
+    <string name="error_cant_save_list_name_exits">Can not save list, because the list name does already exist</string>
 
     <!-- Misc -->
     <string name="speech_permission_info">Record audio permission is needed to record your voice.</string>

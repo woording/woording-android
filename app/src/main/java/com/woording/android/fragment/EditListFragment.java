@@ -52,6 +52,7 @@ import com.woording.android.adapter.LanguageAdapter;
 import com.woording.android.components.MyFragment;
 import com.woording.android.util.ConvertLanguage;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,14 +74,17 @@ public class EditListFragment extends MyFragment {
     public boolean isNewList = true;
 
     private EditTextListAdapter mEditTextListAdapter;
+    private ArrayList<String> mListNames = new ArrayList<>();
     private List mList = null;
     private List lastSavedList = null;
+    private boolean listNameExists = false;
 
     // UI Elements
     private Spinner mLanguage1Spinner;
     private Spinner mLanguage2Spinner;
     private Spinner mSharedWith;
     private EditText mListName;
+    private TextInputLayout mListNameInputLayout;
 
     public EditListFragment() {
         // Required empty public constructor
@@ -144,30 +148,7 @@ public class EditListFragment extends MyFragment {
         mRecyclerView.setAdapter(mEditTextListAdapter);
 
         mListName = (EditText) rootView.findViewById(R.id.list_title);
-        final TextInputLayout textInputLayout = (TextInputLayout) rootView.findViewById(R.id.title_text_input_layout);
-        // Setup characters filter
-        mListName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Do nothing
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().matches("^[0-9a-zA-Z\\-_\\s]*$")) {
-                    textInputLayout.setErrorEnabled(true);
-                    textInputLayout.setError(getString(R.string.error_invalid_chars));
-                } else if (textInputLayout.getError() != null) {
-                    textInputLayout.setErrorEnabled(false);
-                    textInputLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                // Do nothing
-            }
-        });
+        mListNameInputLayout = (TextInputLayout) rootView.findViewById(R.id.title_text_input_layout);
 
         return rootView;
     }
@@ -200,6 +181,31 @@ public class EditListFragment extends MyFragment {
         super.onStart();
 
         if (mList != null) loadList(mList);
+
+        // Setup characters filter
+        mListName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().matches("^[0-9a-zA-Z\\-_\\s]*$")) {
+                    mListNameInputLayout.setErrorEnabled(true);
+                    mListNameInputLayout.setError(getString(R.string.error_invalid_chars));
+                } else if (mListNameInputLayout.getError() != null) {
+                    mListNameInputLayout.setErrorEnabled(false);
+                    mListNameInputLayout.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Check if list name exists
+                checkIfListNameExists(false);
+            }
+        });
     }
 
     @Override
@@ -306,12 +312,31 @@ public class EditListFragment extends MyFragment {
         mEditTextListAdapter.setWords(list.getLanguage1Words(), list.getLanguage2Words());
     }
 
-    private void getNewAuthToken() {
+    private void checkIfListNameExists(boolean forceCheck) {
+        if (isNewList) {
+            if (mListNames.size() != 0 || forceCheck) {
+                String listName = mListName.getText().toString();
+                if (mListNames.contains(listName)) {
+                    mListNameInputLayout.setErrorEnabled(true);
+                    mListNameInputLayout.setError(getString(R.string.error_list_name_exist));
+                    listNameExists = true;
+                } else {
+                    mListNameInputLayout.setError(null);
+                    mListNameInputLayout.setErrorEnabled(false);
+                    listNameExists = false;
+                }
+            } else {
+                getListNames();
+            }
+        }
+    }
+
+    private void getNewAuthToken(int task) {
         // Invalidate the old token
         mAccountManager.invalidateAuthToken(AccountUtils.ACCOUNT_TYPE, mAuthPreferences.getAuthToken());
         // Now get a new one
         mAccountManager.getAuthToken(mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[0],
-                AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(1), null);
+                AccountUtils.AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(task), null);
     }
 
     private String getLanguage1() {
@@ -338,39 +363,99 @@ public class EditListFragment extends MyFragment {
     }
 
     public void saveList() {
-        try {
-            // Create data
-            final JSONObject data = new JSONObject()
-                    .put("username", mAuthPreferences.getAccountName())
-                    .put("token", mAuthPreferences.getAuthToken())
-                    .put("list_data", getListData().toJSON());
-            // Create Volley request
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/savelist",
-                    data, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    isModifiedSinceLastSave = false;
-                    lastSavedList = getListData().deepClone();
+        if (!listNameExists || !isNewList) {
+            try {
+                // Create data
+                final JSONObject data = new JSONObject()
+                        .put("username", mAuthPreferences.getAccountName())
+                        .put("token", mAuthPreferences.getAuthToken())
+                        .put("list_data", getListData().toJSON());
+                // Create Volley request
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/savelist",
+                        data, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        isModifiedSinceLastSave = false;
+                        lastSavedList = getListData().deepClone();
 
-                    // Display SnackBar
-                    CoordinatorLayout coordinatorLayout;
-                    // Decide whether to load CoordinatorLayout from MainActivity or EditListActivity
-                    coordinatorLayout = App.mDualPane ? MainActivity.mCoordinatorLayout : EditListActivity.mCoordinatorLayout;
-                    // Show SnackBar
-                    Snackbar.make(coordinatorLayout, R.string.list_saved, Snackbar.LENGTH_SHORT).show();
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    NetworkResponse networkResponse = error.networkResponse;
-                    if (networkResponse != null && networkResponse.statusCode == 401) {
-                        // HTTP Status Code: 401 Unauthorized
-                        getNewAuthToken();
-                    } else {
-                        error.printStackTrace();
+                        // Display SnackBar
+                        CoordinatorLayout coordinatorLayout;
+                        // Decide whether to load CoordinatorLayout from MainActivity or EditListActivity
+                        coordinatorLayout = App.mDualPane ? MainActivity.mCoordinatorLayout : EditListActivity.mCoordinatorLayout;
+                        // Show SnackBar
+                        Snackbar.make(coordinatorLayout, R.string.list_saved, Snackbar.LENGTH_SHORT).show();
                     }
-                }
-            });
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        NetworkResponse networkResponse = error.networkResponse;
+                        if (networkResponse != null && networkResponse.statusCode == 401) {
+                            // HTTP Status Code: 401 Unauthorized
+                            getNewAuthToken(1);
+                        } else {
+                            error.printStackTrace();
+                        }
+                    }
+                });
+                // Access the RequestQueue through your singleton class.
+                VolleySingleton.getInstance(getActivity()).addToRequestQueue(request);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // List name does already exist so can't save
+            // Display SnackBar
+            CoordinatorLayout coordinatorLayout;
+            // Decide whether to load CoordinatorLayout from MainActivity or EditListActivity
+            coordinatorLayout = App.mDualPane ? MainActivity.mCoordinatorLayout : EditListActivity.mCoordinatorLayout;
+            // Show SnackBar
+            Snackbar.make(coordinatorLayout, R.string.error_cant_save_list_name_exits, Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    private void getListNames() {
+        try {
+            // Create the data that is sent
+            JSONObject data = new JSONObject()
+                    .put("token", mAuthPreferences.getAuthToken());
+            // Create the request
+            JsonObjectRequest request = new JsonObjectRequest
+                    (Request.Method.POST, App.API_LOCATION + "/" + mAuthPreferences.getAccountName(),
+                            data, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                // Check for errors
+                                if (!response.has("error")) {
+                                    // TODO: 4-29-2016 Save list names
+                                    JSONArray lists = response.getJSONArray("lists");
+                                    JSONObject list;
+                                    for (int i = 0; i < lists.length(); i++) {
+                                        list = lists.getJSONObject(i);
+                                        mListNames.add(list.getString("listname"));
+                                    }
+                                    // Check if list name exists
+                                    checkIfListNameExists(true);
+                                } else {
+                                    // TODO: 4-29-2016 Handle error
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            NetworkResponse networkResponse = error.networkResponse;
+                            if (networkResponse != null && networkResponse.statusCode == 401) {
+                                // HTTP Status Code: 401 Unauthorized
+                                getNewAuthToken(2);
+                            } else {
+                                error.printStackTrace();
+                            }
+                        }
+                    });
             // Access the RequestQueue through your singleton class.
             VolleySingleton.getInstance(getActivity()).addToRequestQueue(request);
         } catch (JSONException e) {
@@ -406,6 +491,9 @@ public class EditListFragment extends MyFragment {
                     switch (taskToRun) {
                         case 1:
                             saveList();
+                            break;
+                        case 2:
+                            getListNames();
                             break;
                     }
 
