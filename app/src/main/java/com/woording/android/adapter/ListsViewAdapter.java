@@ -116,9 +116,64 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         return filtered ? filteredList.size() : mLists.size();
     }
 
+    /*
+    * Filter stuff
+    */
+
     @Override
     public Filter getFilter() {
         return new ListFilter(this, mLists);
+    }
+
+    void animateTo(ArrayList<List> lists) {
+        applyAndAnimateRemovals(lists);
+        applyAndAnimateAdditions(lists);
+        applyAndAnimateMovedItems(lists);
+    }
+
+    private void applyAndAnimateRemovals(ArrayList<List> newLists) {
+        for (int i = filteredList.size() - 1; i >= 0; i--) {
+            final List list = filteredList.get(i);
+            if (!newLists.contains(list)) {
+                removeItem(i);
+            }
+        }
+    }
+
+    private void applyAndAnimateAdditions(ArrayList<List> newLists) {
+        for (int i = 0, count = newLists.size(); i < count; i++) {
+            final List model = newLists.get(i);
+            if (!filteredList.contains(model)) {
+                addItem(i, model);
+            }
+        }
+    }
+
+    private void applyAndAnimateMovedItems(ArrayList<List> newLists) {
+        for (int toPosition = newLists.size() - 1; toPosition >= 0; toPosition--) {
+            final List model = newLists.get(toPosition);
+            final int fromPosition = filteredList.indexOf(model);
+            if (fromPosition >= 0 && fromPosition != toPosition) {
+                moveItem(fromPosition, toPosition);
+            }
+        }
+    }
+
+    public List removeItem(int position) {
+        final List model = filteredList.remove(position);
+        notifyItemRemoved(position);
+        return model;
+    }
+
+    public void addItem(int position, List list) {
+        filteredList.add(position, list);
+        notifyItemInserted(position);
+    }
+
+    public void moveItem(int fromPosition, int toPosition) {
+        final List model = filteredList.remove(fromPosition);
+        filteredList.add(toPosition, model);
+        notifyItemMoved(fromPosition, toPosition);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -171,10 +226,12 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            adapter.filteredList.clear();
-            adapter.filteredList.addAll((ArrayList<List>) results.values);
+            if (adapter.filteredList.size() == 0) {
+                adapter.filteredList = new ArrayList<>(originalList);
+            }
             adapter.filtered = true;
-            adapter.notifyDataSetChanged();
+            ArrayList<List> newFilteredList = (ArrayList<List>) results.values;
+            adapter.animateTo(newFilteredList);
         }
     }
 }
