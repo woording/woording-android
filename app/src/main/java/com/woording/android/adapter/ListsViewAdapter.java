@@ -14,6 +14,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.woording.android.App;
@@ -28,11 +30,15 @@ import com.woording.android.util.ConvertLanguage;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.ViewHolder> {
+public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.ViewHolder> implements Filterable {
     private ArrayList<List> mLists;
+    private ArrayList<List> filteredList;
 
-    public ListsViewAdapter(ArrayList<List> listNames) {
-        mLists = listNames;
+    private boolean filtered = false;
+
+    public ListsViewAdapter(ArrayList<List> lists) {
+        this.mLists = lists;
+        this.filteredList = new ArrayList<>();
     }
 
     // Create new views (invoked by the layout manager)
@@ -48,18 +54,19 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
+        final List list = filtered ? filteredList.get(holder.getAdapterPosition()) : mLists.get(holder.getAdapterPosition());
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!App.mDualPane) {
                     // Start intent
                     Intent intent = new Intent(MainActivity.mContext, ListViewActivity.class);
-                    intent.putExtra("list", mLists.get(holder.getAdapterPosition()));
+                    intent.putExtra("list", list);
                     intent.putExtra("username", ListsListFragment.currentUsername);
                     MainActivity.mContext.startActivity(intent);
                 } else {
                     // Display fragment in same activity (Tablet)
-                    ListViewFragment fragment = ListViewFragment.newInstance(mLists.get(holder.getAdapterPosition()), ListsListFragment.currentUsername);
+                    ListViewFragment fragment = ListViewFragment.newInstance(list, ListsListFragment.currentUsername);
                     FragmentTransaction ft = ((AppCompatActivity) MainActivity.mContext).getSupportFragmentManager().beginTransaction();
                     ft.replace(R.id.second_pane, fragment)
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -75,10 +82,10 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                 }
             }
         });
-        holder.mTitle.setText(mLists.get(holder.getAdapterPosition()).getName());
+        holder.mTitle.setText(list.getName());
         holder.mSubTitle.setText(App.getAppContext().getString(R.string.list_item_subtitle,
-                ConvertLanguage.toLang(mLists.get(holder.getAdapterPosition()).getLanguage1()),
-                ConvertLanguage.toLang(mLists.get(holder.getAdapterPosition()).getLanguage2()))
+                ConvertLanguage.toLang(list.getLanguage1()),
+                ConvertLanguage.toLang(list.getLanguage2()))
         );
     }
 
@@ -106,7 +113,12 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mLists.size();
+        return filtered ? filteredList.size() : mLists.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new ListFilter(this, mLists);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -119,6 +131,50 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
             mCardView = (CardView) view.findViewById(R.id.card_view);
             mTitle = (TextView) view.findViewById(R.id.list_item_title);
             mSubTitle = (TextView) view.findViewById(R.id.list_item_subtitle);
+        }
+    }
+
+    private static class ListFilter extends Filter {
+        private final ListsViewAdapter adapter;
+        private final ArrayList<List> originalList;
+        private final ArrayList<List> filteredList;
+
+        public ListFilter(ListsViewAdapter adapter, ArrayList<List> list) {
+            super();
+            this.adapter = adapter;
+            this.originalList = list;
+            this.filteredList = new ArrayList<>();
+        }
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            filteredList.clear();
+            final FilterResults results = new FilterResults();
+
+            if (constraint.length() == 0) {
+                filteredList.addAll(originalList);
+            } else {
+                final String filterPattern = constraint.toString().toLowerCase();
+
+                for (final List list : originalList) {
+                    if (list.getName().toLowerCase().contains(filterPattern)
+                            || ConvertLanguage.toLang(list.getLanguage1()).toLowerCase().contains(filterPattern)
+                            || ConvertLanguage.toLang(list.getLanguage2()).toLowerCase().contains(filterPattern)) {
+                        filteredList.add(list);
+                    }
+                }
+            }
+            results.values = filteredList;
+            results.count = filteredList.size();
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            adapter.filteredList.clear();
+            adapter.filteredList.addAll((ArrayList<List>) results.values);
+            adapter.filtered = true;
+            adapter.notifyDataSetChanged();
         }
     }
 }

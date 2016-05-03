@@ -12,6 +12,8 @@
     <string name="title_activity_practice">Practice List</string>
     <string name="title_activity_edit_list">Edit List</string>
 
+    <string name="action_search">Search</string>
+
     <string name="error_no_connection">No connection</string>
     <string name="press_BACK_again_to_exit">Please press BACK again to exit</string>
 

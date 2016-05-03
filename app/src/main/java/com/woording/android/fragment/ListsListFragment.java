@@ -11,6 +11,8 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -19,7 +21,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -48,7 +53,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
-public class ListsListFragment extends MyFragment {
+public class ListsListFragment extends MyFragment implements SearchView.OnQueryTextListener {
 
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
@@ -61,9 +66,16 @@ public class ListsListFragment extends MyFragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private ListsViewAdapter mAdapter;
+    private RecyclerView mRecyclerView;
 
     public ListsListFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -73,7 +85,7 @@ public class ListsListFragment extends MyFragment {
         View rootView = inflater.inflate(R.layout.fragment_lists_list, container, false);
 
         // Setup the recyclerView
-        RecyclerView mRecyclerView = (RecyclerView) rootView.findViewById(R.id.lists_view);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.lists_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         mAdapter = new ListsViewAdapter(new ArrayList<>(Arrays.asList(new List[0])));
@@ -120,6 +132,18 @@ public class ListsListFragment extends MyFragment {
     public void onStop() {
         super.onStop();
         MainActivity.lastDeletedList = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getActivity().getMenuInflater().inflate(R.menu.menu_lists_view, menu);
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+        searchView.setOnQueryTextListener(this);
+
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     private void getNewAuthToken(int taskToRun) {
@@ -312,8 +336,22 @@ public class ListsListFragment extends MyFragment {
             } catch(Exception e) {
                 e.printStackTrace();
             }
-
         }
+    }
 
+    /*
+    * OnQueryTextListener stuff
+    */
+    @Override
+    public boolean onQueryTextChange(String query) {
+        // Here is where we are going to implement our filter logic
+        mRecyclerView.scrollToPosition(0);
+        mAdapter.getFilter().filter(query);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
     }
 }
