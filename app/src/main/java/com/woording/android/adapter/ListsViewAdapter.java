@@ -7,10 +7,14 @@
 package com.woording.android.adapter;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +39,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     private ArrayList<List> filteredList;
 
     private boolean filtered = false;
+    private String filterQuery;
 
     public ListsViewAdapter(ArrayList<List> lists) {
         this.mLists = lists;
@@ -82,11 +87,36 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                 }
             }
         });
-        holder.mTitle.setText(list.getName());
-        holder.mSubTitle.setText(App.getAppContext().getString(R.string.list_item_subtitle,
+
+        /*
+        * Make some text bold
+        */
+        final String title = list.getName();
+        final String language = App.getAppContext().getString(R.string.list_item_subtitle,
                 ConvertLanguage.toLang(list.getLanguage1()),
-                ConvertLanguage.toLang(list.getLanguage2()))
+                ConvertLanguage.toLang(list.getLanguage2())
         );
+        SpannableStringBuilder titleBuilder = new SpannableStringBuilder(title);
+        SpannableStringBuilder languageBuilder = new SpannableStringBuilder(language);
+        final StyleSpan bold = new StyleSpan(Typeface.BOLD);
+
+        // Here is where the real work is done
+        if (filtered && filterQuery != null) {
+            // Highlight in title
+            if (title.toLowerCase().contains(filterQuery)) {
+                final int index = title.toLowerCase().indexOf(filterQuery);
+                titleBuilder.setSpan(bold, index, index + filterQuery.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            }
+            // Highlight in language
+            if (language.toLowerCase().contains(filterQuery)) {
+                final int index = language.toLowerCase().indexOf(filterQuery);
+                languageBuilder.setSpan(bold, index, index + filterQuery.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            }
+        }
+
+        // Set the texts
+        holder.mTitle.setText(titleBuilder);
+        holder.mSubTitle.setText(languageBuilder);
     }
 
     public void updateList(List[] lists) {
@@ -230,8 +260,10 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                 adapter.filteredList = new ArrayList<>(originalList);
             }
             adapter.filtered = true;
+            adapter.filterQuery = constraint.toString();
             ArrayList<List> newFilteredList = (ArrayList<List>) results.values;
             adapter.animateTo(newFilteredList);
+            adapter.notifyDataSetChanged();
         }
     }
 }
