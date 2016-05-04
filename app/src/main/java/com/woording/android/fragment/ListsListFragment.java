@@ -172,7 +172,8 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             if (!username.equals(mAuthPreferences.getAccountName())) {
-                actionBar.setTitle(getString(R.string.others_lists, username));
+                if (username.endsWith("s")) actionBar.setTitle(getString(R.string.others_list_alt, username));
+                else actionBar.setTitle(getString(R.string.others_lists, username));
             } else actionBar.setTitle(R.string.my_lists);
         } else throw new RuntimeException("actionBar should not be null");
     }

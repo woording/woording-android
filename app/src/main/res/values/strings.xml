@@ -33,6 +33,7 @@
     <string name="list_item_subtitle" translatable="false">%1$s ↔ %2$s</string>
     <string name="my_lists">My lists</string>
     <string name="others_lists">%1$s\'s lists</string>
+    <string name="others_list_alt">%1$s\' lists</string>
     <string name="edit_list">Edit</string>
     <string name="practice">Practice</string>
     <string name="share">Share</string>
