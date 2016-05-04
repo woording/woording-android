@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -67,6 +68,7 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
 
     private ListsViewAdapter mAdapter;
     private RecyclerView mRecyclerView;
+    private Menu mMenu;
 
     public ListsListFragment() {
         // Required empty public constructor
@@ -137,6 +139,7 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        mMenu = menu;
         getActivity().getMenuInflater().inflate(R.menu.menu_lists_view, menu);
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
@@ -162,6 +165,9 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
         currentUsername = username;
         mAdapter.clearList();
         getLists();
+
+        // Collapse searchView
+        MenuItemCompat.collapseActionView(mMenu.findItem(R.id.action_search));
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
