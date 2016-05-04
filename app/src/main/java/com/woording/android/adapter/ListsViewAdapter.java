@@ -198,7 +198,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     }
 
     public void removeItem(int position) {
-        final List model = filteredList.remove(position);
+        filteredList.remove(position);
         notifyItemRemoved(position);
     }
 
