@@ -197,10 +197,9 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         }
     }
 
-    public List removeItem(int position) {
+    public void removeItem(int position) {
         final List model = filteredList.remove(position);
         notifyItemRemoved(position);
-        return model;
     }
 
     public void addItem(int position, List list) {
