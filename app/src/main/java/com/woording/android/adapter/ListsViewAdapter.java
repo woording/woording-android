@@ -8,6 +8,7 @@ package com.woording.android.adapter;
 
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -41,7 +42,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     private boolean filtered = false;
     private String filterQuery;
 
-    public ListsViewAdapter(ArrayList<List> lists) {
+    public ListsViewAdapter(@NonNull ArrayList<List> lists) {
         this.mLists = lists;
         this.filteredList = new ArrayList<>();
     }
@@ -124,18 +125,25 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         mLists.addAll(Arrays.asList(lists));
 
         // Report that the data changed
-        notifyItemRangeChanged(0, mLists.size());
-    }
-
-    public void setList(List[] lists) {
-        mLists = new ArrayList<>(Arrays.asList(lists));
-
         notifyItemRangeInserted(0, mLists.size());
     }
 
+    public void setList(List[] lists) {
+        final int size = mLists.size();
+
+        filtered = false;
+        mLists = new ArrayList<>(Arrays.asList(lists));
+
+        if (size == 0) notifyItemRangeInserted(0, mLists.size());
+        else notifyItemRangeChanged(0, mLists.size());
+    }
+
     public void clearList() {
-        int size = mLists.size();
+        int size = filtered ? filteredList.size() : mLists.size();
         mLists.clear();
+
+        filteredList.clear();
+        filtered = false;
 
         notifyItemRangeRemoved(0, size);
     }
