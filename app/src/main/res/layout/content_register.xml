@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:layout_marginTop="?attr/actionBarSize">
 
-    <!-- Login progress -->
+    <!-- Register progress -->
     <ProgressBar
         android:id="@+id/register_progress"
         style="?android:attr/progressBarStyleLarge"
