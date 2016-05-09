@@ -103,6 +103,10 @@
     <string name="shared_friends">Friends</string>
     <string name="shared_everybody">Everybody</string>
 
+    <!-- Accessibility -->
+    <string name="content_desc_new_list">Create new list</string>
+    <string name="content_desc_save_list">Save list</string>
+
     <!-- Error handling -->
     <string name="error_user_not_found">User not found</string>
     <string name="error_list_not_found">List not found</string>

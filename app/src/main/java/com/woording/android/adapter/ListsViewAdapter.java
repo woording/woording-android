@@ -6,6 +6,7 @@
 
 package com.woording.android.adapter;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
@@ -42,9 +43,12 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     private boolean filtered = false;
     private String filterQuery;
 
-    public ListsViewAdapter(@NonNull ArrayList<List> lists) {
+    private Context mContext;
+
+    public ListsViewAdapter(Context context, @NonNull ArrayList<List> lists) {
         this.mLists = lists;
         this.filteredList = new ArrayList<>();
+        mContext = context;
     }
 
     // Create new views (invoked by the layout manager)
@@ -79,6 +83,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                             .addToBackStack(null).commit();
                     // Change the FAB
                     MainActivity.fab.setImageResource(R.drawable.ic_add_white_24dp);
+                    MainActivity.fab.setContentDescription(mContext.getString(R.string.content_desc_new_list));
                     MainActivity.fab.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -93,7 +98,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         * Make some text bold
         */
         final String title = list.getName();
-        final String language = App.getAppContext().getString(R.string.list_item_subtitle,
+        final String language = mContext.getString(R.string.list_item_subtitle,
                 ConvertLanguage.toLang(list.getLanguage1()),
                 ConvertLanguage.toLang(list.getLanguage2())
         );

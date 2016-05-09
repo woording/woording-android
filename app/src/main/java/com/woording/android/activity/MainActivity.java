@@ -336,8 +336,9 @@ public class MainActivity extends AppCompatActivity {
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .addToBackStack(null).commit();
                 // Change the FAB
-                MainActivity.fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
-                MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+                fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
+                fab.setContentDescription(getString(R.string.content_desc_new_list));
+                fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         newList();
@@ -359,8 +360,9 @@ public class MainActivity extends AppCompatActivity {
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .addToBackStack(null).commit();
                 // Change the FAB
-                MainActivity.fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
-                MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+                fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
+                fab.setContentDescription(getString(R.string.content_desc_new_list));
+                fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         newList();
@@ -497,6 +499,7 @@ public class MainActivity extends AppCompatActivity {
                     .addToBackStack(null).commit();
             // Change the FAB
             fab.setImageResource(R.drawable.ic_save_white_24dp);
+            fab.setContentDescription(mContext.getString(R.string.content_desc_save_list));
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -90,7 +90,7 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.lists_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        mAdapter = new ListsViewAdapter(new ArrayList<>(Arrays.asList(new List[0])));
+        mAdapter = new ListsViewAdapter(getActivity(), new ArrayList<>(Arrays.asList(new List[0])));
         mRecyclerView.setAdapter(mAdapter);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);

@@ -250,6 +250,7 @@ public class ListViewFragment extends MyFragment {
                             .addToBackStack(null).commit();
                     // Change the FAB
                     MainActivity.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_save_white_24dp));
+                    MainActivity.fab.setContentDescription(getString(R.string.content_desc_save_list));
                     MainActivity.fab.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
