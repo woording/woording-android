@@ -79,14 +79,14 @@ public class ListViewFragment extends MyFragment {
 
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
-    private String authToken;
+    private String mAuthToken;
 
     private TableListViewAdapter recyclerViewAdapter;
 
-    private boolean cancelled = false;
-    private String username = null;
+    private boolean mCancelled = false;
+    private String mUsername = null;
 
-    public AlertDialog dialog = null;
+    public AlertDialog mDialog = null;
 
     public ListViewFragment() {
         // Required empty public constructor
@@ -108,7 +108,7 @@ public class ListViewFragment extends MyFragment {
 
         if (getArguments() != null) {
             mList = (List) getArguments().getSerializable("list");
-            username = getArguments().getString("username", null);
+            mUsername = getArguments().getString("username", null);
         }
     }
 
@@ -133,7 +133,7 @@ public class ListViewFragment extends MyFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        authToken = null;
+        mAuthToken = null;
         mAuthPreferences = new AuthPreferences(getActivity());
         mAccountManager = AccountManager.get(getActivity());
 
@@ -147,7 +147,7 @@ public class ListViewFragment extends MyFragment {
         }
         if (currentAccount != null) {
             // Ask for an auth token
-            if (username == null) {
+            if (mUsername == null) {
                 mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null,
                         getActivity(), new GetAuthTokenCallback(-1), null);
             } else {
@@ -167,7 +167,7 @@ public class ListViewFragment extends MyFragment {
             menu.findItem(R.id.action_share).setVisible(true);
         }
         // Remove delete list button when not own list
-        if (username != null && !username.equals(mAuthPreferences.getAccountName())) {
+        if (mUsername != null && !mUsername.equals(mAuthPreferences.getAccountName())) {
             menu.findItem(R.id.action_delete).setVisible(false);
         }
     }
@@ -177,7 +177,7 @@ public class ListViewFragment extends MyFragment {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                ((ListViewActivity) getActivity()).goUp(username);
+                ((ListViewActivity) getActivity()).goUp(mUsername);
                 return true;
             case R.id.action_practice:
                 // Create custom AlertDialog
@@ -213,7 +213,7 @@ public class ListViewFragment extends MyFragment {
                         // Create and launch new intent
                         Intent newIntent = new Intent(getActivity(), PracticeActivity.class);
                         newIntent.putExtra("list", mList);
-                        newIntent.putExtra("username", username);
+                        newIntent.putExtra("username", mUsername);
                         newIntent.putExtra("askedLanguage", askedLanguage);
                         newIntent.putExtra("caseSensitive", caseSensitive);
                         newIntent.putExtra("ignoreAccents", ignoreAccents);
@@ -222,24 +222,24 @@ public class ListViewFragment extends MyFragment {
                 }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        cancelled = true;
+                        mCancelled = true;
                         dialog.cancel();
                     }
                 });
                 // Create and show dialog
-                dialog = builder.create();
-                dialog.show();
+                mDialog = builder.create();
+                mDialog.show();
 
-                return !cancelled;
+                return !mCancelled;
             case R.id.action_delete:
                 deleteList();
                 break;
             case R.id.action_edit:
                 if (!App.mDualPane) {
-                    if (username == null) username = mAuthPreferences.getAccountName();
+                    if (mUsername == null) mUsername = mAuthPreferences.getAccountName();
                     Intent intent = new Intent(getActivity(), EditListActivity.class)
                             .putExtra("list", mList)
-                            .putExtra("username", username);
+                            .putExtra("username", mUsername);
                     startActivity(intent);
                 } else {
                     // Load on second pane
@@ -249,9 +249,9 @@ public class ListViewFragment extends MyFragment {
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .addToBackStack(null).commit();
                     // Change the FAB
-                    MainActivity.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_save_white_24dp));
-                    MainActivity.fab.setContentDescription(getString(R.string.content_desc_save_list));
-                    MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+                    MainActivity.sFab.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_save_white_24dp));
+                    MainActivity.sFab.setContentDescription(getString(R.string.content_desc_save_list));
+                    MainActivity.sFab.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             fragment.saveList();
@@ -276,8 +276,8 @@ public class ListViewFragment extends MyFragment {
                             dialog.cancel();
                         }
                     });
-                    dialog = alertDialogBuilder.create();
-                    dialog.show();
+                    mDialog = alertDialogBuilder.create();
+                    mDialog.show();
                 } else shareList();
                 break;
         }
@@ -287,16 +287,16 @@ public class ListViewFragment extends MyFragment {
 
     public void setList(List list) {
         mList = list;
-        if (mList != null && username != null) getList();
+        if (mList != null && mUsername != null) getList();
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.mUsername = username;
     }
 
     @Nullable
     public String getUsername() {
-        return username;
+        return mUsername;
     }
 
     private void shareList() {
@@ -304,7 +304,7 @@ public class ListViewFragment extends MyFragment {
             Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())
                     .setType("text/plain")
                     .setText(getString(
-                            R.string.share_text, mList.getName(), username, mList.getName().replace(" ", "%20")))
+                            R.string.share_text, mList.getName(), mUsername, mList.getName().replace(" ", "%20")))
                     .getIntent();
             if (shareIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                 startActivity(shareIntent);
@@ -315,7 +315,7 @@ public class ListViewFragment extends MyFragment {
                     .setType("text/plain")
                     .putExtra(
                             Intent.EXTRA_TEXT,
-                            getString(R.string.share_text, mList.getName(), username, mList.getName().replace(" ", "%20"))
+                            getString(R.string.share_text, mList.getName(), mUsername, mList.getName().replace(" ", "%20"))
                     );
             startActivity(Intent.createChooser(shareIntent, getString(R.string.share_title, mList.getName())));
         }
@@ -371,10 +371,10 @@ public class ListViewFragment extends MyFragment {
         try {
             JSONObject data = new JSONObject();
             data.put("token", mAuthPreferences.getAuthToken());
-            if (username == null) username = mAuthPreferences.getAccountName();
+            if (mUsername == null) mUsername = mAuthPreferences.getAccountName();
             // Create request
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,
-                    App.API_LOCATION + "/" + username + "/" + mList.getName().replace(" ", "%20"),
+                    App.API_LOCATION + "/" + mUsername + "/" + mList.getName().replace(" ", "%20"),
                     data, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -394,7 +394,7 @@ public class ListViewFragment extends MyFragment {
                                     } else {
                                         if (!App.mDualPane) {
                                             // Finish and go back to MainActivity
-                                            ((ListViewActivity) getActivity()).goUp(ListViewActivity.LIST_NOT_FOUND, username);
+                                            ((ListViewActivity) getActivity()).goUp(ListViewActivity.LIST_NOT_FOUND, mUsername);
                                         } else {
                                             Snackbar.make(
                                                     MainActivity.mCoordinatorLayout, R.string.error_list_not_found, Snackbar.LENGTH_SHORT
@@ -480,8 +480,8 @@ public class ListViewFragment extends MyFragment {
                     data, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            MainActivity.lastDeletedList = mList;
-                            ((ListViewActivity) getActivity()).goUp(ListViewActivity.DELETED_LIST, username);
+                            MainActivity.sLastDeletedList = mList;
+                            ((ListViewActivity) getActivity()).goUp(ListViewActivity.DELETED_LIST, mUsername);
                         }
                     }, new Response.ErrorListener() {
                 @Override
@@ -520,11 +520,11 @@ public class ListViewFragment extends MyFragment {
                 if (null != intent) {
                     startActivityForResult(intent, MainActivity.REQ_SIGNUP);
                 } else {
-                    authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                    mAuthToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setAuthToken(mAuthToken);
                     mAuthPreferences.setUsername(accountName);
                     // Run task
                     switch (taskToRun) {
@@ -541,7 +541,7 @@ public class ListViewFragment extends MyFragment {
                     if (null == account) {
                         account = new Account(accountName, AccountUtils.ACCOUNT_TYPE);
                         mAccountManager.addAccountExplicitly(account, bundle.getString(LoginActivity.PARAM_USER_PASSWORD), null);
-                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
+                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, mAuthToken);
                     }
                 }
             } catch(OperationCanceledException e) {

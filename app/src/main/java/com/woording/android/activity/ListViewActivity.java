@@ -63,9 +63,9 @@ public class ListViewActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mListViewFragment.dialog != null) {
-            if (mListViewFragment.dialog.isShowing()) {
-                mListViewFragment.dialog.dismiss();
+        if (mListViewFragment.mDialog != null) {
+            if (mListViewFragment.mDialog.isShowing()) {
+                mListViewFragment.mDialog.dismiss();
                 return;
             }
         }

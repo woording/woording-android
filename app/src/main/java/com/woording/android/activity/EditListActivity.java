@@ -70,7 +70,7 @@ public class EditListActivity extends AppCompatActivity {
     public void onBackPressed() {
         // First check if changes are made
         mEditListFragment.areChangesMade();
-        if (mEditListFragment.isModifiedSinceLastSave && !mEditListFragment.isNewList) {
+        if (mEditListFragment.mIsModifiedSinceLastSave && !mEditListFragment.mIsNewList) {
             // Build alertDialog
             mEditListFragment.createAlertDialog(new DialogInterface.OnClickListener() {
                 @Override
@@ -85,7 +85,7 @@ public class EditListActivity extends AppCompatActivity {
                     mEditListFragment.navigateUp();
                 }
             }).create().show();
-        } else if (mEditListFragment.isModifiedSinceLastSave) {
+        } else if (mEditListFragment.mIsModifiedSinceLastSave) {
             mEditListFragment.createAlertDialog(new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -99,7 +99,7 @@ public class EditListActivity extends AppCompatActivity {
                     NavUtils.navigateUpFromSameTask((Activity) mContext);
                 }
             }).create().show();
-        } else if (!mEditListFragment.isNewList) {
+        } else if (!mEditListFragment.mIsNewList) {
             mEditListFragment.navigateUp();
         }
     }

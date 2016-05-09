@@ -12,13 +12,13 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
-public class VolleySingleton {
+public final class VolleySingleton {
     private static VolleySingleton mInstance;
     private RequestQueue mRequestQueue;
-    private static Context mCtx;
+    private static Context sContext;
 
     private VolleySingleton(Context context) {
-        mCtx = context;
+        sContext = context;
         mRequestQueue = getRequestQueue();
     }
 
@@ -33,7 +33,7 @@ public class VolleySingleton {
         if (mRequestQueue == null) {
             // getApplicationContext() is key, it keeps you from leaking the
             // Activity or BroadcastReceiver if someone passes one in.
-            mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext());
+            mRequestQueue = Volley.newRequestQueue(sContext.getApplicationContext());
         }
         return mRequestQueue;
     }

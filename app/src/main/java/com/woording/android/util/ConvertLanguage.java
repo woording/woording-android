@@ -14,7 +14,7 @@ public class ConvertLanguage {
 
     private final static ArrayList<Locale> locales = new ArrayList<>(Arrays.asList(Locale.getAvailableLocales()));
 //    private static Map<String, String> languageMap = null;
-    private static Map<String, String> isoMap = null;
+    private static Map<String, String> sIsoMap = null;
 
 //    public static String toISO3(String language) {
 //        if (languageMap == null) {
@@ -46,7 +46,7 @@ public class ConvertLanguage {
 //    }
 
     public static String toLang(String iso3) {
-        if (isoMap == null) {
+        if (sIsoMap == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 for (Iterator<Locale> iterator = locales.iterator(); iterator.hasNext(); ) {
                     Locale locale = iterator.next();
@@ -64,13 +64,13 @@ public class ConvertLanguage {
             }
             Collections.sort(locales, new LocaleComparator());
 
-            isoMap = new HashMap<>(locales.size());
+            sIsoMap = new HashMap<>(locales.size());
             for (Locale locale : locales) {
                 String iso = getISO3(locale);
-                isoMap.put(iso, locale.getDisplayLanguage());
+                sIsoMap.put(iso, locale.getDisplayLanguage());
             }
         }
-        return isoMap.get(iso3);
+        return sIsoMap.get(iso3);
     }
 
     public static String getISO3(Locale locale) {

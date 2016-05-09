@@ -12,7 +12,7 @@ import android.os.StrictMode;
 
 public class App extends Application {
 
-    private static Context context;
+    private static Context sContext;
 
     public static final String API_LOCATION = "https://api.woording.com";
 
@@ -21,7 +21,7 @@ public class App extends Application {
     @Override
     public void onCreate(){
         super.onCreate();
-        App.context = getApplicationContext();
+        App.sContext = getApplicationContext();
 
         mDualPane = getResources().getBoolean(R.bool.is_dual_pane);
 
@@ -43,6 +43,6 @@ public class App extends Application {
     }
 
     public static Context getAppContext() {
-        return App.context;
+        return App.sContext;
     }
 }

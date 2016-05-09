@@ -40,8 +40,8 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     private ArrayList<List> mLists;
     private ArrayList<List> filteredList;
 
-    private boolean filtered = false;
-    private String filterQuery;
+    private boolean mFiltered = false;
+    private String mFilterQuery;
 
     private Context mContext;
 
@@ -64,7 +64,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        final List list = filtered ? filteredList.get(holder.getAdapterPosition()) : mLists.get(holder.getAdapterPosition());
+        final List list = mFiltered ? filteredList.get(holder.getAdapterPosition()) : mLists.get(holder.getAdapterPosition());
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,19 +72,19 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
                     // Start intent
                     Intent intent = new Intent(MainActivity.mContext, ListViewActivity.class);
                     intent.putExtra("list", list);
-                    intent.putExtra("username", ListsListFragment.currentUsername);
+                    intent.putExtra("username", ListsListFragment.sCurrentUsername);
                     MainActivity.mContext.startActivity(intent);
                 } else {
                     // Display fragment in same activity (Tablet)
-                    ListViewFragment fragment = ListViewFragment.newInstance(list, ListsListFragment.currentUsername);
+                    ListViewFragment fragment = ListViewFragment.newInstance(list, ListsListFragment.sCurrentUsername);
                     FragmentTransaction ft = ((AppCompatActivity) MainActivity.mContext).getSupportFragmentManager().beginTransaction();
                     ft.replace(R.id.second_pane, fragment)
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .addToBackStack(null).commit();
                     // Change the FAB
-                    MainActivity.fab.setImageResource(R.drawable.ic_add_white_24dp);
-                    MainActivity.fab.setContentDescription(mContext.getString(R.string.content_desc_new_list));
-                    MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+                    MainActivity.sFab.setImageResource(R.drawable.ic_add_white_24dp);
+                    MainActivity.sFab.setContentDescription(mContext.getString(R.string.content_desc_new_list));
+                    MainActivity.sFab.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             MainActivity.newList();
@@ -107,16 +107,16 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         final StyleSpan bold = new StyleSpan(Typeface.BOLD);
 
         // Here is where the real work is done
-        if (filtered && filterQuery != null) {
+        if (mFiltered && mFilterQuery != null) {
             // Highlight in title
-            if (title.toLowerCase().contains(filterQuery)) {
-                final int index = title.toLowerCase().indexOf(filterQuery);
-                titleBuilder.setSpan(bold, index, index + filterQuery.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            if (title.toLowerCase().contains(mFilterQuery)) {
+                final int index = title.toLowerCase().indexOf(mFilterQuery);
+                titleBuilder.setSpan(bold, index, index + mFilterQuery.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             }
             // Highlight in language
-            if (language.toLowerCase().contains(filterQuery)) {
-                final int index = language.toLowerCase().indexOf(filterQuery);
-                languageBuilder.setSpan(bold, index, index + filterQuery.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            if (language.toLowerCase().contains(mFilterQuery)) {
+                final int index = language.toLowerCase().indexOf(mFilterQuery);
+                languageBuilder.setSpan(bold, index, index + mFilterQuery.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             }
         }
 
@@ -136,7 +136,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     public void setList(List[] lists) {
         final int size = mLists.size();
 
-        filtered = false;
+        mFiltered = false;
         mLists = new ArrayList<>(Arrays.asList(lists));
 
         if (size == 0) notifyItemRangeInserted(0, mLists.size());
@@ -144,11 +144,11 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     }
 
     public void clearList() {
-        int size = filtered ? filteredList.size() : mLists.size();
+        int size = mFiltered ? filteredList.size() : mLists.size();
         mLists.clear();
 
         filteredList.clear();
-        filtered = false;
+        mFiltered = false;
 
         notifyItemRangeRemoved(0, size);
     }
@@ -156,7 +156,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return filtered ? filteredList.size() : mLists.size();
+        return mFiltered ? filteredList.size() : mLists.size();
     }
 
     /*
@@ -271,8 +271,8 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
             if (adapter.filteredList.size() == 0) {
                 adapter.filteredList = new ArrayList<>(originalList);
             }
-            adapter.filtered = true;
-            adapter.filterQuery = constraint.toString();
+            adapter.mFiltered = true;
+            adapter.mFilterQuery = constraint.toString();
             ArrayList<List> newFilteredList = (ArrayList<List>) results.values;
             adapter.animateTo(newFilteredList);
             adapter.notifyDataSetChanged();

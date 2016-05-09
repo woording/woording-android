@@ -68,16 +68,16 @@ public class EditListFragment extends MyFragment {
 
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
-    private String authToken;
+    private String mAuthToken;
 
-    public boolean isModifiedSinceLastSave = false;
-    public boolean isNewList = true;
+    public boolean mIsModifiedSinceLastSave = false;
+    public boolean mIsNewList = true;
 
     private EditTextListAdapter mEditTextListAdapter;
     private ArrayList<String> mListNames = new ArrayList<>();
     private List mList = null;
-    private List lastSavedList = null;
-    private boolean listNameExists = false;
+    private List mLastSavedList = null;
+    private boolean mListNameExists = false;
 
     // UI Elements
     private Spinner mLanguage1Spinner;
@@ -157,7 +157,7 @@ public class EditListFragment extends MyFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        authToken = null;
+        mAuthToken = null;
         mAuthPreferences = new AuthPreferences(getActivity());
         mAccountManager = AccountManager.get(getActivity());
 
@@ -213,7 +213,7 @@ public class EditListFragment extends MyFragment {
         if (item.getItemId() == android.R.id.home) {
             // First check if changes are made
             areChangesMade();
-            if (isModifiedSinceLastSave && !isNewList) {
+            if (mIsModifiedSinceLastSave && !mIsNewList) {
                 // Build alertDialog
                 createAlertDialog(new DialogInterface.OnClickListener() {
                     @Override
@@ -229,7 +229,7 @@ public class EditListFragment extends MyFragment {
                     }
                 }).create().show();
                 return true;
-            } else if (isModifiedSinceLastSave) {
+            } else if (mIsModifiedSinceLastSave) {
                 createAlertDialog(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -244,7 +244,7 @@ public class EditListFragment extends MyFragment {
                     }
                 }).create().show();
                 return true;
-            } else if (!isNewList) {
+            } else if (!mIsNewList) {
                 navigateUp();
                 return true;
             }
@@ -294,8 +294,8 @@ public class EditListFragment extends MyFragment {
 
     public void loadList(List list) {
         mList = list.deepClone();
-        lastSavedList = list.deepClone();
-        isNewList = false;
+        mLastSavedList = list.deepClone();
+        mIsNewList = false;
         // Set list name
         mListName.setText(list.getName());
         // Set shared with
@@ -313,17 +313,17 @@ public class EditListFragment extends MyFragment {
     }
 
     private void checkIfListNameExists(boolean forceCheck) {
-        if (isNewList) {
+        if (mIsNewList) {
             if (mListNames.size() != 0 || forceCheck) {
                 String listName = mListName.getText().toString();
                 if (mListNames.contains(listName)) {
                     mListNameInputLayout.setErrorEnabled(true);
                     mListNameInputLayout.setError(getString(R.string.error_list_name_exist));
-                    listNameExists = true;
+                    mListNameExists = true;
                 } else {
                     mListNameInputLayout.setError(null);
                     mListNameInputLayout.setErrorEnabled(false);
-                    listNameExists = false;
+                    mListNameExists = false;
                 }
             } else {
                 getListNames();
@@ -358,12 +358,12 @@ public class EditListFragment extends MyFragment {
 
     public void areChangesMade() {
         mList = getListData().deepClone();
-        if (lastSavedList == null) lastSavedList = new List("", "", "", "0");
-        isModifiedSinceLastSave = !mList.equals(lastSavedList);
+        if (mLastSavedList == null) mLastSavedList = new List("", "", "", "0");
+        mIsModifiedSinceLastSave = !mList.equals(mLastSavedList);
     }
 
     public void saveList() {
-        if (!listNameExists || !isNewList) {
+        if (!mListNameExists || !mIsNewList) {
             try {
                 // Create data
                 final JSONObject data = new JSONObject()
@@ -375,8 +375,8 @@ public class EditListFragment extends MyFragment {
                         data, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        isModifiedSinceLastSave = false;
-                        lastSavedList = getListData().deepClone();
+                        mIsModifiedSinceLastSave = false;
+                        mLastSavedList = getListData().deepClone();
 
                         // Display SnackBar
                         CoordinatorLayout coordinatorLayout;
@@ -481,11 +481,11 @@ public class EditListFragment extends MyFragment {
                 if (null != intent) {
                     startActivityForResult(intent, MainActivity.REQ_SIGNUP);
                 } else {
-                    authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                    mAuthToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setAuthToken(mAuthToken);
                     mAuthPreferences.setUsername(accountName);
                     // Run task
                     switch (taskToRun) {
@@ -502,7 +502,7 @@ public class EditListFragment extends MyFragment {
                     if (null == account) {
                         account = new Account(accountName, AccountUtils.ACCOUNT_TYPE);
                         mAccountManager.addAccountExplicitly(account, bundle.getString(LoginActivity.PARAM_USER_PASSWORD), null);
-                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
+                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, mAuthToken);
                     }
                 }
             } catch(OperationCanceledException e) {

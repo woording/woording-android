@@ -77,7 +77,7 @@ public class PracticeActivity extends AppCompatActivity
 
     private InputMethod mLastUsedPracticeMethod = InputMethod.KEYBOARD;
 
-    private TableListViewAdapter recyclerViewAdapter;
+    private TableListViewAdapter mRecyclerViewAdapter;
 
     private SpeechRecognizer mSpeech = null;
     private Intent mRecognizerIntent;
@@ -132,8 +132,8 @@ public class PracticeActivity extends AppCompatActivity
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         /** Setup the {@link TableListViewAdapter} */
-        recyclerViewAdapter = new TableListViewAdapter(new ArrayList<String>(), new ArrayList<String>());
-        mRecyclerView.setAdapter(recyclerViewAdapter);
+        mRecyclerViewAdapter = new TableListViewAdapter(new ArrayList<String>(), new ArrayList<String>());
+        mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
         // Load other UI elements
         mRightWord = (TextView) findViewById(R.id.right_word);
@@ -459,7 +459,7 @@ public class PracticeActivity extends AppCompatActivity
             if (wrongWordsLayout != null) wrongWordsLayout.setVisibility(View.VISIBLE);
             else throw new RuntimeException("wrongWordsLayout should not be null");
 
-            recyclerViewAdapter.addItems(mWrongWords);
+            mRecyclerViewAdapter.addItems(mWrongWords);
         }
     }
 

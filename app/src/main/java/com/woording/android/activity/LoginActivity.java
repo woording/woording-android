@@ -230,7 +230,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
                 mAccountManager.addAccountExplicitly(account, accountPassword, null);
                 mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
 
-                MainActivity.accountAdded = true;
+                MainActivity.sAccountAdded = true;
             } else {
                 mAccountManager.setPassword(account, accountPassword);
             }

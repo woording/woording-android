@@ -31,29 +31,29 @@ public class ClearableEditText extends EditText
 
     @SuppressWarnings("unused")
     public void setListener(Listener listener) {
-        this.listener = listener;
+        this.mListener = listener;
     }
 
-    private Drawable xD;
-    private Listener listener;
+    private Drawable mDrawable;
+    private Listener mListener;
 
-    private final Context context;
+    private final Context mContext;
 
     public ClearableEditText(Context context) {
         super(context);
-        this.context = context;
+        this.mContext = context;
         init();
     }
 
     public ClearableEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.context = context;
+        this.mContext = context;
         init();
     }
 
     public ClearableEditText(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        this.context = context;
+        this.mContext = context;
         init();
     }
 
@@ -73,12 +73,12 @@ public class ClearableEditText extends EditText
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (getCompoundDrawables()[2] != null) {
-            boolean tappedX = event.getX() > (getWidth() - getPaddingRight() - xD.getIntrinsicWidth());
+            boolean tappedX = event.getX() > (getWidth() - getPaddingRight() - mDrawable.getIntrinsicWidth());
             if (tappedX) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     setText("");
-                    if (listener != null) {
-                        listener.didClearText();
+                    if (mListener != null) {
+                        mListener.didClearText();
                     }
                 }
                 return true;
@@ -132,11 +132,11 @@ public class ClearableEditText extends EditText
     }
 
     private void init() {
-        xD = getCompoundDrawables()[2];
-        if (xD == null) {
-            xD = ContextCompat.getDrawable(context, R.drawable.ic_clear_grey_24dp);
+        mDrawable = getCompoundDrawables()[2];
+        if (mDrawable == null) {
+            mDrawable = ContextCompat.getDrawable(mContext, R.drawable.ic_clear_grey_24dp);
         }
-        xD.setBounds(0, 0, xD.getIntrinsicWidth(), xD.getIntrinsicHeight());
+        mDrawable.setBounds(0, 0, mDrawable.getIntrinsicWidth(), mDrawable.getIntrinsicHeight());
         setClearIconVisible(false);
         super.setOnTouchListener(this);
         super.setOnFocusChangeListener(this);
@@ -149,7 +149,7 @@ public class ClearableEditText extends EditText
     private void setClearIconVisible(boolean visible) {
         boolean wasVisible = (getCompoundDrawables()[2] != null);
         if (visible != wasVisible) {
-            Drawable x = visible ? xD : null;
+            Drawable x = visible ? mDrawable : null;
             setCompoundDrawables(getCompoundDrawables()[0], getCompoundDrawables()[1], x, getCompoundDrawables()[3]);
         }
     }

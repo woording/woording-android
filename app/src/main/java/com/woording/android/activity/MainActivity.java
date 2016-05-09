@@ -84,24 +84,24 @@ public class MainActivity extends AppCompatActivity {
     // MaterialDrawer identifier
     private static final int PROFILE_SETTING = 1;
 
-    public static List lastDeletedList = null;
-    public static boolean accountAdded = false;
+    public static List sLastDeletedList = null;
+    public static boolean sAccountAdded = false;
 
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
-    private String authToken;
+    private String mAuthToken;
 
     public static CoordinatorLayout mCoordinatorLayout;
-    public static FloatingActionButton fab;
+    public static FloatingActionButton sFab;
     private ListsListFragment mListsListFragment;
 
-    private AccountHeader headerResult;
-    private Drawer drawer;
+    private AccountHeader mAccountHeader;
+    private Drawer mDrawer;
 
     public static Context mContext;
-    private boolean doubleBackToExitPressedOnce = false;
+    private boolean mDoubleBackToExitPressedOnce = false;
 
-    private String setSelectionFor = null;
+    private String mSetSelectionFor = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,8 +116,8 @@ public class MainActivity extends AppCompatActivity {
         mListsListFragment = (ListsListFragment) getSupportFragmentManager().findFragmentById(R.id.lists_view_fragment);
 
         // Setup Floating Action Button
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        sFab = (FloatingActionButton) findViewById(R.id.fab);
+        sFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 newList();
@@ -142,8 +142,8 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(View v) {
                                     Log.d(TAG, "onClick: Undo delete");
-                                    if (lastDeletedList != null) {
-                                        mListsListFragment.saveList(lastDeletedList);
+                                    if (sLastDeletedList != null) {
+                                        mListsListFragment.saveList(sLastDeletedList);
                                         mListsListFragment.getLists(true);
                                     }
                                 }
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         if (!isNetworkAvailable(this))
             Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
 
-        authToken = null;
+        mAuthToken = null;
         mAuthPreferences = new AuthPreferences(this);
         mAccountManager = AccountManager.get(this);
 
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Build the accountHeader
-        headerResult = new AccountHeaderBuilder()
+        mAccountHeader = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header_background)
                 .addProfiles(
@@ -204,8 +204,8 @@ public class MainActivity extends AppCompatActivity {
                         } else if (profile instanceof  ProfileDrawerItem) {
                             // Save selected position
                             int position = -1;
-                            for (int i = 0; i < headerResult.getProfiles().size(); i++) {
-                                if (headerResult.getProfiles().get(i) == profile) {
+                            for (int i = 0; i < mAccountHeader.getProfiles().size(); i++) {
+                                if (mAccountHeader.getProfiles().get(i) == profile) {
                                     position = i;
                                     break;
                                 }
@@ -228,10 +228,10 @@ public class MainActivity extends AppCompatActivity {
         addAccounts();
 
         // Setup material navigation drawer
-        drawer = new DrawerBuilder()
+        mDrawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(mToolbar)
-                .withAccountHeader(headerResult)
+                .withAccountHeader(mAccountHeader)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(R.string.my_lists).withIcon(GoogleMaterial.Icon.gmd_list),
                         new SectionDrawerItem().withName(R.string.friends),
@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem instanceof SecondaryDrawerItem && position == drawer.getDrawerItems().size()) {
+                        if (drawerItem instanceof SecondaryDrawerItem && position == mDrawer.getDrawerItems().size()) {
                             // Inflate AlertDialog layout
                             View layoutView = getLayoutInflater().inflate(R.layout.content_friend_request_dialog, null);
                             final EditText friendNameInput = (EditText) layoutView.findViewById(R.id.friend_request_input);
@@ -330,15 +330,15 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // Switch to fragment
                 ListViewFragment listViewFragment = ListViewFragment.newInstance(
-                        new List(getIntent().getStringExtra("listname"), "", "", ""), ListsListFragment.currentUsername);
+                        new List(getIntent().getStringExtra("listname"), "", "", ""), ListsListFragment.sCurrentUsername);
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.second_pane, listViewFragment)
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .addToBackStack(null).commit();
                 // Change the FAB
-                fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
-                fab.setContentDescription(getString(R.string.content_desc_new_list));
-                fab.setOnClickListener(new View.OnClickListener() {
+                sFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
+                sFab.setContentDescription(getString(R.string.content_desc_new_list));
+                sFab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         newList();
@@ -354,15 +354,15 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // Switch to fragment
                 ListViewFragment listViewFragment = ListViewFragment.newInstance(
-                        (List) getIntent().getSerializableExtra("list"), ListsListFragment.currentUsername);
+                        (List) getIntent().getSerializableExtra("list"), ListsListFragment.sCurrentUsername);
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.second_pane, listViewFragment)
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .addToBackStack(null).commit();
                 // Change the FAB
-                fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
-                fab.setContentDescription(getString(R.string.content_desc_new_list));
-                fab.setOnClickListener(new View.OnClickListener() {
+                sFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp));
+                sFab.setContentDescription(getString(R.string.content_desc_new_list));
+                sFab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         newList();
@@ -375,29 +375,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         //add the values which need to be saved from the drawer to the bundle
-        outState = drawer.saveInstanceState(outState);
+        outState = mDrawer.saveInstanceState(outState);
         //add the values which need to be saved from the accountHeader to the bundle
-        outState = headerResult.saveInstanceState(outState);
+        outState = mAccountHeader.saveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onBackPressed() {
-        if (drawer.isDrawerOpen()) {
-            drawer.closeDrawer();
+        if (mDrawer.isDrawerOpen()) {
+            mDrawer.closeDrawer();
         } else {
-            if (doubleBackToExitPressedOnce) {
+            if (mDoubleBackToExitPressedOnce) {
                 finish();
                 return;
             }
 
-            this.doubleBackToExitPressedOnce = true;
+            this.mDoubleBackToExitPressedOnce = true;
             Snackbar.make(mCoordinatorLayout, R.string.press_BACK_again_to_exit, Snackbar.LENGTH_SHORT).show();
 
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    doubleBackToExitPressedOnce = false;
+                    mDoubleBackToExitPressedOnce = false;
                 }
             }, 2000);
         }
@@ -407,7 +407,7 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        if (accountAdded) {
+        if (sAccountAdded) {
             // Switch to new account
             Account[] accounts = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE);
             Account addedAccount = accounts[accounts.length - 1];
@@ -421,8 +421,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void removeAccounts() {
-        for (int i = headerResult.getProfiles().size() - 2; i > -1; i--) {
-            headerResult.removeProfile(i);
+        for (int i = mAccountHeader.getProfiles().size() - 2; i > -1; i--) {
+            mAccountHeader.removeProfile(i);
         }
     }
 
@@ -432,14 +432,14 @@ public class MainActivity extends AppCompatActivity {
             String userName = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE)[i].name;
             LetterTileDrawable icon = new LetterTileDrawable(this);
             icon.setContactDetails(userName, userName);
-            headerResult.addProfile(
-                    new ProfileDrawerItem().withName(userName).withIcon(icon), headerResult.getProfiles().size() - 1
+            mAccountHeader.addProfile(
+                    new ProfileDrawerItem().withName(userName).withIcon(icon), mAccountHeader.getProfiles().size() - 1
             );
 
-            if (userName.equals(mAuthPreferences.getAccountName())) headerResult.setActiveProfile(i);
+            if (userName.equals(mAuthPreferences.getAccountName())) mAccountHeader.setActiveProfile(i);
         }
 
-        if (headerResult.getActiveProfile() instanceof ProfileSettingDrawerItem) headerResult.setActiveProfile(0);
+        if (mAccountHeader.getActiveProfile() instanceof ProfileSettingDrawerItem) mAccountHeader.setActiveProfile(0);
     }
 
     private static boolean isNetworkAvailable(Context context) {
@@ -466,13 +466,13 @@ public class MainActivity extends AppCompatActivity {
              * Default selection is at 'My Lists' --> Position 1
              * So only check when this is selected and the username is not your username
              */
-            if (drawer.getCurrentSelectedPosition() == 1 && !username.equals(mAuthPreferences.getAccountName())) {
+            if (mDrawer.getCurrentSelectedPosition() == 1 && !username.equals(mAuthPreferences.getAccountName())) {
                 int selectPosition = -1;
-                if (drawer.getDrawerItems().size() > 3) selectPosition = getFriendPosition(username);
-                else setSelectionFor = username;
+                if (mDrawer.getDrawerItems().size() > 3) selectPosition = getFriendPosition(username);
+                else mSetSelectionFor = username;
 
                 // Select nothing if friends are not loaded
-                drawer.setSelectionAtPosition(selectPosition, false);
+                mDrawer.setSelectionAtPosition(selectPosition, false);
             }
         }
     }
@@ -498,9 +498,9 @@ public class MainActivity extends AppCompatActivity {
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .addToBackStack(null).commit();
             // Change the FAB
-            fab.setImageResource(R.drawable.ic_save_white_24dp);
-            fab.setContentDescription(mContext.getString(R.string.content_desc_save_list));
-            fab.setOnClickListener(new View.OnClickListener() {
+            sFab.setImageResource(R.drawable.ic_save_white_24dp);
+            sFab.setContentDescription(mContext.getString(R.string.content_desc_save_list));
+            sFab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fragment.saveList();
@@ -518,13 +518,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void removeFriendsFromDrawer() {
-        for (int i = drawer.getDrawerItems().size() - 1; i > 2; i--) {
-            drawer.removeItemByPosition(i);
+        for (int i = mDrawer.getDrawerItems().size() - 1; i > 2; i--) {
+            mDrawer.removeItemByPosition(i);
         }
     }
 
     private int getFriendPosition(String username) {
-        ArrayList<IDrawerItem> friends = new ArrayList<>(drawer.getDrawerItems());
+        ArrayList<IDrawerItem> friends = new ArrayList<>(mDrawer.getDrawerItems());
         int friendPosition = -1; // Select nothing by default
         // remove all non-friend items
         friends.remove(friends.size() - 1);
@@ -557,17 +557,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(JSONObject response) {
                     // Remove all friend items when needed
-                    if (drawer.getDrawerItems().size() > 3) removeFriendsFromDrawer();
+                    if (mDrawer.getDrawerItems().size() > 3) removeFriendsFromDrawer();
                     // Try to load data
                     try {
                         JSONArray array = response.getJSONArray("friends");
                         for (int i = 0; i < array.length(); i++) {
                             try {
                                 JSONObject friend = array.getJSONObject(i);
-                                drawer.addItemAtPosition(new SecondaryDrawerItem()
+                                mDrawer.addItemAtPosition(new SecondaryDrawerItem()
                                         .withName(friend.getString("username"))
                                         .withIcon(GoogleMaterial.Icon.gmd_person),
-                                        drawer.getDrawerItems().size());
+                                        mDrawer.getDrawerItems().size());
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -576,9 +576,9 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     // Check if need to set selection
-                    if (setSelectionFor != null) {
-                        drawer.setSelectionAtPosition(getFriendPosition(setSelectionFor), false);
-                        setSelectionFor = null;
+                    if (mSetSelectionFor != null) {
+                        mDrawer.setSelectionAtPosition(getFriendPosition(mSetSelectionFor), false);
+                        mSetSelectionFor = null;
                     }
                 }
             }, new Response.ErrorListener() {
@@ -660,11 +660,11 @@ public class MainActivity extends AppCompatActivity {
                 if (null != intent) {
                     startActivityForResult(intent, MainActivity.REQ_SIGNUP);
                 } else {
-                    authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                    mAuthToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setAuthToken(mAuthToken);
                     mAuthPreferences.setUsername(accountName);
                     // Run task
                     switch (taskToRun) {
@@ -684,7 +684,7 @@ public class MainActivity extends AppCompatActivity {
                     if (null == account) {
                         account = new Account(accountName, AccountUtils.ACCOUNT_TYPE);
                         mAccountManager.addAccountExplicitly(account, bundle.getString(LoginActivity.PARAM_USER_PASSWORD), null);
-                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
+                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, mAuthToken);
                     }
                 }
             } catch(OperationCanceledException e) {

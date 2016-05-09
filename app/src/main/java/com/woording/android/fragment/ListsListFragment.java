@@ -58,9 +58,9 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
 
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
-    private String authToken;
+    private String mAuthToken;
 
-    public static String currentUsername;
+    public static String sCurrentUsername;
 
     private List[] mLists = new List[]{};
 
@@ -109,11 +109,11 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        authToken = null;
+        mAuthToken = null;
         mAuthPreferences = new AuthPreferences(getActivity());
         mAccountManager = AccountManager.get(getActivity());
 
-        currentUsername = mAuthPreferences.getAccountName();
+        sCurrentUsername = mAuthPreferences.getAccountName();
 
         Account[] accounts = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE);
         Account currentAccount = null;
@@ -133,7 +133,7 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
     @Override
     public void onStop() {
         super.onStop();
-        MainActivity.lastDeletedList = null;
+        MainActivity.sLastDeletedList = null;
     }
 
     @Override
@@ -158,11 +158,11 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
     }
 
     public String getCurrentUsername() {
-        return currentUsername;
+        return sCurrentUsername;
     }
 
     public void changeUser(String username) {
-        currentUsername = username;
+        sCurrentUsername = username;
         mAdapter.clearList();
         getLists();
 
@@ -189,7 +189,7 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
             // Create the data that is sent
             JSONObject data = new JSONObject();
             data.put("token", mAuthPreferences.getAuthToken());
-            final String username = currentUsername != null ? currentUsername : mAuthPreferences.getAccountName();
+            final String username = sCurrentUsername != null ? sCurrentUsername : mAuthPreferences.getAccountName();
             // Create the request
             JsonObjectRequest request = new JsonObjectRequest
                     (Request.Method.POST, App.API_LOCATION + "/" + username,
@@ -310,11 +310,11 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
                 if (null != intent) {
                     startActivityForResult(intent, MainActivity.REQ_SIGNUP);
                 } else {
-                    authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+                    mAuthToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
                     final String accountName = bundle.getString(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Save session username & auth token
-                    mAuthPreferences.setAuthToken(authToken);
+                    mAuthPreferences.setAuthToken(mAuthToken);
                     mAuthPreferences.setUsername(accountName);
                     // Run task
                     switch (taskToRun) {
@@ -322,7 +322,7 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
                             getLists();
                             break;
                         case 1:
-                            saveList(MainActivity.lastDeletedList);
+                            saveList(MainActivity.sLastDeletedList);
                             break;
                         case 2:
                             getLists(true);
@@ -334,7 +334,7 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
                     if (null == account) {
                         account = new Account(accountName, AccountUtils.ACCOUNT_TYPE);
                         mAccountManager.addAccountExplicitly(account, bundle.getString(LoginActivity.PARAM_USER_PASSWORD), null);
-                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, authToken);
+                        mAccountManager.setAuthToken(account, AccountUtils.AUTH_TOKEN_TYPE, mAuthToken);
                     }
                 }
             } catch(OperationCanceledException e) {

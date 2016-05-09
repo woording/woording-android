@@ -18,38 +18,38 @@ import java.util.ArrayList;
 
 public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdapter.ViewHolder> {
 
-    private ArrayList<String> Column1;
-    private ArrayList<String> Column2;
+    private ArrayList<String> mColumn1;
+    private ArrayList<String> mColumn2;
 
     public TableListViewAdapter(ArrayList<String> column1, ArrayList<String> column2) {
-        this.Column1 = column1;
-        this.Column2 = column2;
+        this.mColumn1 = column1;
+        this.mColumn2 = column2;
     }
 
     public void setItems(ArrayList<String> column1, ArrayList<String> column2) {
-        Column1 = column1;
-        Column2 = column2;
+        mColumn1 = column1;
+        mColumn2 = column2;
         notifyItemRangeChanged(0, column1.size() - 1);
     }
 
     public void addItem(String column1, String column2) {
-        Column1.add(column1);
-        Column2.add(column2);
+        mColumn1.add(column1);
+        mColumn2.add(column2);
         notifyItemInserted(getItemCount() - 1);
     }
 
     public void addItems(ArrayList<String> column1, ArrayList<String> column2) {
         int oldLength = getItemCount();
-        Column1.addAll(column1);
-        Column2.addAll(column2);
+        mColumn1.addAll(column1);
+        mColumn2.addAll(column2);
         notifyItemRangeInserted(oldLength, column1.size() - 1);
     }
 
     public void addItems(ArrayList<String[]> columns) {
         int oldLength = getItemCount();
         for (String[] column : columns) {
-            Column1.add(column[0]);
-            Column2.add(column[1]);
+            mColumn1.add(column[0]);
+            mColumn2.add(column[1]);
         }
         notifyItemRangeInserted(oldLength, columns.size() - 1);
     }
@@ -67,14 +67,14 @@ public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdap
     public void onBindViewHolder(ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mColumn1.setText(Column1.get(position));
-        holder.mColumn2.setText(Column2.get(position));
+        holder.mColumn1.setText(mColumn1.get(position));
+        holder.mColumn2.setText(mColumn2.get(position));
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return Column1.size();
+        return mColumn1.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
