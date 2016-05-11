@@ -47,11 +47,16 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
      */
     private UserLoginTask mAuthTask = null;
 
+    private boolean mLoggingIn = true;
+
     // UI references.
     private EditText mUsernameView;
     private EditText mPasswordView;
+    private EditText mRepeatPasswordView;
+    private EditText mEmailView;
     private View mProgressView;
     private View mLoginFormView;
+    private View mRegisterFormView;
 
 //    private final Context mContext = this;
 
@@ -67,6 +72,12 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
 
         mAccountManager = AccountManager.get(this);
 
+        // Setup ViewPager
+        ViewPagerAdapter adapter = new ViewPagerAdapter();
+        ViewPager pager = (ViewPager) findViewById(R.id.view_pager);
+        if (pager != null) pager.setAdapter(adapter);
+        else throw new RuntimeException("pager should not be null");
+
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.username);
 
@@ -74,7 +85,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
+                if (mLoggingIn && (id == R.id.login || id == EditorInfo.IME_ACTION_DONE)) {
                     attemptLogin();
                     return true;
                 }
@@ -82,10 +93,15 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             }
         });
 
-        ViewPagerAdapter adapter = new ViewPagerAdapter();
-        ViewPager pager = (ViewPager) findViewById(R.id.view_pager);
-        if (pager != null) pager.setAdapter(adapter);
-        else throw new RuntimeException("pager should not be null");
+        mRepeatPasswordView = (EditText) findViewById(R.id.password_repeat);
+
+        mEmailView = (EditText) findViewById(R.id.email);
+        mEmailView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int id, KeyEvent event) {
+                return !mLoggingIn && (id == R.id.register || id == EditorInfo.IME_ACTION_DONE);
+            }
+        });
 
         Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
         if (mSignInButton == null) throw new RuntimeException("mSignButton should not be null");
@@ -97,6 +113,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         });
 
         mLoginFormView = findViewById(R.id.login_form);
+        mRegisterFormView = findViewById(R.id.register_form);
         mProgressView = findViewById(R.id.login_progress);
     }
 
@@ -160,13 +177,14 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        final int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        final View view = mLoggingIn ? mLoginFormView : mRegisterFormView;
 
-        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        mLoginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+        view.setVisibility(show ? View.GONE : View.VISIBLE);
+        view.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                view.setVisibility(show ? View.GONE : View.VISIBLE);
             }
         });
 
