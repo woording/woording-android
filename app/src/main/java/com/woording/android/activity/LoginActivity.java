@@ -98,8 +98,12 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         mEmailView = (EditText) findViewById(R.id.email);
         mEmailView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public boolean onEditorAction(TextView v, int id, KeyEvent event) {
-                return !mLoggingIn && (id == R.id.register || id == EditorInfo.IME_ACTION_DONE);
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (!mLoggingIn && (id == R.id.register || id == EditorInfo.IME_ACTION_DONE)) {
+                    attemptRegister();
+                    return true;
+                }
+                return false;
             }
         });
 
@@ -118,7 +122,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
     }
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
+     * Attempts to sign in the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
@@ -163,6 +167,10 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             mAuthTask = new UserLoginTask(username, password);
             mAuthTask.execute((Void) null);
         }
+    }
+
+    private void attemptRegister() {
+
     }
 
     private boolean isPasswordValid(String password) {
