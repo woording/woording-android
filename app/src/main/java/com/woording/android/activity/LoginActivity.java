@@ -14,6 +14,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 
 import com.woording.android.R;
 import com.woording.android.account.AccountUtils;
+import com.woording.android.adapter.ViewPagerAdapter;
 import com.woording.android.components.AccountAuthenticatorAppCompatActivity;
 
 /**
@@ -79,6 +81,11 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
                 return false;
             }
         });
+
+        ViewPagerAdapter adapter = new ViewPagerAdapter();
+        ViewPager pager = (ViewPager) findViewById(R.id.view_pager);
+        if (pager != null) pager.setAdapter(adapter);
+        else throw new RuntimeException("pager should not be null");
 
         Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
         if (mSignInButton == null) throw new RuntimeException("mSignButton should not be null");
