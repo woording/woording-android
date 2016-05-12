@@ -31,6 +31,7 @@ import com.woording.android.R;
 import com.woording.android.account.AccountUtils;
 import com.woording.android.adapter.ViewPagerAdapter;
 import com.woording.android.components.AccountAuthenticatorAppCompatActivity;
+import com.woording.android.components.NoSwipeViewPager;
 
 /**
  * A login screen that offers login via email/password.
@@ -54,6 +55,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
     private boolean mLoggingIn = true;
 
     // UI references.
+    private NoSwipeViewPager mPager;
     private TextInputEditText mUsernameViewLogin;
     private TextInputEditText mPasswordViewLogin;
     private TextInputEditText mUsernameViewRegister;
@@ -81,10 +83,10 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
 
         // Setup ViewPager
         ViewPagerAdapter adapter = new ViewPagerAdapter();
-        ViewPager pager = (ViewPager) findViewById(R.id.view_pager);
-        if (pager == null) throw new RuntimeException("pager should not be null");
-        pager.setAdapter(adapter);
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mPager = (NoSwipeViewPager) findViewById(R.id.view_pager);
+        if (mPager == null) throw new RuntimeException("pager should not be null");
+        mPager.setAdapter(adapter);
+        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -303,6 +305,8 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
                 progressView.setVisibility(show ? View.VISIBLE : View.GONE);
             }
         });
+
+        mPager.setSwipeable(!show);
     }
 
 
