@@ -51,6 +51,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+    private UserRegisterTask mRegisterTask = null;
 
     private boolean mLoggingIn = true;
 
@@ -211,6 +212,9 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
     }
 
     private void attemptRegister() {
+        if (mRegisterTask != null) {
+            return;
+        }
 
         // Reset errors
         mPasswordViewRegister.setError(null);
@@ -267,6 +271,8 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             // perform the user login attempt.
             showProgress(true);
             // TODO: 5-11-2016 Start handler
+            mRegisterTask = new UserRegisterTask(username, password, email);
+            mRegisterTask.execute((Void) null);
         }
     }
 
@@ -311,7 +317,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
 
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
+     * Represents an asynchronous login task used to authenticate
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Intent> {
@@ -376,6 +382,38 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             setResult(AccountAuthenticatorActivity.RESULT_OK, intent);
 
             finish();
+        }
+    }
+
+    public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
+        private final String username;
+        private final String password;
+        private final String email;
+
+        public UserRegisterTask(String username, String password, String email) {
+            this.username = username;
+            this.password = password;
+            this.email = email;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // TODO: 5-12-2016 Do something
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mRegisterTask = null;
+            showProgress(false);
+
+            // TODO: 5-12-2016 Finish task
+        }
+
+        @Override
+        protected void onCancelled() {
+            mRegisterTask = null;
+            showProgress(false);
         }
     }
 }
