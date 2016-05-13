@@ -35,7 +35,8 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent" >
+                android:layout_width="match_parent"
+                android:id="@+id/username_register_layout">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/username_register"
@@ -50,7 +51,8 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent" >
+                android:layout_width="match_parent"
+                android:id="@+id/password_register_layout">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/password_register"
@@ -65,7 +67,8 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent" >
+                android:layout_width="match_parent"
+                android:id="@+id/password_repeat_layout">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/password_repeat"
@@ -80,7 +83,8 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent" >
+                android:layout_width="match_parent"
+                android:id="@+id/email_layout">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/email"

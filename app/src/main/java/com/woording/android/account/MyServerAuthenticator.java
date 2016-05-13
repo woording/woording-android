@@ -24,6 +24,7 @@ public class MyServerAuthenticator implements IServerAuthenticator {
     @Override
     public String signUp(String email, String username, String password) {
         // TODO: register new user on the server and return its auth token
+        String success = null;
         try {
             URL url = new URL(App.API_LOCATION + "/register");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -64,10 +65,9 @@ public class MyServerAuthenticator implements IServerAuthenticator {
                 }
 
                 JSONObject response = new JSONObject(json.toString());
-                if (response.getString("response").contains("ERROR")) {
-                    return null;
-                } else {
+                if (!response.getString("response").contains("ERROR")) {
                     // Successfully registered
+                    success = "success";
                 }
 
                 inputStream.close();
@@ -77,7 +77,7 @@ public class MyServerAuthenticator implements IServerAuthenticator {
             e.printStackTrace();
         }
 
-        return null;
+        return success;
     }
 
     @Override

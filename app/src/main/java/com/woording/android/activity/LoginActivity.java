@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -57,12 +58,21 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
 
     // UI references.
     private NoSwipeViewPager mPager;
+
     private TextInputEditText mUsernameViewLogin;
     private TextInputEditText mPasswordViewLogin;
     private TextInputEditText mUsernameViewRegister;
     private TextInputEditText mPasswordViewRegister;
     private TextInputEditText mRepeatPasswordView;
     private TextInputEditText mEmailView;
+
+    private TextInputLayout mUsernameLayoutLogin;
+    private TextInputLayout mPasswordLayoutLogin;
+    private TextInputLayout mUsernameLayoutRegister;
+    private TextInputLayout mPasswordLayoutRegister;
+    private TextInputLayout mRepeatPasswordLayout;
+    private TextInputLayout mEmailLayout;
+
     private View mLoginProgressView;
     private View mRegisterProgressView;
     private View mLoginFormView;
@@ -157,6 +167,14 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             }
         });
 
+        // Set TextInputLayouts
+        mUsernameLayoutLogin = (TextInputLayout) findViewById(R.id.username_layout);
+        mPasswordLayoutLogin = (TextInputLayout) findViewById(R.id.password_layout);
+        mUsernameLayoutRegister = (TextInputLayout) findViewById(R.id.username_register_layout);
+        mPasswordLayoutRegister = (TextInputLayout) findViewById(R.id.password_register_layout);
+        mRepeatPasswordLayout = (TextInputLayout) findViewById(R.id.password_repeat_layout);
+        mEmailLayout = (TextInputLayout) findViewById(R.id.email_layout);
+
         mLoginFormView = findViewById(R.id.login_form);
         mRegisterFormView = findViewById(R.id.register_form);
         mLoginProgressView = findViewById(R.id.login_progress);
@@ -174,8 +192,8 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         }
 
         // Reset errors.
-        mUsernameViewLogin.setError(null);
-        mPasswordViewLogin.setError(null);
+        mUsernameLayoutLogin.setError(null);
+        mPasswordLayoutLogin.setError(null);
 
         // Store values at the time of the login attempt.
         String username = mUsernameViewLogin.getText().toString();
@@ -186,14 +204,14 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordViewLogin.setError(getString(R.string.error_invalid_password));
+            mPasswordLayoutLogin.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordViewLogin;
             cancel = true;
         }
 
         // Check for a valid username.
         if (TextUtils.isEmpty(username)) {
-            mUsernameViewLogin.setError(getString(R.string.error_field_required));
+            mUsernameLayoutLogin.setError(getString(R.string.error_field_required));
             focusView = mUsernameViewLogin;
             cancel = true;
         }
@@ -217,10 +235,10 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         }
 
         // Reset errors
-        mPasswordViewRegister.setError(null);
-        mPasswordViewRegister.setError(null);
-        mRepeatPasswordView.setError(null);
-        mEmailView.setError(null);
+        mPasswordLayoutRegister.setError(null);
+        mPasswordLayoutRegister.setError(null);
+        mRepeatPasswordLayout.setError(null);
+        mEmailLayout.setError(null);
 
         // Store values at the time of the login attempt.
         String username = mUsernameViewRegister.getText().toString();
@@ -233,31 +251,31 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
 
         // Check for valid email
         if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
+            mEmailLayout.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
         } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
+            mEmailLayout.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
         }
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordViewRegister.setError(getString(R.string.error_invalid_password));
+            mPasswordLayoutRegister.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordViewRegister;
             cancel = true;
         }
 
         if (!TextUtils.isEmpty(password) && !TextUtils.isEmpty(repeatPassword) && !password.equals(repeatPassword)) {
-            mRepeatPasswordView.setError(getString(R.string.error_invalid_repeat_password));
+            mRepeatPasswordLayout.setError(getString(R.string.error_invalid_repeat_password));
             focusView = mRepeatPasswordView;
             cancel = true;
         }
 
         // Check for a valid username.
         if (TextUtils.isEmpty(username)) {
-            mUsernameViewRegister.setError(getString(R.string.error_field_required));
+            mUsernameLayoutRegister.setError(getString(R.string.error_field_required));
             focusView = mUsernameViewRegister;
             cancel = true;
         }
@@ -270,7 +288,6 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            // TODO: 5-11-2016 Start handler
             mRegisterTask = new UserRegisterTask(username, password, email);
             mRegisterTask.execute((Void) null);
         }
@@ -348,7 +365,8 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             showProgress(false);
 
             if (intent.getStringExtra(AccountManager.KEY_AUTHTOKEN) == null) {
-                mPasswordViewLogin.setError(getString(R.string.error_incorrect_password));
+                mUsernameLayoutLogin.setError(getString(R.string.error_incorrect_password_or_username));
+                mPasswordLayoutLogin.setError(getString(R.string.error_incorrect_password_or_username));
                 mPasswordViewLogin.requestFocus();
             } else {
                 finishLogin(intent);
@@ -385,7 +403,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         }
     }
 
-    public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserRegisterTask extends AsyncTask<Void, Void, String> {
         private final String username;
         private final String password;
         private final String email;
@@ -397,17 +415,25 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
             // TODO: 5-12-2016 Do something
-            return false;
+            return AccountUtils.mServerAuthenticator.signUp(email, username, password);
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final String success) {
             mRegisterTask = null;
             showProgress(false);
 
             // TODO: 5-12-2016 Finish task
+            if (success == null) {
+                // Username or email does already exist
+                mUsernameLayoutLogin.setError(getString(R.string.error_used_username_email));
+                mEmailLayout.setError(getString(R.string.error_used_username_email));
+                mUsernameLayoutLogin.requestFocus();
+            } else {
+                // TODO: 5-13-2016 Finish registering
+            }
         }
 
         @Override

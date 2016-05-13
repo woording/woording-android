@@ -29,9 +29,10 @@
 
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_incorrect_password_or_username">Username or password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="error_invalid_repeat_password">Password is not the same</string>
+    <string name="error_used_username_email">This username and/or email does already exist</string>
 
     <!-- Strings related to the lists -->
     <string name="list_item_subtitle" translatable="false">%1$s ↔ %2$s</string>
