@@ -167,7 +167,9 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
         getLists();
 
         // Collapse searchView
-        MenuItemCompat.collapseActionView(mMenu.findItem(R.id.action_search));
+        if (mMenu != null) {
+            MenuItemCompat.collapseActionView(mMenu.findItem(R.id.action_search));
+        }
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
