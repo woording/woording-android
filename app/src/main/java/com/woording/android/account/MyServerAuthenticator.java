@@ -6,6 +6,8 @@
 
 package com.woording.android.account;
 
+import android.support.annotation.Nullable;
+
 import com.woording.android.App;
 
 import org.json.JSONObject;
@@ -22,8 +24,10 @@ import java.net.URL;
 public class MyServerAuthenticator implements IServerAuthenticator {
 
     @Override
+    @Nullable
     public String signUp(String email, String username, String password) {
         // TODO: register new user on the server and return its auth token
+        // Problem: Can't return auth token
         String success = null;
         try {
             URL url = new URL(App.API_LOCATION + "/register");
@@ -33,7 +37,7 @@ public class MyServerAuthenticator implements IServerAuthenticator {
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoInput(true);
             urlConnection.setDoOutput(true);
-            urlConnection.setUseCaches(true);
+            urlConnection.setUseCaches(false);
             urlConnection.setInstanceFollowRedirects(false);
             // Set the content-type as json --> Important
             urlConnection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
@@ -92,7 +96,7 @@ public class MyServerAuthenticator implements IServerAuthenticator {
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoInput(true);
             urlConnection.setDoOutput(true);
-            urlConnection.setUseCaches(true);
+            urlConnection.setUseCaches(false);
             urlConnection.setInstanceFollowRedirects(false);
             // Set the content-type as json --> Important
             urlConnection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
