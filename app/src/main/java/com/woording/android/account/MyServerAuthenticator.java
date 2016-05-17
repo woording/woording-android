@@ -26,8 +26,6 @@ public class MyServerAuthenticator implements IServerAuthenticator {
     @Override
     @Nullable
     public String signUp(String email, String username, String password) {
-        // TODO: register new user on the server and return its auth token
-        // Problem: Can't return auth token
         String success = null;
         try {
             URL url = new URL(App.API_LOCATION + "/register");

@@ -436,7 +436,6 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
                 mEmailLayout.setError(getString(R.string.error_used_username_email));
                 mUsernameLayoutRegister.requestFocus();
             } else {
-                // TODO: 5-13-2016 Finish registering
                 AlertDialog.Builder builder = new AlertDialog.Builder(context)
                         .setMessage(R.string.register_success)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

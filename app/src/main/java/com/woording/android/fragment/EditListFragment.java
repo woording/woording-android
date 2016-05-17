@@ -348,8 +348,6 @@ public class EditListFragment extends MyFragment {
     }
 
     private List getListData() {
-        // TODO: 3-15-2016 Check if list name already exists 
-        
         List list = new List(mListName.getText().toString(),
                 getLanguage1(), getLanguage2(), mSharedWith.getSelectedItemPosition() + "");
         list.setWords(mEditTextListAdapter.mLanguage1Words, mEditTextListAdapter.mLanguage2Words);
