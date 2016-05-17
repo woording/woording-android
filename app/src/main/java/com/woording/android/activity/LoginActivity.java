@@ -11,12 +11,15 @@ import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -288,7 +291,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mRegisterTask = new UserRegisterTask(username, password, email);
+            mRegisterTask = new UserRegisterTask(this, username, password, email);
             mRegisterTask.execute((Void) null);
         }
     }
@@ -404,11 +407,14 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
     }
 
     public class UserRegisterTask extends AsyncTask<Void, Void, String> {
+        private final Context context;
+
         private final String username;
         private final String password;
         private final String email;
 
-        public UserRegisterTask(String username, String password, String email) {
+        public UserRegisterTask(Context context, String username, String password, String email) {
+            this.context = context;
             this.username = username;
             this.password = password;
             this.email = email;
@@ -416,7 +422,6 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
 
         @Override
         protected String doInBackground(Void... params) {
-            // TODO: 5-12-2016 Do something
             return AccountUtils.mServerAuthenticator.signUp(email, username, password);
         }
 
@@ -425,14 +430,22 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             mRegisterTask = null;
             showProgress(false);
 
-            // TODO: 5-12-2016 Finish task
             if (success == null) {
                 // Username or email does already exist
-                mUsernameLayoutLogin.setError(getString(R.string.error_used_username_email));
+                mUsernameLayoutRegister.setError(getString(R.string.error_used_username_email));
                 mEmailLayout.setError(getString(R.string.error_used_username_email));
-                mUsernameLayoutLogin.requestFocus();
+                mUsernameLayoutRegister.requestFocus();
             } else {
                 // TODO: 5-13-2016 Finish registering
+                AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                        .setMessage(R.string.register_success)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mPager.setCurrentItem(0);
+                            }
+                        });
+                builder.create().show();
             }
         }
 

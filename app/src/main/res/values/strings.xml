@@ -26,6 +26,7 @@
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="action_register">Register</string>
+    <string name="register_success">You are now successfully registered, please confirm your email so you can login.</string>
 
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
