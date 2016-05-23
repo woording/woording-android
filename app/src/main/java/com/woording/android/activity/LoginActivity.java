@@ -14,14 +14,22 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.KeyEvent;
@@ -182,6 +190,82 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         mRegisterFormView = findViewById(R.id.register_form);
         mLoginProgressView = findViewById(R.id.login_progress);
         mRegisterProgressView = findViewById(R.id.register_progress);
+
+        createPageLinks();
+    }
+
+    private void createPageLinks() {
+        TextView noAccount = (TextView) findViewById(R.id.no_account);
+        String noAccountText = getString(R.string.no_account, getString(R.string.action_register));
+        SpannableString noAccountString = new SpannableString(noAccountText);
+        int registerLength = getString(R.string.action_register).length();
+        ClickableSpan noAccountClickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                mPager.setCurrentItem(1);
+            }
+        };
+
+        noAccountString.setSpan(
+                noAccountClickableSpan,
+                noAccountText.length() - registerLength,
+                noAccountText.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        noAccountString.setSpan(
+                new ForegroundColorSpan(ContextCompat.getColor(this, R.color.accent)),
+                noAccountText.length() - registerLength,
+                noAccountText.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        noAccountString.setSpan(
+                new UnderlineSpan(),
+                noAccountText.length() - registerLength,
+                noAccountText.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+
+        if (noAccount != null) {
+            noAccount.setText(noAccountString);
+            noAccount.setMovementMethod(LinkMovementMethod.getInstance());
+            noAccount.setHighlightColor(Color.TRANSPARENT);
+        } else throw new RuntimeException("noAccount should not be null");
+
+        TextView registered = (TextView) findViewById(R.id.registered);
+        String registeredText = getString(R.string.already_registered, getString(R.string.action_sign_in));
+        SpannableString registeredString = new SpannableString(registeredText);
+        int signInLength = getString(R.string.action_sign_in).length();
+        ClickableSpan registeredClickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                mPager.setCurrentItem(0);
+            }
+        };
+
+        registeredString.setSpan(
+                registeredClickableSpan,
+                registeredText.length() - signInLength,
+                registeredText.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        registeredString.setSpan(
+                new ForegroundColorSpan(ContextCompat.getColor(this, R.color.accent)),
+                registeredText.length() - signInLength,
+                registeredText.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+        registeredString.setSpan(
+                new UnderlineSpan(),
+                registeredText.length() - signInLength,
+                registeredText.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+
+        if (registered != null) {
+            registered.setText(registeredString);
+            registered.setMovementMethod(LinkMovementMethod.getInstance());
+            registered.setHighlightColor(Color.TRANSPARENT);
+        } else throw new RuntimeException("registered should not be null");
     }
 
     /**

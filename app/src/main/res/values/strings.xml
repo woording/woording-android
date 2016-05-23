@@ -19,6 +19,8 @@
 
     <!-- Strings related to login -->
     <string name="add_account">Add account</string>
+    <string name="no_account">No account? %1$s</string> <!-- %1$s has to be @string/action_register -->
+    <string name="already_registered">Already registered? %1$s</string> <!-- %1$s has to be @string/action_sign_in -->
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_password_repeat">Repeat password</string>
