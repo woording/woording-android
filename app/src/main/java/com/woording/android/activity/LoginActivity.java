@@ -118,7 +118,6 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             public void onPageSelected(int position) {
                 Log.d(TAG, "onPageSelected: Changed page to " + position);
                 mLoggingIn = position == 0;
-                // TODO: 5-11-2016 Change text on ActionBar
                 if (mToolbar != null) {
                     switch (position) {
                         case 0:
