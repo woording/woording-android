@@ -96,7 +96,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         else throw new RuntimeException("getSupportActionBar() should not be null");
@@ -119,6 +119,16 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
                 Log.d(TAG, "onPageSelected: Changed page to " + position);
                 mLoggingIn = position == 0;
                 // TODO: 5-11-2016 Change text on ActionBar
+                if (mToolbar != null) {
+                    switch (position) {
+                        case 0:
+                            mToolbar.setTitle(R.string.action_sign_in);
+                            break;
+                        case 1:
+                            mToolbar.setTitle(R.string.action_register);
+                            break;
+                    }
+                } else throw new RuntimeException("mToolbar should not be null");
             }
 
             @Override
