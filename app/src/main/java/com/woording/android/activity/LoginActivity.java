@@ -39,6 +39,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.credentials.Credential;
 import com.woording.android.R;
 import com.woording.android.account.AccountUtils;
 import com.woording.android.adapter.ViewPagerAdapter;
@@ -55,6 +56,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
     public static final String ARG_ACCOUNT_TYPE = "accountType";
     public static final String ARG_AUTH_TOKEN_TYPE = "authTokenType";
     public static final String ARG_IS_ADDING_NEW_ACCOUNT = "isAddingNewAccount";
+    public static final String ARG_IS_SIGNING_IN = "isSigningIn";
     public static final String PARAM_USER_PASSWORD = "password";
 
     private AccountManager mAccountManager;
@@ -201,6 +203,13 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         mRegisterProgressView = findViewById(R.id.register_progress);
 
         createPageLinks();
+
+        if (getIntent().getBooleanExtra(ARG_IS_SIGNING_IN, false)) {
+            Intent intent = getIntent();
+            mUsernameViewLogin.setText(intent.getStringExtra("username"));
+            mPasswordViewLogin.setText(intent.getStringExtra("password"));
+            attemptLogin();
+        }
     }
 
     private void createPageLinks() {
@@ -481,7 +490,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             final Account account = new Account(accountName, intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE));
             String authToken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
 
-            if (getIntent().getBooleanExtra(ARG_IS_ADDING_NEW_ACCOUNT, false)) {
+            if (getIntent().getBooleanExtra(ARG_IS_ADDING_NEW_ACCOUNT, false) || getIntent().getBooleanExtra(ARG_IS_SIGNING_IN, false)) {
                 // Creating the account on the device and setting the auth token we got
                 // (Not setting the auth token will cause another call to the server to authenticate the user)
                 mAccountManager.addAccountExplicitly(account, accountPassword, null);
@@ -491,6 +500,10 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             } else {
                 mAccountManager.setPassword(account, accountPassword);
             }
+            MainActivity.sCredential = new Credential.Builder(accountName)
+                    .setName(accountName)
+                    .setPassword(accountPassword)
+                    .build();
 
             setAccountAuthenticatorResult(intent.getExtras());
             setResult(AccountAuthenticatorActivity.RESULT_OK, intent);

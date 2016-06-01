@@ -15,10 +15,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -36,6 +38,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -44,6 +47,15 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.credentials.Credential;
+import com.google.android.gms.auth.api.credentials.CredentialRequest;
+import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -75,11 +87,19 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  implements
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks{
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final int REQ_SIGNUP = 1;
+
+    private static final String KEY_IS_RESOLVING = "is_resolving";
+    private static final String KEY_CREDENTIAL = "key_credential";
+    private static final int RC_SAVE = 1;
+    private static final int RC_HINT = 2;
+    private static final int RC_READ = 3;
 
     // MaterialDrawer identifier
     private static final int PROFILE_SETTING = 1;
@@ -90,6 +110,10 @@ public class MainActivity extends AppCompatActivity {
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
     private String mAuthToken;
+
+    private GoogleApiClient mGoogleApiClient;
+    protected static Credential sCredential;
+    private boolean mIsResolving = false;
 
     public static CoordinatorLayout mCoordinatorLayout;
     public static FloatingActionButton sFab;
@@ -107,6 +131,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState != null) {
+            mIsResolving = savedInstanceState.getBoolean(KEY_IS_RESOLVING, false);
+            sCredential = savedInstanceState.getParcelable(KEY_CREDENTIAL);
+        }
+
+        buildGoogleApiClient();
 
         // Setup toolbar
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -178,10 +209,31 @@ public class MainActivity extends AppCompatActivity {
             // Ask for an auth token
             mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null, this, new GetAuthTokenCallback(0), null);
         } else {
-            // Add new account
-            Intent addAccountIntent = new Intent(this, LoginActivity.class);
-            addAccountIntent.putExtra(LoginActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
-            startActivity(addAccountIntent);
+            CredentialRequest credentialRequest = new CredentialRequest.Builder()
+                    .setPasswordLoginSupported(true)
+                    .setAccountTypes("https://woording.com")
+                    .build();
+
+            Auth.CredentialsApi.request(mGoogleApiClient, credentialRequest).setResultCallback(new ResultCallback<CredentialRequestResult>() {
+                @Override
+                public void onResult(@NonNull CredentialRequestResult credentialRequestResult) {
+                    if (credentialRequestResult.getStatus().isSuccess()) {
+                        // See "Handle successful credential requests"
+                        sCredential = credentialRequestResult.getCredential();
+                        String accountType = sCredential.getAccountType();
+                        Log.d(TAG, "accountType: " + accountType);
+
+                        // TODO: Sign in with password and username
+                        signInUser(sCredential);
+                    } else {
+                        // See "Handle unsuccessful and incomplete credential requests"
+                        resolveResult(credentialRequestResult.getStatus());
+                    }
+                }
+            });
+
+
+//            // Add new account
         }
 
         // Build the accountHeader
@@ -373,12 +425,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case RC_READ:
+                if (resultCode == RESULT_OK) {
+                    sCredential = data.getParcelableExtra(Credential.EXTRA_KEY);
+                    // TODO: sign in with username and password
+                    signInUser(sCredential);
+                } else {
+                    Log.e(TAG, "Credential Read: NOT OK");
+                    Toast.makeText(this, "Credential Read Failed", Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+            case RC_SAVE:
+                if (resultCode == RESULT_OK) {
+                    Log.d(TAG, "SAVE: OK");
+                    Toast.makeText(this, "Credentials saved", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e(TAG, "SAVE: Canceled by user");
+                }
+                break;
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         //add the values which need to be saved from the drawer to the bundle
         outState = mDrawer.saveInstanceState(outState);
         //add the values which need to be saved from the accountHeader to the bundle
         outState = mAccountHeader.saveInstanceState(outState);
         super.onSaveInstanceState(outState);
+
+        outState.putBoolean(KEY_IS_RESOLVING, mIsResolving);
+        outState.putParcelable(KEY_CREDENTIAL, sCredential);
     }
 
     @Override
@@ -418,6 +500,87 @@ public class MainActivity extends AppCompatActivity {
             removeAccounts();
             addAccounts();
         }
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        uploadCredential(sCredential);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {}
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.w(TAG, "onConnectionFailed:" + connectionResult);
+        Toast.makeText(this, "An error has occurred.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void buildGoogleApiClient() {
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.stopAutoManage(this);
+        }
+
+        GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.CREDENTIALS_API);
+
+        mGoogleApiClient = builder.build();
+    }
+
+    private void uploadCredential(Credential credential) {
+        if (credential == null) return;
+
+        Auth.CredentialsApi.save(mGoogleApiClient, credential).setResultCallback(new ResultCallback<Status>() {
+            @Override
+            public void onResult(@NonNull Status status) {
+                if (status.isSuccess()) {
+                    Log.d(TAG, "SAVE: OK");
+                    Toast.makeText(mContext, "Credentials saved", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (status.hasResolution()) {
+                        // Try to resolve the save request. This will prompt the user if
+                        // the credential is new.
+                        try {
+                            status.startResolutionForResult((Activity) mContext, RC_SAVE);
+                        } catch (IntentSender.SendIntentException e) {
+                            // Could not resolve the request
+                            Log.e(TAG, "STATUS: Failed to send resolution.", e);
+                            Toast.makeText(mContext, "Save failed", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // Request has no resolution
+                        Toast.makeText(mContext, "Save failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+    }
+
+    private void resolveResult(Status status) {
+        if (status.getStatusCode() == CommonStatusCodes.RESOLUTION_REQUIRED) {
+            // Prompt the user to choose a saved credential; do not show the hint
+            // selector.
+            try {
+                status.startResolutionForResult(this, RC_READ);
+            } catch (IntentSender.SendIntentException e) {
+                Log.e(TAG, "STATUS: Failed to send resolution.", e);
+            }
+        } else {
+            // Sign in manually
+            Intent addAccountIntent = new Intent(this, LoginActivity.class);
+            addAccountIntent.putExtra(LoginActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
+            startActivity(addAccountIntent);
+        }
+    }
+
+    private void signInUser(Credential credential) {
+        Intent intent = new Intent(this, LoginActivity.class)
+                .putExtra(LoginActivity.ARG_IS_SIGNING_IN, true)
+                .putExtra("username", credential.getId())
+                .putExtra("password", credential.getPassword());
+        startActivity(intent);
     }
 
     private void removeAccounts() {
