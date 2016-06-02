@@ -1,21 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Woording for Android is a project by PhiliPdB.
   ~
   ~ Copyright (c) 2016.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.woording.android">
+          package="com.woording.android">
 
     <!-- To communicate with our api server -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <!-- Need this permission for speech recognition -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- Need permissions to add, get and authenticate accounts -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
 
     <application
         android:name=".App"
@@ -26,15 +27,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activity.MainActivity"
-            android:label="@string/app_name">
-
+            android:name=".activity.SplashActivity"
+            android:theme="@style/AppTheme.Splash">
             <!-- Intent filter for launcher -->
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.MainActivity"
+            android:label="@string/app_name">
         </activity>
         <activity
             android:name=".activity.LoginActivity"
@@ -43,19 +47,19 @@
             android:windowSoftInputMode="adjustResize|stateVisible">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.woording.android.activity.MainActivity" />
+                android:value="com.woording.android.activity.MainActivity"/>
         </activity>
         <activity
             android:name=".activity.ListViewActivity"
             android:label="@string/title_activity_list_view"
             android:parentActivityName=".activity.MainActivity">
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.woording.android.activity.MainActivity" />
+                android:value="com.woording.android.activity.MainActivity"/>
         </activity>
         <activity
             android:name=".activity.PracticeActivity"
@@ -64,7 +68,7 @@
             android:windowSoftInputMode="adjustResize|stateVisible">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.woording.android.activity.ListViewActivity" />
+                android:value="com.woording.android.activity.ListViewActivity"/>
         </activity>
         <activity
             android:name=".activity.EditListActivity"
@@ -74,45 +78,48 @@
             >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.woording.android.activity.ListViewActivity" />
+                android:value="com.woording.android.activity.ListViewActivity"/>
         </activity>
         <activity
             android:name=".activity.ParseDeepLinkActivity"
-            android:noHistory="true"
             android:alwaysRetainTaskState="true"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:noHistory="true">
+
             <!-- Intent filter for deep linking -->
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
+                <action android:name="android.intent.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
                     android:host="www.woording.com"
-                    android:scheme="http" />
+                    android:scheme="http"/>
                 <data
                     android:host="woording.com"
-                    android:scheme="http" />
+                    android:scheme="http"/>
                 <data
                     android:host="www.woording.com"
-                    android:scheme="https" />
+                    android:scheme="https"/>
                 <data
                     android:host="woording.com"
-                    android:scheme="https" />
+                    android:scheme="https"/>
             </intent-filter>
         </activity>
-        <activity android:name=".components.AccountAuthenticatorAppCompatActivity" />
+        <activity android:name=".components.AccountAuthenticatorAppCompatActivity"/>
 
         <service
             android:name=".account.AuthenticatorService"
             android:exported="false">
             <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
+                <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
+                android:resource="@xml/authenticator"/>
         </service>
     </application>
+
 </manifest>
