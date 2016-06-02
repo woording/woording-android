@@ -500,7 +500,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             } else {
                 mAccountManager.setPassword(account, accountPassword);
             }
-            MainActivity.sCredential = new Credential.Builder(accountName)
+            MainActivity.sCredentialToSave = new Credential.Builder(accountName)
                     .setName(accountName)
                     .setPassword(accountPassword)
                     .build();

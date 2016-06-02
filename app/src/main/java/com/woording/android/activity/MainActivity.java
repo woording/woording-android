@@ -97,8 +97,9 @@ public class MainActivity extends AppCompatActivity  implements
 
     private static final String KEY_IS_RESOLVING = "is_resolving";
     private static final String KEY_CREDENTIAL = "key_credential";
+    private static final String KEY_IS_SIGNING_IN = "key_is_signing_in";
     private static final int RC_SAVE = 1;
-    private static final int RC_HINT = 2;
+    private static final int RC_HINT = 2; // TODO: 6-2-2016 Use or remove this
     private static final int RC_READ = 3;
 
     // MaterialDrawer identifier
@@ -107,18 +108,24 @@ public class MainActivity extends AppCompatActivity  implements
     public static List sLastDeletedList = null;
     public static boolean sAccountAdded = false;
 
+    // Accounts
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
     private String mAuthToken;
 
+    // Credential stuff
     private GoogleApiClient mGoogleApiClient;
-    protected static Credential sCredential;
+    private Credential mCredential;
+    protected static Credential sCredentialToSave;
     private boolean mIsResolving = false;
+    private boolean mIsSigningIn = false;
 
+    // UI
     public static CoordinatorLayout mCoordinatorLayout;
     public static FloatingActionButton sFab;
     private ListsListFragment mListsListFragment;
 
+    // Navigation drawer
     private AccountHeader mAccountHeader;
     private Drawer mDrawer;
 
@@ -134,7 +141,8 @@ public class MainActivity extends AppCompatActivity  implements
 
         if (savedInstanceState != null) {
             mIsResolving = savedInstanceState.getBoolean(KEY_IS_RESOLVING, false);
-            sCredential = savedInstanceState.getParcelable(KEY_CREDENTIAL);
+            mCredential = savedInstanceState.getParcelable(KEY_CREDENTIAL);
+            mIsSigningIn = savedInstanceState.getBoolean(KEY_IS_SIGNING_IN, false);
         }
 
         buildGoogleApiClient();
@@ -208,7 +216,8 @@ public class MainActivity extends AppCompatActivity  implements
         if (currentAccount != null) {
             // Ask for an auth token
             mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null, this, new GetAuthTokenCallback(0), null);
-        } else {
+        } else if (!mIsResolving) {
+            mIsSigningIn = true;
             CredentialRequest credentialRequest = new CredentialRequest.Builder()
                     .setPasswordLoginSupported(true)
                     .setAccountTypes("https://woording.com")
@@ -219,21 +228,19 @@ public class MainActivity extends AppCompatActivity  implements
                 public void onResult(@NonNull CredentialRequestResult credentialRequestResult) {
                     if (credentialRequestResult.getStatus().isSuccess()) {
                         // See "Handle successful credential requests"
-                        sCredential = credentialRequestResult.getCredential();
-                        String accountType = sCredential.getAccountType();
+                        mCredential = credentialRequestResult.getCredential();
+                        String accountType = mCredential.getAccountType();
                         Log.d(TAG, "accountType: " + accountType);
 
                         // TODO: Sign in with password and username
-                        signInUser(sCredential);
+                        signInUser(mCredential);
                     } else {
                         // See "Handle unsuccessful and incomplete credential requests"
                         resolveResult(credentialRequestResult.getStatus());
+                        mIsResolving = true;
                     }
                 }
             });
-
-
-//            // Add new account
         }
 
         // Build the accountHeader
@@ -430,10 +437,11 @@ public class MainActivity extends AppCompatActivity  implements
 
         switch (requestCode) {
             case RC_READ:
+                mIsResolving = false;
                 if (resultCode == RESULT_OK) {
-                    sCredential = data.getParcelableExtra(Credential.EXTRA_KEY);
+                    mCredential = data.getParcelableExtra(Credential.EXTRA_KEY);
                     // TODO: sign in with username and password
-                    signInUser(sCredential);
+                    signInUser(mCredential);
                 } else {
                     Log.e(TAG, "Credential Read: NOT OK");
                     Toast.makeText(this, "Credential Read Failed", Toast.LENGTH_SHORT).show();
@@ -441,6 +449,7 @@ public class MainActivity extends AppCompatActivity  implements
                 break;
 
             case RC_SAVE:
+                mIsResolving = false;
                 if (resultCode == RESULT_OK) {
                     Log.d(TAG, "SAVE: OK");
                     Toast.makeText(this, "Credentials saved", Toast.LENGTH_SHORT).show();
@@ -460,7 +469,8 @@ public class MainActivity extends AppCompatActivity  implements
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(KEY_IS_RESOLVING, mIsResolving);
-        outState.putParcelable(KEY_CREDENTIAL, sCredential);
+        outState.putParcelable(KEY_CREDENTIAL, mCredential);
+        outState.putBoolean(KEY_IS_SIGNING_IN, mIsSigningIn);
     }
 
     @Override
@@ -490,6 +500,7 @@ public class MainActivity extends AppCompatActivity  implements
         super.onResume();
 
         if (sAccountAdded) {
+            mIsSigningIn = false;
             // Switch to new account
             Account[] accounts = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE);
             Account addedAccount = accounts[accounts.length - 1];
@@ -504,7 +515,8 @@ public class MainActivity extends AppCompatActivity  implements
 
     @Override
     public void onConnected(Bundle bundle) {
-        uploadCredential(sCredential);
+        uploadCredential(sCredentialToSave);
+        sCredentialToSave = null;
     }
 
     @Override
@@ -544,6 +556,7 @@ public class MainActivity extends AppCompatActivity  implements
                         // the credential is new.
                         try {
                             status.startResolutionForResult((Activity) mContext, RC_SAVE);
+                            mIsResolving = true;
                         } catch (IntentSender.SendIntentException e) {
                             // Could not resolve the request
                             Log.e(TAG, "STATUS: Failed to send resolution.", e);
@@ -564,6 +577,7 @@ public class MainActivity extends AppCompatActivity  implements
             // selector.
             try {
                 status.startResolutionForResult(this, RC_READ);
+                mIsResolving = true;
             } catch (IntentSender.SendIntentException e) {
                 Log.e(TAG, "STATUS: Failed to send resolution.", e);
             }
@@ -710,57 +724,59 @@ public class MainActivity extends AppCompatActivity  implements
      * This function helps you getting friends from our API server. ;)
      */
     private void getFriends(final boolean skipCache) {
-        try {
-            final JSONObject data = new JSONObject()
-                    .put("username", mAuthPreferences.getAccountName())
-                    .put("token", mAuthPreferences.getAuthToken());
-            // Send the request
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/getFriends",
-                    data, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    // Remove all friend items when needed
-                    if (mDrawer.getDrawerItems().size() > 3) removeFriendsFromDrawer();
-                    // Try to load data
-                    try {
-                        JSONArray array = response.getJSONArray("friends");
-                        for (int i = 0; i < array.length(); i++) {
-                            try {
-                                JSONObject friend = array.getJSONObject(i);
-                                mDrawer.addItemAtPosition(new SecondaryDrawerItem()
-                                        .withName(friend.getString("username"))
-                                        .withIcon(GoogleMaterial.Icon.gmd_person),
-                                        mDrawer.getDrawerItems().size());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+        if (!mIsSigningIn || mAuthPreferences.getAccountName() == null || mAuthPreferences.getAuthToken() == null) {
+            try {
+                final JSONObject data = new JSONObject()
+                        .put("username", mAuthPreferences.getAccountName())
+                        .put("token", mAuthPreferences.getAuthToken());
+                // Send the request
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, App.API_LOCATION + "/getFriends",
+                        data, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Remove all friend items when needed
+                        if (mDrawer.getDrawerItems().size() > 3) removeFriendsFromDrawer();
+                        // Try to load data
+                        try {
+                            JSONArray array = response.getJSONArray("friends");
+                            for (int i = 0; i < array.length(); i++) {
+                                try {
+                                    JSONObject friend = array.getJSONObject(i);
+                                    mDrawer.addItemAtPosition(new SecondaryDrawerItem()
+                                                    .withName(friend.getString("username"))
+                                                    .withIcon(GoogleMaterial.Icon.gmd_person),
+                                            mDrawer.getDrawerItems().size());
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        // Check if need to set selection
+                        if (mSetSelectionFor != null) {
+                            mDrawer.setSelectionAtPosition(getFriendPosition(mSetSelectionFor), false);
+                            mSetSelectionFor = null;
+                        }
                     }
-                    // Check if need to set selection
-                    if (mSetSelectionFor != null) {
-                        mDrawer.setSelectionAtPosition(getFriendPosition(mSetSelectionFor), false);
-                        mSetSelectionFor = null;
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        NetworkResponse networkResponse = error.networkResponse;
+                        if (networkResponse != null && networkResponse.statusCode == 401) {
+                            // HTTP Status Code: 401 Unauthorized
+                            getNewAuthToken(skipCache ? 3 : 1);
+                        } else {
+                            error.printStackTrace();
+                        }
                     }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    NetworkResponse networkResponse = error.networkResponse;
-                    if (networkResponse != null && networkResponse.statusCode == 401) {
-                        // HTTP Status Code: 401 Unauthorized
-                        getNewAuthToken(skipCache ? 3 : 1);
-                    } else {
-                        error.printStackTrace();
-                    }
-                }
-            });
-            request.setSkipCache(skipCache);
-            // Access the RequestQueue through your singleton class.
-            VolleySingleton.getInstance(this).addToRequestQueue(request);
-        } catch (JSONException e) {
-            e.printStackTrace();
+                });
+                request.setSkipCache(skipCache);
+                // Access the RequestQueue through your singleton class.
+                VolleySingleton.getInstance(this).addToRequestQueue(request);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
