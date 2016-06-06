@@ -82,6 +82,7 @@
     <string name="discard">Discard</string>
     <string name="list_saved">List saved</string>
     <string name="error_invalid_chars">Title contains invalid characters</string>
+    <string name="error_cant_save_server_error">Can\'t save the list due to a server error, please try again later.</string>
 
     <!-- Friends -->
     <string name="friends">Friends</string>

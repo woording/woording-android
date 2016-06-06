@@ -377,9 +377,8 @@ public class EditListFragment extends MyFragment {
                         mLastSavedList = getListData().deepClone();
 
                         // Display SnackBar
-                        CoordinatorLayout coordinatorLayout;
                         // Decide whether to load CoordinatorLayout from MainActivity or EditListActivity
-                        coordinatorLayout = App.mDualPane ? MainActivity.mCoordinatorLayout : EditListActivity.mCoordinatorLayout;
+                        CoordinatorLayout coordinatorLayout = App.mDualPane ? MainActivity.mCoordinatorLayout : EditListActivity.mCoordinatorLayout;
                         // Show SnackBar
                         Snackbar.make(coordinatorLayout, R.string.list_saved, Snackbar.LENGTH_SHORT).show();
                     }
@@ -390,6 +389,11 @@ public class EditListFragment extends MyFragment {
                         if (networkResponse != null && networkResponse.statusCode == 401) {
                             // HTTP Status Code: 401 Unauthorized
                             getNewAuthToken(1);
+                        } else if (networkResponse != null
+                                && networkResponse.statusCode >= 500 && networkResponse.statusCode <= 599) {
+                            // Can't save list due to a server error
+                            CoordinatorLayout coordinatorLayout = App.mDualPane ? MainActivity.mCoordinatorLayout : EditListActivity.mCoordinatorLayout;
+                            Snackbar.make(coordinatorLayout, R.string.error_cant_save_server_error, Snackbar.LENGTH_LONG).show();
                         } else {
                             error.printStackTrace();
                         }
