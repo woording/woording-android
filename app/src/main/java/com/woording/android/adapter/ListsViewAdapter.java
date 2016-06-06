@@ -43,7 +43,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     private boolean mFiltered = false;
     private String mFilterQuery;
 
-    private Context mContext;
+    private final Context mContext;
 
     public ListsViewAdapter(Context context, @NonNull ArrayList<List> lists) {
         this.mLists = lists;
@@ -168,7 +168,7 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         return new ListFilter(this, mLists);
     }
 
-    void animateTo(ArrayList<List> lists) {
+    private void animateTo(ArrayList<List> lists) {
         applyAndAnimateRemovals(lists);
         applyAndAnimateAdditions(lists);
         applyAndAnimateMovedItems(lists);
@@ -202,17 +202,17 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
         }
     }
 
-    public void removeItem(int position) {
+    private void removeItem(int position) {
         filteredList.remove(position);
         notifyItemRemoved(position);
     }
 
-    public void addItem(int position, List list) {
+    private void addItem(int position, List list) {
         filteredList.add(position, list);
         notifyItemInserted(position);
     }
 
-    public void moveItem(int fromPosition, int toPosition) {
+    private void moveItem(int fromPosition, int toPosition) {
         final List model = filteredList.remove(fromPosition);
         filteredList.add(toPosition, model);
         notifyItemMoved(fromPosition, toPosition);

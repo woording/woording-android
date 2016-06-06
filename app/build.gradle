@@ -56,7 +56,7 @@ dependencies {
     compile 'com.mikepenz:materialdrawer:5.2.9'
     compile 'com.mikepenz:google-material-typeface:2.2.0.1.original@aar'
 
-    compile 'com.google.android.gms:play-services-auth:9.0.1'
+    compile 'com.google.android.gms:play-services-auth:9.0.2'
 
     // Test setup
     androidTestCompile 'com.android.support.test:runner:0.4.1'

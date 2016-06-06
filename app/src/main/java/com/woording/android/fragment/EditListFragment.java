@@ -74,7 +74,7 @@ public class EditListFragment extends MyFragment {
     public boolean mIsNewList = true;
 
     private EditTextListAdapter mEditTextListAdapter;
-    private ArrayList<String> mListNames = new ArrayList<>();
+    private final ArrayList<String> mListNames = new ArrayList<>();
     private List mList = null;
     private List mLastSavedList = null;
     private boolean mListNameExists = false;
@@ -407,9 +407,8 @@ public class EditListFragment extends MyFragment {
         } else {
             // List name does already exist so can't save
             // Display SnackBar
-            CoordinatorLayout coordinatorLayout;
             // Decide whether to load CoordinatorLayout from MainActivity or EditListActivity
-            coordinatorLayout = App.mDualPane ? MainActivity.mCoordinatorLayout : EditListActivity.mCoordinatorLayout;
+            CoordinatorLayout coordinatorLayout = App.mDualPane ? MainActivity.mCoordinatorLayout : EditListActivity.mCoordinatorLayout;
             // Show SnackBar
             Snackbar.make(coordinatorLayout, R.string.error_cant_save_list_name_exits, Snackbar.LENGTH_LONG).show();
         }

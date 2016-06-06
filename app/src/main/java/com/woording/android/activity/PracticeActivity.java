@@ -46,7 +46,7 @@ import java.util.Arrays;
 public class PracticeActivity extends AppCompatActivity
     implements RecognitionListener {
 
-    private final String TAG = "PracticeActivity";
+    private static final String TAG = "PracticeActivity";
     public static final int RECORD_AUDIO = 1;
 
     // Practice method constants
