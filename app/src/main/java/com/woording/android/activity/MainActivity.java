@@ -167,37 +167,6 @@ public class MainActivity extends AppCompatActivity  implements
 
         mContext = this;
 
-        int requestCode = getIntent().getIntExtra("requestCode", 0);
-        if (requestCode != 0) {
-            switch (requestCode) {
-                case ListViewActivity.NO_WORDS_DATA:
-                    Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_SHORT)
-                            .show();
-                    break;
-
-                case ListViewActivity.DELETED_LIST:
-                    Snackbar.make(mCoordinatorLayout, getString(R.string.list_deleted), Snackbar.LENGTH_LONG)
-                            .setAction(R.string.undo, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Log.d(TAG, "onClick: Undo delete");
-                                    if (sLastDeletedList != null) {
-                                        mListsListFragment.saveList(sLastDeletedList);
-                                        mListsListFragment.getLists(true);
-                                    }
-                                }
-                            }).show();
-                    break;
-
-                case ListViewActivity.LIST_NOT_FOUND:
-                    Snackbar.make(mCoordinatorLayout, R.string.error_list_not_found, Snackbar.LENGTH_SHORT).show();
-                    break;
-                case ListViewActivity.USER_NOT_FOUND:
-                    Snackbar.make(mCoordinatorLayout, R.string.error_user_not_found, Snackbar.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-
         if (!isNetworkAvailable(this))
             Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_LONG).show();
 
@@ -427,6 +396,41 @@ public class MainActivity extends AppCompatActivity  implements
                         newList();
                     }
                 });
+            }
+        }
+
+        // Show error if needed
+        int requestCode = getIntent().getIntExtra("requestCode", 0);
+        if (requestCode != 0) {
+            switch (requestCode) {
+                case ListViewActivity.NO_WORDS_DATA:
+                    Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_connection), Snackbar.LENGTH_SHORT)
+                            .show();
+                    break;
+
+                case ListViewActivity.DELETED_LIST:
+                    Snackbar.make(mCoordinatorLayout, getString(R.string.list_deleted), Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Log.d(TAG, "onClick: Undo delete");
+                                    if (sLastDeletedList != null) {
+                                        mListsListFragment.saveList(sLastDeletedList);
+                                        mListsListFragment.getLists(true);
+                                    }
+                                }
+                            }).show();
+                    break;
+
+                case ListViewActivity.LIST_NOT_FOUND:
+                    Snackbar.make(mCoordinatorLayout, R.string.error_list_not_found, Snackbar.LENGTH_SHORT).show();
+                    break;
+                case ListViewActivity.USER_NOT_FOUND:
+                    Snackbar.make(mCoordinatorLayout, R.string.error_user_not_found, Snackbar.LENGTH_SHORT).show();
+                    break;
+                case ListViewActivity.SERVER_ERROR:
+                    Snackbar.make(mCoordinatorLayout, R.string.error_server, Snackbar.LENGTH_SHORT).show();
+                    break;
             }
         }
     }

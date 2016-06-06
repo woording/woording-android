@@ -455,6 +455,26 @@ public class ListViewFragment extends MyFragment {
                     if (networkResponse != null && networkResponse.statusCode == 401) {
                         // HTTP Status Code: 401 Unauthorized
                         getNewAuthToken(0);
+                    } else if (networkResponse != null
+                            && networkResponse.statusCode >= 500 && networkResponse.statusCode <= 599) {
+                        // Some kind of server error
+                        if (getActivity().getIntent().getBooleanExtra("fromDeepLink", false)) {
+                            // First display toast
+                            Toast.makeText(getActivity(), R.string.error_server, Toast.LENGTH_SHORT).show();
+                            // Then finish the app
+                            finishApp();
+                        } else {
+                            if (!App.mDualPane) {
+                                // Finish and go back to MainActivity
+                                ((ListViewActivity) getActivity()).goUp(ListViewActivity.SERVER_ERROR, mUsername);
+                            } else {
+                                Snackbar.make(
+                                        MainActivity.mCoordinatorLayout, R.string.error_server, Snackbar.LENGTH_SHORT
+                                ).show();
+                                // Remove from pane
+                                ((MainActivity) getActivity()).removeFragmentsFromSecondPane();
+                            }
+                        }
                     } else {
                         error.printStackTrace();
                         // Stop displaying loading screen

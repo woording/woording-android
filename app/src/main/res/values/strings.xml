@@ -15,6 +15,7 @@
     <string name="action_search">Search</string>
 
     <string name="error_no_connection">No connection</string>
+    <string name="error_server">Server error</string>
     <string name="press_BACK_again_to_exit">Please press BACK again to exit</string>
 
     <!-- Strings related to login -->
