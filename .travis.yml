@@ -19,7 +19,7 @@ android:
   components:
   - tools
   - build-tools-23.0.3
-  - android-23
+  - android-24
   # Needed for volley
   - android-22
   # Extra tools
