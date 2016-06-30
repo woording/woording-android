@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity  implements
                         String accountType = mCredential.getAccountType();
                         Log.d(TAG, "accountType: " + accountType);
 
-                        // TODO: Sign in with password and username
+                        // Sign in with password and username
                         signInUser(mCredential);
                     } else {
                         // See "Handle unsuccessful and incomplete credential requests"
