@@ -18,23 +18,24 @@ env:
 android:
   components:
   - tools
-  - build-tools-23.0.3
+  - build-tools-24.0.0
   # Needed for the app itself
   - android-24
   # Needed for volley
   - android-22
+  - build-tools-23.0.3
   # Extra tools
   - extra-android-m2repository
   - extra-google-m2repository
   - extra-google-google_play_services
   # Emulator image
-  - sys-img-armeabi-v7a-addon-google_apis-google-24
+  - sys-img-x86-android-24
   licences:
   # Accept all licences
   - ".+"
 
 before_script:
-- echo no | android create avd --force -n test -t android-24 --abi google_apis/armeabi-v7a
+- echo no | android create avd --force -n test -t android-24 --abi x86
 - emulator -avd test -no-skin -no-audio -no-window &
 - android-wait-for-emulator
 - adb shell input keyevent 82 &
