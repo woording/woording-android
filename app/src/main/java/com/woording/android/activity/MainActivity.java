@@ -529,7 +529,9 @@ public class MainActivity extends AppCompatActivity  implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.w(TAG, "onConnectionFailed:" + connectionResult);
-        Toast.makeText(this, "An error has occurred.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Can\'t connect to Google Play Services", Toast.LENGTH_SHORT).show();
+        // Sign in manually
+        manualSignIn();
     }
 
     private void buildGoogleApiClient() {
@@ -539,6 +541,7 @@ public class MainActivity extends AppCompatActivity  implements
 
         GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
                 .enableAutoManage(this, this)
                 .addApi(Auth.CREDENTIALS_API);
 
@@ -587,9 +590,7 @@ public class MainActivity extends AppCompatActivity  implements
             }
         } else {
             // Sign in manually
-            Intent addAccountIntent = new Intent(this, LoginActivity.class);
-            addAccountIntent.putExtra(LoginActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
-            startActivity(addAccountIntent);
+            manualSignIn();
         }
     }
 
@@ -599,6 +600,12 @@ public class MainActivity extends AppCompatActivity  implements
                 .putExtra("username", credential.getId())
                 .putExtra("password", credential.getPassword());
         startActivity(intent);
+    }
+
+    private void manualSignIn() {
+        Intent addAccountIntent = new Intent(this, LoginActivity.class);
+        addAccountIntent.putExtra(LoginActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
+        startActivity(addAccountIntent);
     }
 
     private void removeAccounts() {
