@@ -811,6 +811,7 @@ public class MainActivity extends AppCompatActivity  implements
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     error.printStackTrace();
+                    Snackbar.make(mCoordinatorLayout, R.string.friend_request_error, Snackbar.LENGTH_LONG).show();
                 }
             }) {
                 // This needs to be done to send data with a StringRequest

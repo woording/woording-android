@@ -247,6 +247,9 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
                             if (networkResponse != null && networkResponse.statusCode == 401) {
                                 // HTTP Status Code: 401 Unauthorized
                                 getNewAuthToken(skipCache ? 2 : 0);
+                            } else if (networkResponse != null && networkResponse.statusCode >= 500 && networkResponse.statusCode <= 599) {
+                                // Server error
+                                Snackbar.make(MainActivity.mCoordinatorLayout, R.string.error_server, Snackbar.LENGTH_SHORT).show();
                             } else {
                                 error.printStackTrace();
                                 mSwipeRefreshLayout.setRefreshing(false);
@@ -340,7 +343,7 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
                     }
                 }
             } catch(OperationCanceledException e) {
-                // If signup was cancelled, force activity termination
+                // If sign up was cancelled, force activity termination
                 getActivity().finish();
             } catch(Exception e) {
                 e.printStackTrace();

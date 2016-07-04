@@ -92,6 +92,7 @@
     <string name="friend_name">Friend\'s name</string>
     <string name="error_already_friends">Already friends</string>
     <string name="friend_request_sent">Friend request sent</string>
+    <string name="friend_request_error">An error occurred while sending a friend request. Please try again later.</string>
 
     <!-- Languages -->
     <string name="english">English</string>
