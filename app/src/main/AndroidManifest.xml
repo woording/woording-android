@@ -28,7 +28,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.SplashActivity"
-            android:theme="@style/AppTheme.Splash">
+            android:theme="@style/AppTheme.Splash"
+            android:resizeableActivity="false">
             <!-- Intent filter for launcher -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -65,7 +66,8 @@
             android:name=".activity.PracticeActivity"
             android:label="@string/title_activity_practice"
             android:parentActivityName=".activity.ListViewActivity"
-            android:windowSoftInputMode="adjustResize|stateVisible">
+            android:windowSoftInputMode="adjustResize|stateVisible"
+            android:resizeableActivity="false">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.woording.android.activity.ListViewActivity"/>
