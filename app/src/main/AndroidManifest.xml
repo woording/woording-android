@@ -86,7 +86,8 @@
             android:name=".activity.ParseDeepLinkActivity"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleTask"
-            android:noHistory="true">
+            android:noHistory="true"
+            android:resizeableActivity="false">
 
             <!-- Intent filter for deep linking -->
             <intent-filter>

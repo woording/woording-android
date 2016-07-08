@@ -30,9 +30,7 @@ public class ParseDeepLinkActivity extends AppCompatActivity {
 
     private void parseDeepLink(Uri deeplink) {
         // The path of the deep link, e.g. '/<username>/<list>'
-        String path;
-        if (deeplink.getFragment() != null) path = deeplink.getFragment();
-        else path = deeplink.getPath();
+        String path = deeplink.getPath();
         // If no link, go to MainActivity
         if (path.length() == 0) {
             startActivity(new Intent(this, MainActivity.class));
@@ -41,9 +39,7 @@ public class ParseDeepLinkActivity extends AppCompatActivity {
         // Delete first slash and (if available) last slash
         StringBuilder builder = new StringBuilder(path);
         // Remove beginning slashes
-        if (path.startsWith("!/")) {
-            builder.delete(0, 2);
-        } else builder.deleteCharAt(0);
+        builder.deleteCharAt(0);
         // Remove ending slash
         if (path.endsWith("/")) {
             builder.deleteCharAt(path.length() - 2);
