@@ -54,9 +54,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.0.0'
     compile 'com.android.support:design:24.0.0'
     compile 'com.android.support:cardview-v7:24.0.0'
-    compile 'com.mikepenz:materialdrawer:5.3.3'
+    compile 'com.mikepenz:materialdrawer:5.3.4'
     compile 'com.mikepenz:google-material-typeface:2.2.0.1.original@aar'
-    compile 'com.google.android.gms:play-services-auth:9.2.0'
+    compile 'com.google.android.gms:play-services-auth:9.2.1'
+
     // Test setup
     androidTestCompile 'com.android.support.test:runner:0.4.1'
     androidTestCompile 'com.android.support:support-annotations:24.0.0'
