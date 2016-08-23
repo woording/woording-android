@@ -71,6 +71,7 @@ import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.woording.android.App;
+import com.woording.android.BuildConfig;
 import com.woording.android.List;
 import com.woording.android.R;
 import com.woording.android.VolleySingleton;
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity  implements
     private static final String KEY_IS_RESOLVING = "is_resolving";
     private static final String KEY_CREDENTIAL = "key_credential";
     private static final String KEY_IS_SIGNING_IN = "key_is_signing_in";
+
     private static final int RC_SAVE = 1;
     private static final int RC_HINT = 2; // TODO: 6-2-2016 Use or remove this
     private static final int RC_READ = 3;
@@ -139,6 +141,7 @@ public class MainActivity extends AppCompatActivity  implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Restore variables
         if (savedInstanceState != null) {
             mIsResolving = savedInstanceState.getBoolean(KEY_IS_RESOLVING, false);
             mCredential = savedInstanceState.getParcelable(KEY_CREDENTIAL);
@@ -174,6 +177,8 @@ public class MainActivity extends AppCompatActivity  implements
         mAuthPreferences = new AuthPreferences(this);
         mAccountManager = AccountManager.get(this);
 
+        // First look if the user is already logged in
+        // Check for the current account in the accountManager
         Account[] accounts = mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE);
         Account currentAccount = null;
         if (accounts.length != 0) {
@@ -182,16 +187,21 @@ public class MainActivity extends AppCompatActivity  implements
                 if (account.name.equals(username)) currentAccount = account;
             }
         }
+        // If you have a currentAccount, ask for the token
         if (currentAccount != null) {
             // Ask for an auth token
             mAccountManager.getAuthToken(currentAccount, AccountUtils.AUTH_TOKEN_TYPE, null, this, new GetAuthTokenCallback(0), null);
         } else if (!mIsResolving) {
+            // Only do this when not already doing this...
+
             mIsSigningIn = true;
+            // Create CredentialRequest
             CredentialRequest credentialRequest = new CredentialRequest.Builder()
                     .setPasswordLoginSupported(true)
                     .setAccountTypes("https://woording.com")
                     .build();
 
+            // Try to get credentials from the server
             Auth.CredentialsApi.request(mGoogleApiClient, credentialRequest).setResultCallback(new ResultCallback<CredentialRequestResult>() {
                 @Override
                 public void onResult(@NonNull CredentialRequestResult credentialRequestResult) {
@@ -444,11 +454,10 @@ public class MainActivity extends AppCompatActivity  implements
                 mIsResolving = false;
                 if (resultCode == RESULT_OK) {
                     mCredential = data.getParcelableExtra(Credential.EXTRA_KEY);
-                    // TODO: sign in with username and password
                     signInUser(mCredential);
                 } else {
                     Log.e(TAG, "Credential Read: NOT OK");
-                    Toast.makeText(this, "Credential Read Failed", Toast.LENGTH_SHORT).show();
+                    if (BuildConfig.DEBUG) Toast.makeText(this, "Credential Read Failed", Toast.LENGTH_SHORT).show();
                 }
                 break;
 
@@ -456,7 +465,7 @@ public class MainActivity extends AppCompatActivity  implements
                 mIsResolving = false;
                 if (resultCode == RESULT_OK) {
                     Log.d(TAG, "SAVE: OK");
-                    Toast.makeText(this, "Credentials saved", Toast.LENGTH_SHORT).show();
+                    if (BuildConfig.DEBUG) Toast.makeText(this, "Credentials saved", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e(TAG, "SAVE: Canceled by user");
                 }
@@ -470,11 +479,12 @@ public class MainActivity extends AppCompatActivity  implements
         outState = mDrawer.saveInstanceState(outState);
         //add the values which need to be saved from the accountHeader to the bundle
         outState = mAccountHeader.saveInstanceState(outState);
-        super.onSaveInstanceState(outState);
 
         outState.putBoolean(KEY_IS_RESOLVING, mIsResolving);
         outState.putParcelable(KEY_CREDENTIAL, mCredential);
         outState.putBoolean(KEY_IS_SIGNING_IN, mIsSigningIn);
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -539,6 +549,7 @@ public class MainActivity extends AppCompatActivity  implements
             mGoogleApiClient.stopAutoManage(this);
         }
 
+        // Setup GoogleApiClient with the CredentialsApi
         GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -551,27 +562,28 @@ public class MainActivity extends AppCompatActivity  implements
     private void uploadCredential(Credential credential) {
         if (credential == null) return;
 
+        // Save credentials on your Google account somewhere in the sky
         Auth.CredentialsApi.save(mGoogleApiClient, credential).setResultCallback(new ResultCallback<Status>() {
             @Override
             public void onResult(@NonNull Status status) {
                 if (status.isSuccess()) {
                     Log.d(TAG, "SAVE: OK");
-                    Toast.makeText(mContext, "Credentials saved", Toast.LENGTH_SHORT).show();
+                    // Only for debugging
+                    if (BuildConfig.DEBUG) Toast.makeText(mContext, "Credentials saved", Toast.LENGTH_SHORT).show();
                 } else {
                     if (status.hasResolution()) {
-                        // Try to resolve the save request. This will prompt the user if
-                        // the credential is new.
+                        // Try to resolve the save request. This will prompt the user if the credential is new.
                         try {
                             status.startResolutionForResult((Activity) mContext, RC_SAVE);
                             mIsResolving = true;
                         } catch (IntentSender.SendIntentException e) {
                             // Could not resolve the request
                             Log.e(TAG, "STATUS: Failed to send resolution.", e);
-                            Toast.makeText(mContext, "Save failed", Toast.LENGTH_SHORT).show();
+                            if (BuildConfig.DEBUG) Toast.makeText(mContext, "Save failed", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         // Request has no resolution
-                        Toast.makeText(mContext, "Save failed", Toast.LENGTH_SHORT).show();
+                        if (BuildConfig.DEBUG) Toast.makeText(mContext, "Save failed", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -580,8 +592,7 @@ public class MainActivity extends AppCompatActivity  implements
 
     private void resolveResult(Status status) {
         if (status.getStatusCode() == CommonStatusCodes.RESOLUTION_REQUIRED) {
-            // Prompt the user to choose a saved credential; do not show the hint
-            // selector.
+            // Prompt the user to choose a saved credential; do not show the hint selector.
             try {
                 status.startResolutionForResult(this, RC_READ);
                 mIsResolving = true;
@@ -594,6 +605,11 @@ public class MainActivity extends AppCompatActivity  implements
         }
     }
 
+    /**
+     * Create a LoginActivity intent with the resolved username and password
+     *
+     * @param credential credentials of the user to log in
+     */
     private void signInUser(Credential credential) {
         Intent intent = new Intent(this, LoginActivity.class)
                 .putExtra(LoginActivity.ARG_IS_SIGNING_IN, true)
@@ -602,18 +618,27 @@ public class MainActivity extends AppCompatActivity  implements
         startActivity(intent);
     }
 
+    /**
+     * Create a LoginActivity intent for adding a new account
+     */
     private void manualSignIn() {
         Intent addAccountIntent = new Intent(this, LoginActivity.class);
         addAccountIntent.putExtra(LoginActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
         startActivity(addAccountIntent);
     }
 
+    /**
+     * Removes the accounts from the navigation drawer
+     */
     private void removeAccounts() {
         for (int i = mAccountHeader.getProfiles().size() - 2; i > -1; i--) {
             mAccountHeader.removeProfile(i);
         }
     }
 
+    /**
+     * Add al the accounts to the navigation drawer
+     */
     private void addAccounts() {
         // Add every account found
         for (int i = 0; i < mAccountManager.getAccountsByType(AccountUtils.ACCOUNT_TYPE).length; i++) {
@@ -631,8 +656,7 @@ public class MainActivity extends AppCompatActivity  implements
     }
 
     private static boolean isNetworkAvailable(Context context) {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
