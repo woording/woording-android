@@ -18,7 +18,7 @@ env:
 android:
   components:
   - tools
-  - build-tools-24.0.1
+  - build-tools-24.0.2
   # Needed for the app itself
   - android-24
   # Needed for volley
