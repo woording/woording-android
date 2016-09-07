@@ -32,12 +32,22 @@ public class TableListViewAdapter extends RecyclerView.Adapter<TableListViewAdap
         notifyItemRangeChanged(0, column1.size() - 1);
     }
 
+    /**
+     * Add item to the table view
+     * @param column1 Item for the left column
+     * @param column2 Item for the right column
+     */
     public void addItem(String column1, String column2) {
         mColumn1.add(column1);
         mColumn2.add(column2);
         notifyItemInserted(getItemCount() - 1);
     }
 
+    /**
+     * Add items to the table view
+     * @param column1 Items for the left column
+     * @param column2 Items for the right column
+     */
     public void addItems(ArrayList<String> column1, ArrayList<String> column2) {
         int oldLength = getItemCount();
         mColumn1.addAll(column1);

@@ -58,6 +58,11 @@ public class EditTextListAdapter extends RecyclerView.Adapter<EditTextListAdapte
         return mLanguage1Words.size() + 1;
     }
 
+    /**
+     * Set words of the list
+     * @param language1Words words for the left column
+     * @param language2Words words for the right column
+     */
     public void setWords(ArrayList<String> language1Words, ArrayList<String> language2Words) {
         mLanguage1Words = language1Words;
         mLanguage2Words = language2Words;

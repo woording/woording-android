@@ -162,7 +162,6 @@ public class ListsViewAdapter extends RecyclerView.Adapter<ListsViewAdapter.View
     /*
     * Filter stuff
     */
-
     @Override
     public Filter getFilter() {
         return new ListFilter(this, mLists);
