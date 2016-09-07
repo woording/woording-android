@@ -66,6 +66,7 @@ import java.util.Locale;
  */
 public class EditListFragment extends MyFragment {
 
+    // Account stuff
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
     private String mAuthToken;

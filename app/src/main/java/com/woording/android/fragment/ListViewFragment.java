@@ -299,6 +299,9 @@ public class ListViewFragment extends MyFragment {
         return mUsername;
     }
 
+    /**
+     * Start activity to share the list
+     */
     private void shareList() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())

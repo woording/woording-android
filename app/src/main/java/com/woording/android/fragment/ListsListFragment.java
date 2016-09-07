@@ -56,6 +56,7 @@ import java.util.Arrays;
 
 public class ListsListFragment extends MyFragment implements SearchView.OnQueryTextListener {
 
+    // Account stuff
     private AccountManager mAccountManager;
     private AuthPreferences mAuthPreferences;
     private String mAuthToken;
@@ -161,6 +162,10 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
         return sCurrentUsername;
     }
 
+    /**
+     * Change the current user
+     * @param username The username of the user you want to go to
+     */
     public void changeUser(String username) {
         sCurrentUsername = username;
         mAdapter.clearList();
@@ -353,6 +358,7 @@ public class ListsListFragment extends MyFragment implements SearchView.OnQueryT
 
     /*
     * OnQueryTextListener stuff
+    * To filter the lists
     */
     @Override
     public boolean onQueryTextChange(String query) {
