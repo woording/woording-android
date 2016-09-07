@@ -65,11 +65,9 @@ public class PracticeActivity extends AppCompatActivity
     private String username;
     // Practice options
     private AskedLanguage mAskedLanguage;
-//    private AskedLanguage currentAskedLanguage;
     private boolean mCaseSensitive = true;
     private boolean mIgnoreAccents = false;
 
-//    private ArrayList<String> mUsedWords = new ArrayList<>();
     private final ArrayList<String[]> mWrongWords = new ArrayList<>();
     private String mRandomWord[] = new String[2];
     private int mTotalWords = 0;
@@ -274,7 +272,6 @@ public class PracticeActivity extends AppCompatActivity
     }
 
     private void setupPractice() {
-
         switch (mAskedLanguage) {
             case BOTH:
                 // Add words to wordsToGo
@@ -326,6 +323,9 @@ public class PracticeActivity extends AppCompatActivity
         nextWord();
     }
 
+    /**
+     * Go to the next word
+     */
     private void nextWord() {
         // Check if list is done
         if (mWordsToGo.size() == 0) {
@@ -352,6 +352,9 @@ public class PracticeActivity extends AppCompatActivity
         else throw new RuntimeException("WordDisplay should not be null");
     }
 
+    /**
+     * Handle the word checking
+     */
     private void checkWord() {
         mTotalWords++;
         if (isInputRight(mTranslation.getText().toString(), mRandomWord[1])) {
@@ -376,6 +379,12 @@ public class PracticeActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Check if the inputted words are right
+     * @param input Inputted word
+     * @param correctWord Correct translation of the word
+     * @return If the word is right
+     */
     private boolean isInputRight(String input, String correctWord) {
         final String PERMISSIBLE_CHARACTERS = "\\(|\\{|\\[|\\]|\\}|\\)|\\s";
 

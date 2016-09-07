@@ -224,6 +224,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             }
         };
 
+        // Style string with the text to switch to the register view
         noAccountString.setSpan(
                 noAccountClickableSpan,
                 noAccountText.length() - registerLength,
@@ -260,6 +261,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             }
         };
 
+        // Style string with the text to switch to the login view
         registeredString.setSpan(
                 registeredClickableSpan,
                 registeredText.length() - signInLength,
@@ -372,6 +374,7 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
             cancel = true;
         }
 
+        // Check if both passwords are the same
         if (!TextUtils.isEmpty(password) && !TextUtils.isEmpty(repeatPassword) && !password.equals(repeatPassword)) {
             mRepeatPasswordLayout.setError(getString(R.string.error_invalid_repeat_password));
             focusView = mRepeatPasswordView;
@@ -398,11 +401,21 @@ public class LoginActivity extends AccountAuthenticatorAppCompatActivity {
         }
     }
 
+    /**
+     * Check if password is valid
+     * @param password password to check
+     * @return if password id valid
+     */
     private boolean isPasswordValid(String password) {
         // TODO: Replace this with better logic
         return password.length() > 0;
     }
 
+    /**
+     * Check if any given email is valid
+     * @param email email to check
+     * @return if email is a valid email
+     */
     private boolean isEmailValid(String email) {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }

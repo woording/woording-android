@@ -54,6 +54,7 @@ public class ParseDeepLinkActivity extends AppCompatActivity {
             Log.d(TAG, "parseDeepLink: data[" + i + "]: " + data[i]);
         }
 
+        // Check for the length en stuff
         switch (data.length) {
             case 2:
                 if (App.mDualPane) {
